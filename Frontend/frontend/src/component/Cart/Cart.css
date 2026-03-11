@@ -1,0 +1,217 @@
+.cart_page_new {
+  background-color: #fcfcfc;
+  min-height: 100vh;
+  padding: 120px 0 80px;
+}
+
+.cart_main_container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.cart_header_new {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 1px solid #eeeeee;
+  padding-bottom: 24px;
+}
+
+.cart_main_title {
+  font-weight: 800 !important;
+  color: #000000;
+  letter-spacing: -0.02em;
+}
+
+.cart_count_badge {
+  font-size: 0.9rem;
+  color: #666666;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.back_to_shop_link {
+  text-transform: none !important;
+  font-weight: 600 !important;
+  color: #000000 !important;
+  font-size: 0.9rem !important;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.back_to_shop_link:hover {
+  background-color: #f5f5f5 !important;
+  transform: translateX(-4px);
+}
+
+/* Order Summary Card */
+.order_summary_card_new {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+  border: 1px solid #f0f0f0;
+  position: sticky;
+  top: 100px;
+}
+
+.summary_title_new {
+  font-weight: 700 !important;
+  margin-bottom: 32px !important;
+  letter-spacing: -0.01em;
+}
+
+.summary_details_new {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.summary_row_new {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.05rem;
+  color: #444444;
+}
+
+.discount_row {
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.free_text {
+  color: #2e7d32;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+.summary_divider_new {
+  margin: 10px 0 !important;
+  background-color: #f5f5f5 !important;
+}
+
+.total_row_new {
+  margin-top: 10px;
+  color: #000000;
+}
+
+.total_price_box {
+  text-align: right;
+}
+
+.final_amount {
+  font-weight: 800 !important;
+  color: #000000 !important;
+}
+
+.tax_info {
+  font-size: 0.8rem;
+  color: #999999;
+  margin-top: 4px;
+}
+
+.checkout_btn_new {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  padding: 16px !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  font-size: 1.1rem !important;
+  margin-top: 40px !important;
+  transition: all 0.3s ease !important;
+}
+
+.checkout_btn_new:hover {
+  background-color: #333333 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.secure_checkout_badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 24px;
+  color: #999999;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Empty Cart Styles */
+.empty_cart_wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 0;
+}
+
+.empty_cart_content {
+  text-align: center;
+  max-width: 500px;
+}
+
+.illustration_box {
+  margin-bottom: 40px;
+}
+
+.empty_cart_img {
+  width: 240px;
+  height: auto;
+  opacity: 0.9;
+}
+
+.empty_cart_title {
+  font-weight: 800 !important;
+  margin-bottom: 16px !important;
+  letter-spacing: -0.02em;
+}
+
+.empty_cart_text {
+  color: #666666;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 40px !important;
+}
+
+.continue_shopping_btn_large {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  padding: 16px 48px !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  font-size: 1.1rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.continue_shopping_btn_large:hover {
+  background-color: #333333 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 1280px) {
+  .order_summary_card_new {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .cart_page_new {
+    padding: 100px 0 60px;
+  }
+  
+  .cart_main_title {
+    font-size: 2rem !important;
+  }
+  
+  .order_summary_card_new {
+    padding: 30px;
+  }
+}
