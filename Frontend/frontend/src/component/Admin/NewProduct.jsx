@@ -67,14 +67,12 @@ function NewProduct() {
     fileInputRef.current.click();
   };
  const categories = [
-   "Women’s Wear",
-   "Men’s Wear",
-   "Accessories",
-   "Vintage",
-   "Footwear",
-   "Bags",
-   "Outerwear",
-   "Home & Living",
+   "bags",
+   "bottoms",
+   "footwares",
+   "jackets",
+   "skirts",
+   "tops",
  ];
   useEffect(() => {
     if (error) {
@@ -84,7 +82,7 @@ function NewProduct() {
 
     if (success) {
       alert.success("Product Created Successfully");
-      history.push("/admin/dashboard");
+      history.push("/admin-dashboard");
       dispatch({ type: NEW_PRODUCT_RESET });
     }
   }, [dispatch, alert, error, history, success]);

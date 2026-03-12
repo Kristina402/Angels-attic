@@ -31,7 +31,7 @@ const Sidebar = ({ handleSideBarMenu, isAuthenticated, user }) => {
       <ul className="sidebar-menu">
         {isAuthenticated && user.role === "admin" && (
           <Link
-            to="/admin/dashboard"
+            to="/admin-dashboard"
             style={{ color: "inherit", textDecoration: "none" }}
           >
             <li className="sidebar-menu-item">
@@ -71,15 +71,6 @@ const Sidebar = ({ handleSideBarMenu, isAuthenticated, user }) => {
           <li className="sidebar-menu-item">
             <InfoIcon fontSize="large" />
             <span className="sidebar-menu-item-text">About Us</span>
-          </li>
-        </Link>
-        <Link
-          to="/account"
-          style={{ color: "inherit", textDecoration: "none" }}
-        >
-          <li className="sidebar-menu-item">
-            <AccountCircleIcon fontSize="large" />
-            <span className="sidebar-menu-item-text">Account</span>
           </li>
         </Link>
 

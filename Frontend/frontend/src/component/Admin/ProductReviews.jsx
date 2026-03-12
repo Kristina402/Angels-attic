@@ -4,9 +4,9 @@ import { DataGrid } from "@material-ui/data-grid";
 import { useSelector, useDispatch } from "react-redux";
 import { useAlert } from "react-alert";
 import {
-  getAllreviews,
+  getAllReviews,
   clearErrors,
-  deleteProductReview,
+  deleteReview,
 } from "../../actions/productAction";
 import {useHistory } from "react-router-dom";
 import MetaData from "../layouts/MataData/MataData";
@@ -198,7 +198,7 @@ function ProductReviews() {
 
   useEffect(() => {
     if (productId.length === 24) {
-      dispatch(getAllreviews(productId)); // when in input box string lenght goes ===24 then automatically search occures
+      dispatch(getAllReviews(productId)); // when in input box string lenght goes ===24 then automatically search occures
     }
 
     if (error) {
@@ -234,12 +234,12 @@ function ProductReviews() {
   // delet review from given prodcuts reviews =>
   const deleteReviewHandler = (reviewId) => {
  
-    dispatch(deleteProductReview(reviewId, productId));
+    dispatch(deleteReview(reviewId, productId));
   };
 
   const productReviewsSubmitHandler = (e) => {
     e.preventDefault();
-    dispatch(getAllreviews(productId)); // get this product reviews
+    dispatch(getAllReviews(productId)); // get this product reviews
   };
   const columns = [
     {

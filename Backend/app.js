@@ -19,12 +19,11 @@ require("dotenv").config({ path: "./config/config.env" });
 
 const user = require("./route/userRoute");
 const product = require("./route/productRoute");
+const order = require("./route/orderRoute");
 const health = require("./route/healthRoute");
 
-// Add request logging middleware (only in development or when LOG_REQUESTS is true)
-if (process.env.NODE_ENV === 'development' || process.env.LOG_REQUESTS === 'true') {
-    app.use(requestLogger);
-}
+// Add request logging middleware
+app.use(requestLogger);
 
 // for req.cookie to get token while authentication
 app.use(cookieParser());
@@ -36,6 +35,7 @@ app.use(cors());
 
 app.use("/api/v1", user);
 app.use("/api/v1", product);
+app.use("/api/v1", order);
 app.use("/api/v1", health);
 
 // Error middleware must come after all routes

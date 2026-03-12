@@ -9,6 +9,7 @@ const {
   getProductReviews,
   deleteReview,
   getAdminProducts,
+  getVendorProducts,
 } = require("../controller/productController");
 const { isAuthentictedUser, authorizeRoles } = require("../middleWare/auth");
 
@@ -37,5 +38,9 @@ router
 router
   .route("/admin/products")
   .get(isAuthentictedUser, authorizeRoles("admin"), getAdminProducts);
+
+router
+  .route("/vendor/products")
+  .get(isAuthentictedUser, authorizeRoles("vendor"), getVendorProducts);
 
 module.exports = router;

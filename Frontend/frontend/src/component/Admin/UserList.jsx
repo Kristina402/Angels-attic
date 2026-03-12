@@ -1,21 +1,75 @@
 import React, { useState, useEffect } from "react";
-import "./ProductList.css";
 import { DataGrid } from "@material-ui/data-grid";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { useAlert } from "react-alert";
-import { Button } from "@material-ui/core";
+import { Button, Box, Typography, Paper, IconButton, Chip, Tooltip } from "@mui/material";
 import MetaData from "../layouts/MataData/MataData";
-import EditIcon from "@material-ui/icons/Edit";
-import DeleteIcon from "@material-ui/icons/Delete";
-import Sidebar from "./Siderbar";
-import Navbar from "./Navbar";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AdminSidebar from "./AdminSidebar";
+import AdminHeader from "./AdminHeader";
 import Loader from "../layouts/loader/Loader";
 import { getAllUsers, clearErrors, deleteUser } from "../../actions/userAction";
 import { DELETE_USER_RESET } from "../../constants/userConstanat";
 import { useHistory } from "react-router-dom";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  dashboard: {
+    display: "flex",
+    backgroundColor: "#F8F9FB",
+    minHeight: "100vh",
+  },
+  mainContent: {
+    flexGrow: 1,
+    marginLeft: "280px",
+    marginTop: "80px",
+    padding: "2rem",
+  },
+  sectionPaper: {
+    padding: "1.5rem",
+    borderRadius: "16px !important",
+    border: "none !important",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01) !important",
+  },
+  sectionTitle: {
+    fontSize: "1.25rem !important",
+    fontWeight: "800 !important",
+    color: "#1a1a1a",
+    marginBottom: "1.5rem !important",
+  },
+  dataGrid: {
+    border: "none !important",
+    "& .MuiDataGrid-columnHeader": {
+      backgroundColor: "#F8F9FB",
+      color: "#64748b",
+      fontWeight: "700",
+      fontSize: "0.8rem",
+      textTransform: "uppercase",
+      letterSpacing: "0.5px",
+    },
+    "& .MuiDataGrid-cell": {
+      fontSize: "0.9rem",
+      color: "#4a5568",
+    },
+  },
+  actionIcon: {
+    color: "#64748b",
+    "&:hover": {
+      color: "#EC4899",
+    },
+  },
+  deleteIcon: {
+    color: "#64748b",
+    "&:hover": {
+      color: "#EF4444",
+    },
+  },
+}));
 
 function UserList() {
+  const classes = useStyles();
   const dispatch = useDispatch();
   const { error, users, loading } = useSelector((state) => state.allUsers);
   const { error: deleteError, isDeleted, message } = useSelector(
@@ -23,11 +77,13 @@ function UserList() {
   );
   const alert = useAlert();
   const history = useHistory();
+
   const deleteUserHandler = (id) => {
-    dispatch(deleteUser(id));
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      dispatch(deleteUser(id));
+    }
   };
 
-  const [toggle, setToggle] = useState(false);
   useEffect(() => {
     if (error) {
       alert.error(error);
@@ -40,14 +96,11 @@ function UserList() {
 
     if (isDeleted) {
       alert.success(message);
-      history.push("/admin/users");
       dispatch({ type: DELETE_USER_RESET });
     }
 
     dispatch(getAllUsers());
-  }, [dispatch, alert, error, deleteError, history, isDeleted, message]);
-
-  // Datagrid  values  and schema
+  }, [dispatch, alert, error, deleteError, isDeleted, message]);
 
   const columns = [
     {
@@ -55,132 +108,120 @@ function UserList() {
       headerName: "Name",
       minWidth: 150,
       flex: 0.5,
-      headerClassName: "column-header hide-on-mobile",
     },
-
     {
       field: "email",
       headerName: "Email",
-      minWidth: 150,
+      minWidth: 200,
       flex: 0.7,
-      headerClassName: "column-header hide-on-mobile",
     },
-
     {
       field: "role",
       headerName: "Role",
-      type: "number",
-      minWidth: 150,
+      minWidth: 120,
       flex: 0.3,
-      headerClassName: "column-header hide-on-mobile",
-      cellClassName: (params) => {
-        return params.getValue(params.id, "role") === "admin"
-          ? "greenColor"
-          : "redColor";
-      },
-    },
-    {
-      field: "actions",
-      flex: 0.3,
-      headerName: "Actions",
-      minWidth: 150,
-      type: "number",
-
-      headerClassName: "column-header hide-on-mobile",
       renderCell: (params) => {
+        const role = params.getValue(params.id, "role");
         return (
-          <>
-            <Link to={`/admin/user/${params.getValue(params.id, "id")}`}>
-              <EditIcon className="icon-" />
-            </Link>
-
-            <Button
-              onClick={() =>
-                deleteUserHandler(params.getValue(params.id, "id"))
-              }
-            >
-              <DeleteIcon className="iconbtn" />
-            </Button>
-          </>
+          <Chip 
+            label={role} 
+            size="small"
+            sx={{ 
+              backgroundColor: role === "admin" ? "#EFF6FF" : "#F8F9FB",
+              color: role === "admin" ? "#3B82F6" : "#64748b",
+              fontWeight: "700",
+              textTransform: "capitalize"
+            }}
+          />
         );
       },
     },
     {
-      field: "id",
-      headerName: "User ID",
-      minWidth: 180,
-      flex: 0.8,
+      field: "status",
+      headerName: "Status",
+      minWidth: 150,
+      flex: 0.3,
+      renderCell: (params) => {
+        const role = params.getValue(params.id, "role");
+        const isApproved = params.getValue(params.id, "status");
+        if (role === "vendor") {
+          return (
+            <Chip 
+              label={isApproved ? "Approved" : "Pending"} 
+              size="small"
+              sx={{ 
+                backgroundColor: isApproved ? "#ECFDF5" : "#FEF2F2",
+                color: isApproved ? "#10B981" : "#EF4444",
+                fontWeight: "700"
+              }}
+            />
+          );
+        }
+        return <span>-</span>;
+      },
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      minWidth: 120,
+      flex: 0.3,
       sortable: false,
-      headerClassName: "column-header hide-on-mobile",
+      renderCell: (params) => {
+        const id = params.getValue(params.id, "id");
+        return (
+          <Box sx={{ display: "flex", gap: "0.5rem" }}>
+            <Tooltip title="Edit User">
+              <IconButton size="small" component={Link} to={`/admin/user/${id}`}>
+                <EditIcon className={classes.actionIcon} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete User">
+              <IconButton size="small" onClick={() => deleteUserHandler(id)}>
+                <DeleteIcon className={classes.deleteIcon} />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        );
+      },
     },
   ];
 
   const rows = [];
-
-  users &&
-    users.forEach((item) => {
-      rows.push({
-        id: item._id,
-        role: item.role,
-        email: item.email,
-        name: item.name,
-      });
+  users && users.forEach((item) => {
+    rows.push({
+      id: item._id,
+      role: item.role,
+      email: item.email,
+      name: item.name,
+      status: item.isApproved,
     });
-
-  // togle handler =>
-  const toggleHandler = () => {
-    console.log("toggle");
-    setToggle(!toggle);
-  };
-
-  // to close the sidebar when the screen size is greater than 1000px
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 999 && toggle) {
-        setToggle(false);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [toggle]);
+  });
 
   return (
-    <>
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
-          <MetaData title={`ALL Users - Admin`} />
-
-          <div className="product-list" style={{ marginTop: 0 }}>
-            <div className={!toggle ? "listSidebar" : "toggleBox"}>
-              <Sidebar />
-            </div>
-
-            <div className="list-table">
-              <Navbar toggleHandler={toggleHandler} />
-              <div className="productListContainer">
-                <h4 id="productListHeading">ALL USERS</h4>
-
-                <DataGrid
-                  rows={rows}
-                  columns={columns}
-                  pageSize={10}
-                  disableSelectionOnClick
-                  className="productListTable"
-                  autoHeight
-                />
-              </div>
-            </div>
+    <Box className={classes.dashboard}>
+      <MetaData title="All Users - Admin" />
+      <AdminSidebar />
+      <Box className={classes.mainContent}>
+        <AdminHeader title="Manage Users" />
+        
+        <Paper className={classes.sectionPaper} sx={{ mt: 2 }}>
+          <Typography className={classes.sectionTitle}>Platform Users</Typography>
+          <div style={{ height: 600, width: '100%' }}>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              pageSize={10}
+              disableSelectionOnClick
+              className={classes.dataGrid}
+              autoHeight
+              loading={loading}
+            />
           </div>
-        </>
-      )}
-    </>
+        </Paper>
+      </Box>
+    </Box>
   );
 }
 
 export default UserList;
+

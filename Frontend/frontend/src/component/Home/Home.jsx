@@ -7,7 +7,7 @@ import { clearErrors, getProduct } from "../../actions/productAction";
 import { useSelector, useDispatch } from "react-redux";
 import Loader from "../layouts/loader/Loader";
 import { useAlert } from "react-alert";
-import { Link } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
@@ -114,6 +114,7 @@ function HeroImageSlider() {
 function Home() {
   const alert = useAlert();
   const dispatch = useDispatch();
+  const history = useHistory();
   const { loading, error, products } = useSelector((state) => state.products);
 
   React.useEffect(() => {
@@ -161,31 +162,40 @@ function Home() {
 
   const featuredCategories = [
     {
-      key: "women",
-      title: "Women’s Wear",
+      key: "tops",
+      title: "Tops",
       image: require("../../Image/products/tops/tops/tops1.png"),
     },
     {
-      key: "men",
-      title: "Men’s Wear",
+      key: "bottoms",
+      title: "Bottoms",
       image: require("../../Image/products/jackets/jacket1.png"),
     },
     {
-      key: "vintage",
-      title: "Vintage Collection",
+      key: "skirts",
+      title: "Skirts",
       image: require("../../Image/products/skirts/skrit1.png"),
     },
     {
-      key: "accessories",
-      title: "Accessories",
+      key: "bags",
+      title: "Bags",
       image: require("../../Image/products/bags/bags1.png"),
     },
     {
-      key: "footwear",
-      title: "Footwear",
+      key: "footwares",
+      title: "Footwares",
       image: require("../../Image/products/footwares/footware1.png"),
     },
+    {
+      key: "jackets",
+      title: "Jackets",
+      image: require("../../Image/products/jackets/jacket2.png"),
+    },
   ];
+
+  const handleCategoryClick = (categoryKey) => {
+    history.push(`/products?category=${categoryKey}`);
+  };
 
   return (
     <>
@@ -209,7 +219,7 @@ function Home() {
                     <Link to="/products" className="btn_primary">
                       Shop Now
                     </Link>
-                    <Link to="/signup" className="btn_secondary">
+                    <Link to="/vendor/register" className="btn_secondary">
                       Start Selling
                     </Link>
                   </div>
@@ -239,40 +249,7 @@ function Home() {
                 viewport={{ once: true, margin: "-50px" }}
               >
                 {recentProducts.map((product) => (
-                  <motion.div
-                    key={product._id}
-                    className="recent_card"
-                    variants={containerVariants}
-                  >
-                    <div className="recent_card_image_wrapper">
-                      <button className="recent_wishlist_button">
-                        <FavoriteBorderIcon />
-                      </button>
-                      <img
-                        src={product.images && product.images[0] && product.images[0].url}
-                        alt={product.name}
-                        className="recent_card_image"
-                      />
-                    </div>
-                    <div className="recent_card_body">
-                      <h3 className="recent_card_title">{product.name}</h3>
-                      <p className="recent_card_price">Rs {product.price}</p>
-                    </div>
-                    <div className="recent_card_actions">
-                      <Link
-                        to={`/product/${product._id}`}
-                        className="recent_button recent_button_outline"
-                      >
-                        View Details
-                      </Link>
-                      <button
-                        className="recent_button recent_button_primary"
-                        onClick={() => dispatch(addItemToCart(product._id, 1))}
-                      >
-                        Add to Cart
-                      </button>
-                    </div>
-                  </motion.div>
+                  <ProductCard key={product._id} product={product} />
                 ))}
               </motion.div>
               <div className="recent_load_more_wrapper">
@@ -316,7 +293,11 @@ function Home() {
               />
               <div className="categories_grid">
                 {featuredCategories.map((category) => (
-                  <div key={category.key} className="category_card">
+                  <div
+                    key={category.key}
+                    className="category_card"
+                    onClick={() => handleCategoryClick(category.key)}
+                  >
                     <div
                       className="category_image"
                       style={{ backgroundImage: `url(${category.image})` }}

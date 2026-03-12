@@ -37,6 +37,9 @@ import {
   DELETE_USER_REQUEST,
   DELETE_USER_FAIL,
   DELETE_USER_SUCCESS,
+  REGISTER_VENDOR_REQUEST,
+  REGISTER_VENDOR_SUCCESS,
+  REGISTER_VENDOR_FAIL,
 } from "../constants/userConstanat";
 
 
@@ -94,6 +97,34 @@ export function signUp(signupData) {
 
   }
 
+}
+
+// register vendor
+export function registerVendor(vendorData) {
+  return async function (dispatch) {
+    try {
+      dispatch({ type: REGISTER_VENDOR_REQUEST });
+      const config = {
+        headers: { "Content-Type": "application/json" },
+      };
+
+      const { data } = await axios.post(
+        `/api/v1/vendor/register`,
+        vendorData,
+        config
+      );
+
+      sessionStorage.setItem("user", JSON.stringify(data.user));
+
+      dispatch({ type: REGISTER_VENDOR_SUCCESS, payload: data.message });
+      dispatch({ type: LOGIN_SUCCESS, payload: data.user });
+    } catch (error) {
+      dispatch({
+        type: REGISTER_VENDOR_FAIL,
+        payload: error.response ? error.response.data.message : error.message,
+      });
+    }
+  };
 }
 
 // Load User (user Profile) if logged in before

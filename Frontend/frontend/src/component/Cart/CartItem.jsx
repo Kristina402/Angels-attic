@@ -18,38 +18,44 @@ import { dispalyMoney } from "../DisplayMoney/DisplayMoney";
 const useStyles = makeStyles((theme) => ({
   item_card_new: {
     display: "flex",
-    padding: "24px",
-    borderRadius: "20px !important",
+    padding: "20px",
+    borderRadius: "24px !important",
     boxShadow: "none !important",
-    border: "1px solid #f0f0f0",
-    marginBottom: "20px",
+    border: "1px solid #f2f2f2",
+    marginBottom: "16px",
     backgroundColor: "#ffffff",
-    transition: "all 0.3s ease",
+    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
     "&:hover": {
-      boxShadow: "0 10px 30px rgba(0,0,0,0.05) !important",
-      borderColor: "#e0e0e0",
+      boxShadow: "0 12px 30px rgba(0,0,0,0.03) !important",
+      borderColor: "#e8e8e8",
+      transform: "translateY(-2px)",
     },
     [theme.breakpoints.down("sm")]: {
-      flexDirection: "column",
-      padding: "16px",
+      flexDirection: "row",
+      padding: "12px",
+      alignItems: "center",
     },
   },
   item_image_wrapper: {
-    width: "140px",
-    height: "170px",
-    borderRadius: "12px",
+    width: "120px",
+    height: "150px",
+    borderRadius: "16px",
     overflow: "hidden",
     flexShrink: 0,
+    backgroundColor: "#f9f9f9",
     [theme.breakpoints.down("sm")]: {
-      width: "100%",
-      height: "200px",
-      marginBottom: "16px",
+      width: "80px",
+      height: "100px",
     },
   },
   item_image: {
     width: "100%",
     height: "100%",
     objectFit: "cover",
+    transition: "transform 0.5s ease",
+    "&:hover": {
+      transform: "scale(1.05)",
+    },
   },
   item_content_new: {
     flexGrow: 1,
@@ -58,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     justifyContent: "space-between",
     [theme.breakpoints.down("sm")]: {
-      padding: "0 !important",
+      padding: "0 0 0 16px !important",
     },
   },
   item_header: {
@@ -68,65 +74,78 @@ const useStyles = makeStyles((theme) => ({
   },
   item_title_link: {
     textDecoration: "none",
-    color: "#000000",
-    "&:hover h6": {
-      color: "#666666",
+    color: "#1a1a1a",
+    transition: "color 0.2s ease",
+    "&:hover": {
+      color: "#666",
     },
   },
   item_name_new: {
     fontWeight: "700 !important",
-    fontSize: "1.1rem !important",
+    fontSize: "1rem !important",
     marginBottom: "4px !important",
     display: "-webkit-box",
     WebkitLineClamp: 2,
     WebkitBoxOrient: "vertical",
     overflow: "hidden",
+    lineHeight: "1.4 !important",
   },
   item_price_new: {
     fontWeight: "800 !important",
-    fontSize: "1.2rem !important",
-    color: "#000000",
-    marginTop: "8px",
+    fontSize: "1.1rem !important",
+    color: "#1a1a1a",
+    marginTop: "4px",
   },
   item_actions_new: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: "16px",
+    marginTop: "12px",
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+      alignItems: "flex-start",
+      gap: "12px",
+    },
   },
   quantity_controls_new: {
     display: "flex",
     alignItems: "center",
-    backgroundColor: "#f9f9f9",
-    borderRadius: "10px",
-    padding: "2px",
-    border: "1px solid #eeeeee",
+    backgroundColor: "#f5f5f7",
+    borderRadius: "14px",
+    padding: "4px",
   },
   qty_btn_new: {
-    padding: "6px !important",
-    color: "#000000 !important",
+    padding: "4px !important",
+    color: "#1a1a1a !important",
+    backgroundColor: "transparent !important",
     "&:hover": {
       backgroundColor: "#ffffff !important",
-      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
     },
   },
   qty_value_new: {
-    width: "40px",
+    width: "36px",
     textAlign: "center",
     fontWeight: "700 !important",
-    fontSize: "0.95rem !important",
+    fontSize: "0.9rem !important",
+    color: "#1a1a1a",
   },
   delete_btn_new: {
-    color: "#ff4d4f !important",
-    backgroundColor: "#fff1f0 !important",
-    borderRadius: "10px !important",
-    padding: "8px !important",
+    color: "#8e8e93 !important",
+    backgroundColor: "transparent !important",
+    borderRadius: "12px !important",
+    padding: "6px !important",
     transition: "all 0.2s ease !important",
     "&:hover": {
-      backgroundColor: "#ff4d4f !important",
-      color: "#ffffff !important",
-      transform: "scale(1.05)",
+      backgroundColor: "#fff1f0 !important",
+      color: "#ff3b30 !important",
     },
+  },
+  subtotal_text: {
+    color: "#8e8e93",
+    fontWeight: 600,
+    fontSize: "0.85rem",
+    letterSpacing: "0.02em",
   },
 }));
 
@@ -153,7 +172,7 @@ const CartItem = ({ item, deleteCartItems, decreaseQuantity, increaseQuantity, i
                 {item.name}
               </Typography>
             </Link>
-            <Tooltip title="Remove from cart">
+            <Tooltip title="Remove item">
               <IconButton 
                 className={classes.delete_btn_new}
                 onClick={() => deleteCartItems(id)}
@@ -172,6 +191,7 @@ const CartItem = ({ item, deleteCartItems, decreaseQuantity, increaseQuantity, i
             <IconButton 
               className={classes.qty_btn_new}
               onClick={() => decreaseQuantity(id, item.quantity)}
+              size="small"
             >
               <RemoveIcon fontSize="small" />
             </IconButton>
@@ -181,13 +201,14 @@ const CartItem = ({ item, deleteCartItems, decreaseQuantity, increaseQuantity, i
             <IconButton 
               className={classes.qty_btn_new}
               onClick={() => increaseQuantity(id, item.quantity, item.stock)}
+              size="small"
             >
               <AddIcon fontSize="small" />
             </IconButton>
           </div>
           
-          <Typography variant="body2" style={{ color: "#999999", fontWeight: 500 }}>
-            Subtotal: {dispalyMoney(item.price * item.quantity)}
+          <Typography className={classes.subtotal_text}>
+            Total: {dispalyMoney(item.price * item.quantity)}
           </Typography>
         </div>
       </CardContent>

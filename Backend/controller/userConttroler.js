@@ -32,6 +32,47 @@ exports.registerUser = asyncWrapper(async (req, res) => {
   sendJWtToken(user, 201, res);
 });
 
+// Vendor Registration Controller
+exports.registerVendor = asyncWrapper(async (req, res, next) => {
+  const { name, email, password, phone, storeName, address, kycDocument } = req.body;
+
+  // Set default avatar for vendor
+  const avatarData = {
+    public_id: "Avatar/default_avatar",
+    url: "https://res.cloudinary.com/dtzzoaiyt/image/upload/v1/Avatar/default_avatar",
+  };
+
+  // Upload KYC Document if provided
+  let kycData = {};
+  if (kycDocument) {
+    const kycCloud = await cloudinary.v2.uploader.upload(kycDocument, {
+      folder: "KYC",
+    });
+    kycData = {
+      public_id: kycCloud.public_id,
+      url: kycCloud.secure_url,
+    };
+  }
+
+  const user = await userModel.create({
+    name,
+    email,
+    password,
+    phone,
+    storeName,
+    address,
+    kycDocument: kycData,
+    role: "vendor",
+    isApproved: false, // Vendors need admin approval
+    avatar: {
+      public_id: avatarData.public_id,
+      url: avatarData.url,
+    },
+  });
+
+  sendJWtToken(user, 201, res);
+});
+
 // Login User >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 exports.loginUser = asyncWrapper(async (req, res, next) => {
   const { email, password } = req.body;
@@ -257,6 +298,11 @@ exports.updateUserRole = asyncWrapper(async (req, res, next) => {
     email: req.body.email,
     role: req.body.role,
   };
+
+  if (req.body.isApproved !== undefined) {
+    newUserData.isApproved = req.body.isApproved;
+  }
+
   await userModel.findByIdAndUpdate(req.params.id, newUserData, {
     new: true,
     runValidators: true,

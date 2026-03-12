@@ -24,7 +24,7 @@ const Admin = () => {
              <PrivateRoute
             isAdmin={true}
             exact
-            path="/admin/dashboard"
+            path="/admin-dashboard"
             component={Dashboard}
           />
 

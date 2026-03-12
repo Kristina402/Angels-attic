@@ -1,0 +1,276 @@
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useAlert } from "react-alert";
+import MetaData from "../layouts/MataData/MataData";
+import { registerVendor, clearErrors } from "../../actions/userAction";
+import { useHistory } from "react-router-dom";
+import {
+  Avatar,
+  TextField,
+  Typography,
+  Button,
+  Grid,
+  Paper,
+  Box,
+  IconButton,
+} from "@material-ui/core";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import StorefrontIcon from "@mui/icons-material/Storefront";
+import useStyles from "./LoginFromStyle";
+
+const VendorRegistration = () => {
+  const dispatch = useDispatch();
+  const alert = useAlert();
+  const history = useHistory();
+  const classes = useStyles();
+
+  const { error, loading, success, message } = useSelector(
+    (state) => state.vendor
+  );
+
+  const [user, setUser] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    storeName: "",
+    address: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [kycDocument, setKycDocument] = useState("");
+  const [kycName, setKycName] = useState("");
+
+  const { name, email, phone, storeName, address, password, confirmPassword } = user;
+
+  const handleInputChange = (e) => {
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setKycName(file.name);
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.readyState === 2) {
+          setKycDocument(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      alert.error("Passwords do not match");
+      return;
+    }
+
+    if (!kycDocument) {
+      alert.error("Please upload a KYC document for verification");
+      return;
+    }
+
+    const vendorData = {
+      ...user,
+      kycDocument,
+    };
+
+    dispatch(registerVendor(vendorData));
+  };
+
+  useEffect(() => {
+    if (error) {
+      alert.error(error);
+      dispatch(clearErrors());
+    }
+
+    if (success) {
+      alert.success("Vendor registration successful. Your account is pending approval.");
+      history.push("/vendor/pending");
+    }
+  }, [dispatch, error, alert, success, message, history]);
+
+  return (
+    <>
+      <MetaData title="Become a Vendor – Angels Attic" />
+      <div className={classes.formContainer} style={{ minHeight: "100vh", backgroundColor: "#fdfdfd" }}>
+        <Grid container justifyContent="center" alignItems="center">
+          <Grid item xs={11} sm={8} md={6} lg={5}>
+            <Paper elevation={0} style={{ padding: "3rem", borderRadius: "20px", border: "1px solid #eee" }}>
+              <Box textAlign="center" mb={4}>
+                <Avatar style={{ backgroundColor: "#000", margin: "0 auto 1rem", width: "60px", height: "60px" }}>
+                  <StorefrontIcon style={{ fontSize: "30px" }} />
+                </Avatar>
+                <Typography variant="h4" style={{ fontWeight: 800, color: "#1a1a1a", letterSpacing: "-0.5px" }}>
+                  Become a Vendor – Angels Attic
+                </Typography>
+                <Typography variant="body1" color="textSecondary" style={{ marginTop: "1rem", maxWidth: "400px", margin: "1rem auto 0" }}>
+                  Start your journey as a sustainable seller. List and sell your unique thrifted items to our community.
+                </Typography>
+              </Box>
+
+              <form onSubmit={handleSubmit}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Full Name"
+                      name="name"
+                      value={name}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Email Address"
+                      name="email"
+                      type="email"
+                      value={email}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Phone Number"
+                      name="phone"
+                      value={phone}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Store Name"
+                      name="storeName"
+                      value={storeName}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Address"
+                      name="address"
+                      value={address}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                      multiline
+                      rows={2}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Password"
+                      name="password"
+                      type="password"
+                      value={password}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Confirm Password"
+                      name="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={handleInputChange}
+                      required
+                      variant="outlined"
+                    />
+                  </Grid>
+
+                  {/* KYC Upload */}
+                  <Grid item xs={12}>
+                    <Box 
+                      mt={2} 
+                      p={2} 
+                      style={{ 
+                        border: "2px dashed #ddd", 
+                        borderRadius: "12px", 
+                        textAlign: "center",
+                        backgroundColor: "#fafafa"
+                      }}
+                    >
+                      <input
+                        accept="image/*,.pdf"
+                        style={{ display: "none" }}
+                        id="kyc-file"
+                        type="file"
+                        onChange={handleFileChange}
+                      />
+                      <label htmlFor="kyc-file">
+                        <IconButton component="span">
+                          {kycName ? (
+                            <CheckCircleOutlineIcon style={{ color: "#4caf50", fontSize: "40px" }} />
+                          ) : (
+                            <CloudUploadIcon style={{ color: "#757575", fontSize: "40px" }} />
+                          )}
+                        </IconButton>
+                        <Typography variant="body2" color="textSecondary">
+                          {kycName ? `Selected: ${kycName}` : "Upload ID / KYC Verification Document"}
+                        </Typography>
+                        <Typography variant="caption" color="textSecondary" display="block">
+                          (Citizenship, License, or Passport)
+                        </Typography>
+                      </label>
+                    </Box>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Button
+                      fullWidth
+                      type="submit"
+                      variant="contained"
+                      disabled={loading}
+                      style={{
+                        backgroundColor: "#000",
+                        color: "#fff",
+                        padding: "1rem",
+                        marginTop: "1.5rem",
+                        borderRadius: "12px",
+                        fontWeight: 700,
+                        fontSize: "1rem",
+                        textTransform: "none",
+                        boxShadow: "0 10px 20px rgba(0,0,0,0.1)"
+                      }}
+                    >
+                      {loading ? "Processing..." : "Register Vendor"}
+                    </Button>
+                  </Grid>
+                </Grid>
+              </form>
+
+              <Box mt={4} textAlign="center">
+                <Typography variant="body2" color="textSecondary" style={{ fontStyle: "italic" }}>
+                  Note: Your application will be reviewed by the Angels Attic admin team. You will receive an email once your store is approved.
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+      </div>
+    </>
+  );
+};
+
+export default VendorRegistration;

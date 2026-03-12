@@ -7,14 +7,17 @@ import {
   FormControlLabel,
   Grid,
   Typography,
+  Radio,
+  RadioGroup,
+  FormControl,
+  FormLabel,
 } from "@material-ui/core";
 import CricketBallLoader from "../layouts/loader/Loader";
 import MetaData from "../layouts/MataData/MataData";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { signUp, clearErrors } from "../../actions/userAction";
 import { useDispatch, useSelector } from "react-redux";
 import { useAlert } from "react-alert";
-import { useHistory } from "react-router-dom";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import useStyles from "./LoginFromStyle";
 import Visibility from "@mui/icons-material/Visibility";
@@ -28,6 +31,7 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setconfirmPassword] = useState("");
+  const [role, setRole] = useState("customer");
   const [isValidEmail, setIsValidEmail] = useState(true);
   const [isValidName, setIsValidName] = useState(true);
   const [isValidPassword, setIsValidPassword] = useState(true);
@@ -44,7 +48,7 @@ function Signup() {
   const dispatch = useDispatch();
   const alert = useAlert();
 
-  const { isAuthenticated, error } = useSelector((state) => state.userData);
+  const { isAuthenticated, error, user } = useSelector((state) => state.userData);
 
   useEffect(() => {
     if (error) {
@@ -54,9 +58,20 @@ function Signup() {
 
     if (isAuthenticated) {
       alert.success("User Registered Successfully");
-      history.push("/account");
+      if (user && user.role === "vendor") {
+        history.push("/vendor/dashboard");
+      } else {
+        history.push("/account");
+      }
     }
-  }, [dispatch, isAuthenticated, loading, error, alert , history]);
+  }, [dispatch, isAuthenticated, loading, error, alert , history, user]);
+
+  const handleRoleChange = (event) => {
+    setRole(event.target.value);
+    if (event.target.value === "vendor") {
+      history.push("/vendor/register");
+    }
+  };
 
   const handleEmailChange = (event) => {
     const newEmail = event.target.value;
@@ -150,6 +165,23 @@ function Signup() {
             <Typography variant="h5" component="h1" className={classes.heading}>
               Sign Up for an Account ! 
             </Typography>
+
+            <FormControl component="fieldset" style={{ marginBottom: "1rem" }}>
+              <FormLabel component="legend" style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.9rem" }}>Register as:</FormLabel>
+              <RadioGroup row name="role" value={role} onChange={handleRoleChange}>
+                <FormControlLabel 
+                  value="customer" 
+                  control={<Radio color="primary" />} 
+                  label={<Typography style={{ fontSize: "0.9rem", fontWeight: 500 }}>Customer</Typography>} 
+                />
+                <FormControlLabel 
+                  value="vendor" 
+                  control={<Radio color="primary" />} 
+                  label={<Typography style={{ fontSize: "0.9rem", fontWeight: 500 }}>Vendor</Typography>} 
+                />
+              </RadioGroup>
+            </FormControl>
+
             <TextField
               label="Name"
               variant="outlined"

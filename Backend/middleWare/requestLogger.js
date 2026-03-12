@@ -6,6 +6,7 @@ module.exports = (req, res, next) => {
     console.log('Timestamp:', new Date().toISOString());
     console.log('Method:', req.method);
     console.log('URL:', req.originalUrl);
+    console.log('Query:', JSON.stringify(req.query, null, 2));
     console.log('IP:', req.ip || req.connection.remoteAddress);
     console.log('User Agent:', req.get('User-Agent'));
     

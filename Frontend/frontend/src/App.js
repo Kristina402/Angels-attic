@@ -1,19 +1,18 @@
 import React, { useState, useEffect, Suspense } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { load_UserProfile } from "./actions/userAction";
 import axios from "axios";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import CricketBallLoader from "./component/layouts/loader/Loader";
-import PrivateRoute from "./component/Route/PrivateRoute";
+import PrivateRoute, { PublicRoute } from "./component/Route/PrivateRoute";
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import "./App.css";
 
 import Header from "./component/layouts/Header1.jsx/Header";
 import Payment from "./component/Cart/Payment";
 import Home from "./component/Home/Home";
-import Services from "./Terms&Condtions/Service";
 import Footer from "./component/layouts/Footer/Footer";
 import ProductDetails from "./component/Product/ProductDetails";
 import Products from "./component/Product/Products";
@@ -37,6 +36,13 @@ import ReturnPolicyPage from "./Terms&Condtions/Return";
 import TermsUse from "./Terms&Condtions/TermsAndUse";
 import TermsAndConditions from "./Terms&Condtions/TermsCondtion";
 import PrivacyPolicy from "./Terms&Condtions/Privacy";
+import VendorRegistration from "./component/User/VendorRegistration";
+import VendorDashboard from "./component/Vendor/Dashboard";
+import CustomerDashboard from "./component/Customer/Dashboard";
+import VendorProductList from "./component/Vendor/ProductList";
+import VendorOrderList from "./component/Vendor/OrderList";
+import VendorNewProduct from "./component/Vendor/NewProduct";
+import PendingApproval from "./component/Vendor/PendingApproval";
 // const LazyPayment = React.lazy(() => import("./component/Cart/Payment"));
 const LazyDashboard = React.lazy(() => import("./component/Admin/Dashboard"));
 const LazyProductList = React.lazy(() =>
@@ -44,6 +50,9 @@ const LazyProductList = React.lazy(() =>
 );
 const LazyOrderList = React.lazy(() => import("./component/Admin/OrderList"));
 const LazyUserList = React.lazy(() => import("./component/Admin/UserList"));
+const LazyVendorList = React.lazy(() =>
+  import("./component/Admin/VendorList")
+);
 const LazyUpdateProduct = React.lazy(() =>
   import("./component/Admin/UpdateProduct")
 );
@@ -58,6 +67,7 @@ const LazyProductReviews = React.lazy(() =>
 
 function App() {
   const [stripeApiKey, setStripeApiKey] = useState("");
+  const [stripePromise, setStripePromise] = useState(null);
 
   const dispatch = useDispatch();
 
@@ -66,6 +76,7 @@ function App() {
     try {
       const { data } = await axios.get("/api/v1/stripeapikey");
       if (
+        data &&
         data.stripeApiKey !== undefined &&
         data.stripeApiKey !== null &&
         data.stripeApiKey !== ""
@@ -74,8 +85,9 @@ function App() {
           "stripeApiKey",
           JSON.stringify(data.stripeApiKey)
         );
+        setStripeApiKey(data.stripeApiKey);
+        setStripePromise(loadStripe(data.stripeApiKey));
       }
-      setStripeApiKey(data.stripeApiKey);
     } catch (error) {
       // Handle error if the API call fails
       console.error("Error fetching Stripe API key:", error);
@@ -83,9 +95,11 @@ function App() {
   }
 
   useEffect(() => {
-    const stripeApiKey = sessionStorage.getItem("stripeApiKey");
-    if (stripeApiKey) {
-      setStripeApiKey(stripeApiKey);
+    const savedApiKey = sessionStorage.getItem("stripeApiKey");
+    if (savedApiKey) {
+      const key = JSON.parse(savedApiKey);
+      setStripeApiKey(key);
+      setStripePromise(loadStripe(key));
     } else {
       getStripeApiKey();
     }
@@ -98,116 +112,121 @@ function App() {
     // eslint-disable-next-line
   }, []);
 
+  const { user, isAuthenticated } = useSelector((state) => state.userData);
+
   return (
     <>
-      <Router>
       <SpeedInsights/>
         <Switch>
        
-          <Route
+          <PublicRoute
             exact
             path="/"
             render={() => (
               <>
                 {<Header />}
                 <Home />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/product/:id"
             render={() => (
               <>
                 {<Header />}
                 <ProductDetails />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/products"
             render={() => (
               <>
                 {<Header />}
                 <Products />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
             path="/products/:keyword"
             render={() => (
               <>
                 {<Header />}
                 <Products />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/signup"
             render={() => (
               <>
                 {<Header />}
                 <Signup />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
+            exact
+            path="/vendor/register"
+            render={() => (
+              <>
+                {<Header />}
+                <VendorRegistration />
+                {<Footer />}
+              </>
+            )}
+          />
+
+          <PublicRoute
             exact
             path="/login"
             render={() => (
               <>
                 {<Header />}
                 <Login />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/password/forgot"
             render={() => (
               <>
                 {<Header />}
                 <ForgetPassword />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/password/reset/:token"
             render={() => (
               <>
                 {<Header />}
                 <ResetPassword />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/cart"
             render={() => (
@@ -219,7 +238,7 @@ function App() {
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/wishlist"
             render={() => (
@@ -231,59 +250,55 @@ function App() {
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/policy/return"
             render={() => (
               <>
                 {<Header />}
                 <ReturnPolicyPage />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/policy/Terms"
             render={() => (
               <>
                 {<Header />}
                 <TermsUse />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/policy/privacy"
             render={() => (
               <>
                 {<Header />}
                 <PrivacyPolicy />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/terms/conditions"
             render={() => (
               <>
                 {<Header />}
                 <TermsAndConditions />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/contact"
             render={() => (
@@ -296,20 +311,19 @@ function App() {
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/about"
             render={() => (
               <>
                 {<Header />}
                 <About />
-                <Services />
                 {<Footer />}
               </>
             )}
           />
 
-          <Route
+          <PublicRoute
             exact
             path="/about_us"
             render={() => (
@@ -324,12 +338,77 @@ function App() {
 
           <Route
             exact
+            path="/vendor/pending"
+            component={PendingApproval}
+          />
+
+          <Route
+            exact
+            path="/dashboard"
+            render={() => (
+              <>
+                {<Header />}
+                <PrivateRoute exact path="/dashboard" component={CustomerDashboard} />
+                {<Footer />}
+              </>
+            )}
+          />
+
+          <Route
+            exact
+            path="/vendor/dashboard"
+            render={() => (
+              <>
+                {<Header />}
+                <PrivateRoute isVendor={true} exact path="/vendor/dashboard" component={VendorDashboard} />
+                {<Footer />}
+              </>
+            )}
+          />
+
+          <Route
+            exact
+            path="/vendor/products"
+            render={() => (
+              <>
+                {<Header />}
+                <PrivateRoute isVendor={true} exact path="/vendor/products" component={VendorProductList} />
+                {<Footer />}
+              </>
+            )}
+          />
+
+          <Route
+            exact
+            path="/vendor/orders"
+            render={() => (
+              <>
+                {<Header />}
+                <PrivateRoute isVendor={true} exact path="/vendor/orders" component={VendorOrderList} />
+                {<Footer />}
+              </>
+            )}
+          />
+
+          <Route
+            exact
+            path="/vendor/product/new"
+            render={() => (
+              <>
+                {<Header />}
+                <PrivateRoute isVendor={true} exact path="/vendor/product/new" component={VendorNewProduct} />
+                {<Footer />}
+              </>
+            )}
+          />
+
+          <Route
+            exact
             path="/account"
             render={() => (
               <>
                 {<Header />}
                 <PrivateRoute exact path="/account" component={Profile} />
-                <Services />
                 {<Footer />}
               </>
             )}
@@ -346,7 +425,6 @@ function App() {
                   path="/profile/update"
                   component={UpdateProfile}
                 />
-                <Services />
                 {<Footer />}
               </>
             )}
@@ -363,7 +441,6 @@ function App() {
                   path="/password/update"
                   component={UpdatePassword}
                 />
-                <Services />
                 {<Footer />}
               </>
             )}
@@ -376,7 +453,6 @@ function App() {
               <>
                 {<Header />}
                 <PrivateRoute exact path="/orders" component={MyOrder} />
-                <Services />
                 {<Footer />}
               </>
             )}
@@ -389,7 +465,6 @@ function App() {
               <>
                 {<Header />}
                 <PrivateRoute exact path="/shipping" component={Shipping} />
-                <Services />
                 {<Footer />}
               </>
             )}
@@ -406,7 +481,6 @@ function App() {
                   path="/order/confirm"
                   component={ConfirmOrder}
                 />
-                <Services />
                 {<Footer />}
               </>
             )}
@@ -419,7 +493,6 @@ function App() {
               <>
                 {<Header />}
                 <PrivateRoute exact path="/success" component={OrderSuccess} />
-                <Services />
                 {<Footer />}
               </>
             )}
@@ -432,7 +505,7 @@ function App() {
             <PrivateRoute
               isAdmin={true}
               exact
-              path="/admin/dashboard"
+              path="/admin-dashboard"
               component={LazyDashboard}
             />
             <PrivateRoute
@@ -480,19 +553,27 @@ function App() {
             <PrivateRoute
               isAdmin={true}
               exact
+              path="/admin/vendors"
+              component={LazyVendorList}
+            />
+            <PrivateRoute
+              isAdmin={true}
+              exact
               path="/admin/user/:id"
               component={LazyUpdateUser}
             />
           </Switch>
         </Suspense>
 
-        <Elements stripe={loadStripe(stripeApiKey)}>
-          <Route exact path="/process/payment">
-            {<Header />}
-            <PrivateRoute exact path="/process/payment" component={Payment} />
-          </Route>
-        </Elements>
-      </Router>
+        {stripePromise && (
+          <Elements stripe={stripePromise}>
+            <Route exact path="/process/payment">
+              {<Header />}
+              <PrivateRoute exact path="/process/payment" component={Payment} />
+            </Route>
+          </Elements>
+        )}
+      
     </>
   );
 }

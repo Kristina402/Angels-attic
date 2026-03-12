@@ -61,8 +61,14 @@ const ProfileModal = ({ user, isAuthenticated }) => {
   };
 
   function dashboardHandler() {
-     setIsOpen(false);
-    history.push("/admin/dashboard");
+    setIsOpen(false);
+    if (user.role === "admin") {
+      history.push("/admin-dashboard");
+    } else if (user.role === "vendor") {
+      history.push("/vendor/dashboard");
+    } else {
+      history.push("/dashboard");
+    }
   }
 
   function accountHandler() {
@@ -143,7 +149,7 @@ const ProfileModal = ({ user, isAuthenticated }) => {
             )}
             <div className="divider" />
             <div className="profile-menu">
-              {user && user.role ==="admin" && (
+              {isAuthenticated && (
                 <div className="menu-item" onClick={dashboardHandler}>
                   <DashboardIcon className="menu-icon" />
                   <span>Dashboard</span>

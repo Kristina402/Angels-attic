@@ -8,17 +8,38 @@ class ApiFeatures {
 
   // specific product search() =>
   search() {
-    //queryString.keyword => https://example.com/path/to/page?name=ferret&color=purple [here => name and color are keyword]
     const keyword = this.queryString.keyword && this.queryString.keyword !== "undefined"
       ? {
-          name: {
-            $regex: this.queryString.keyword,
-            $options: "i", // for case insenstiveness
-          },
+          $or: [
+            {
+              name: {
+                $regex: this.queryString.keyword,
+                $options: "i",
+              },
+            },
+            {
+              description: {
+                $regex: this.queryString.keyword,
+                $options: "i",
+              },
+            },
+            {
+              category: {
+                $regex: this.queryString.keyword,
+                $options: "i",
+              },
+            },
+            {
+              brand: {
+                $regex: this.queryString.keyword,
+                $options: "i",
+              },
+            },
+          ],
         }
       : {};
 
-    this.query = this.query.find({ ...keyword }); // here query ==> await Product.find(); we know that
+    this.query = this.query.find({ ...keyword });
 
     return this;
   }
@@ -35,9 +56,23 @@ class ApiFeatures {
     // Filter For Price and Rating
     let queryStr = JSON.stringify(queryCopy); // converting to string because we using regex for filter data for price
     // regex => \b => start and end value  || for price : gt --> gretaer then || gte --> gretaer then equal to || lt --> less then || lte --> less then equal to , for finding in range of product.
-    queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (key) => `$${key}`); // key is given price as qurey {"price":{"gt":"200","lt":"255"}}  : 200 to 245 in btew product require.
-    // now mongoose use $ as opretaor so converting it in line 40 : and it will return {"price":{"$gt":"200","$lt":"255"}} $ is for mongoose operator in regex
-    this.query = this.query.find(JSON.parse(queryStr)); // now find product in given range : and first convert it string to json using parse
+    queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (key) => `$${key}`);
+    
+    const parsedQuery = JSON.parse(queryStr);
+    
+    // Convert numeric strings to actual numbers for comparison
+    const convertToNumbers = (obj) => {
+      for (const key in obj) {
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+          convertToNumbers(obj[key]);
+        } else if (typeof obj[key] === 'string' && !isNaN(obj[key]) && obj[key].trim() !== '') {
+          obj[key] = Number(obj[key]);
+        }
+      }
+    };
+    convertToNumbers(parsedQuery);
+
+    this.query = this.query.find(parsedQuery);
 
     return this;
   }

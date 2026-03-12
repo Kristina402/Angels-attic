@@ -262,3 +262,13 @@ exports.getAdminProducts = asyncWrapper(async (req, res, next) => {
     products,
   });
 });
+
+// Get Vendor Products
+exports.getVendorProducts = asyncWrapper(async (req, res, next) => {
+  const products = await Product.find({ user: req.user._id });
+
+  res.status(200).json({
+    success: true,
+    products,
+  });
+});

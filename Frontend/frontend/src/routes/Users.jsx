@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Switch ,Route , useLocation } from "react-router-dom";
 import Header from "../component/layouts/Header1.jsx/Header";
 import Footer from "../component/layouts/Footer/Footer";
-import Services from "../component/layouts/Footer/Service";
 import Home from "../component/Home/Home";
 import ProductDetails from "../component/Product/ProductDetails";
 import Products from "../component/Product/Products";
@@ -143,7 +142,6 @@ function Users() {
             <PrivateRoute exact path="/success" component={OrderSuccess} />
           </Switch>
 
-          <Services />
           <Footer />
         </Router>
       </>

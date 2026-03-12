@@ -43,6 +43,11 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please Enter Product Size"],
   },
+  condition: {
+    type: String,
+    enum: ["New", "Like New", "Pre-loved"],
+    default: "Pre-loved",
+  },
   Stock: {
     type: Number,
     required: [true, "Please Enter Product Stock"],

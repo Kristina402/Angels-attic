@@ -10,6 +10,8 @@ import CartItem from "./CartItem";
 import { motion, AnimatePresence } from "framer-motion";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import {
   dispalyMoney,
   generateDiscountedPrice,
@@ -50,7 +52,7 @@ const Cart = () => {
 
   return (
     <div className="cart_page_new">
-      <MetaData title="Your Shopping Cart - Angels Attic" />
+      <MetaData title="Shopping Bag - Angels Attic" />
       
       <Container maxWidth="lg">
         {cartItems.length === 0 ? (
@@ -58,25 +60,25 @@ const Cart = () => {
             className="empty_cart_wrapper"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
           >
             <div className="empty_cart_content">
               <div className="illustration_box">
-                <ShoppingBagOutlinedIcon style={{ fontSize: "120px", color: "#e0e0e0" }} />
+                <ShoppingBagOutlinedIcon style={{ fontSize: "100px", color: "#f0f0f0" }} />
               </div>
               <Typography variant="h4" className="empty_cart_title">
-                Your Cart is Empty
+                Your bag is empty
               </Typography>
               <Typography className="empty_cart_text">
-                Looks like you haven't added anything to your cart yet. 
-                Explore our unique collection and find something you love!
+                Looks like you haven't added any thrift finds yet. 
+                Start exploring our unique collection!
               </Typography>
               <Button 
                 variant="contained" 
                 className="continue_shopping_btn_large"
                 onClick={() => history.push("/products")}
               >
-                Continue Shopping
+                Start Shopping
               </Button>
             </div>
           </motion.div>
@@ -85,18 +87,18 @@ const Cart = () => {
             <header className="cart_header_new">
               <div className="cart_header_left">
                 <Typography variant="h4" className="cart_main_title">
-                  Shopping Cart
+                  Shopping Bag
                 </Typography>
                 <Typography className="cart_count_badge">
-                  {cartItems.length} {cartItems.length === 1 ? 'Item' : 'Items'}
+                  {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your bag
                 </Typography>
               </div>
               <Button 
-                startIcon={<ArrowBackIosNewIcon style={{ fontSize: '14px' }} />}
+                startIcon={<ArrowBackIosNewIcon style={{ fontSize: '12px' }} />}
                 className="back_to_shop_link"
                 onClick={() => history.push("/products")}
               >
-                Back to Shop
+                Continue Shopping
               </Button>
             </header>
 
@@ -104,15 +106,15 @@ const Cart = () => {
               {/* Cart Items List */}
               <Grid item xs={12} lg={8}>
                 <div className="cart_items_list">
-                  <AnimatePresence>
+                  <AnimatePresence mode="popLayout">
                     {cartItems.map((item) => (
                       <motion.div
                         key={item.productId}
                         layout
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.3 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.4 }}
                       >
                         <CartItem
                           item={item}
@@ -136,27 +138,29 @@ const Cart = () => {
                   
                   <div className="summary_details_new">
                     <div className="summary_row_new">
-                      <span>Subtotal</span>
-                      <span>{dispalyMoney(totalPrice)}</span>
+                      <span className="label">Bag Subtotal</span>
+                      <span className="value">{dispalyMoney(totalPrice)}</span>
                     </div>
-                    <div className="summary_row_new discount_row">
-                      <span>Discount</span>
-                      <span>-{dispalyMoney(totalDiscount)}</span>
-                    </div>
+                    {totalDiscount > 0 && (
+                      <div className="summary_row_new discount_row">
+                        <span className="label">Savings</span>
+                        <span className="value">-{dispalyMoney(totalDiscount)}</span>
+                      </div>
+                    )}
                     <div className="summary_row_new">
-                      <span>Shipping</span>
-                      <span className="free_text">Free</span>
+                      <span className="label">Shipping</span>
+                      <span className="value free_text">Calculated at checkout</span>
                     </div>
                     
                     <Divider className="summary_divider_new" />
                     
                     <div className="summary_row_new total_row_new">
-                      <Typography variant="h6">Total</Typography>
+                      <Typography variant="h6" className="total_label">Estimated Total</Typography>
                       <div className="total_price_box">
                         <Typography variant="h5" className="final_amount">
                           {dispalyMoney(final)}
                         </Typography>
-                        <Typography className="tax_info">(Inclusive of all taxes)</Typography>
+                        <Typography className="tax_info">Taxes included</Typography>
                       </div>
                     </div>
                   </div>
@@ -170,9 +174,15 @@ const Cart = () => {
                     Proceed to Checkout
                   </Button>
 
-                  <div className="secure_checkout_badge">
-                    <ShoppingBagOutlinedIcon fontSize="small" />
-                    <span>Secure Checkout</span>
+                  <div className="summary_features">
+                    <div className="feature_item">
+                      <SecurityOutlinedIcon fontSize="small" />
+                      <span>Secure Payment</span>
+                    </div>
+                    <div className="feature_item">
+                      <LocalShippingOutlinedIcon fontSize="small" />
+                      <span>Fast Delivery</span>
+                    </div>
                   </div>
                 </div>
               </Grid>

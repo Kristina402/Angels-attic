@@ -63,11 +63,11 @@ const MyOrder = () => {
               Your Order
             </Typography>
             <Typography variant="body1" className={classes.orderPageText}>
-              {orders.length} order placed in {currentYear}
+              {orders && orders.length} order placed in {currentYear}
             </Typography>
           </div>
 
-          {orders.map((item) => (
+          {orders && orders.map((item) => (
             <div className={classes.orderCard} key={item._id}>
               <OrderCard item={item} user={user} />
             </div>

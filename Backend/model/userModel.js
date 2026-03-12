@@ -41,9 +41,27 @@ const userSchema = new mongoose.Schema({
   gender: {
     type: String,
   },
+  storeName: {
+    type: String,
+  },
+  address: {
+    type: String,
+  },
+  kycDocument: {
+    public_id: {
+      type: String,
+    },
+    url: {
+      type: String,
+    },
+  },
   role: {
     type: String,
     default: "user",
+  },
+  isApproved: {
+    type: Boolean,
+    default: true, // Existing users are approved by default
   },
   createdAt: {
     type: Date,

@@ -28,7 +28,7 @@ export default function Login() {
     const dispatch = useDispatch();
     const alert = useAlert();
 
-    const { isAuthenticated, loading, error } = useSelector(
+    const { isAuthenticated, loading, error, user } = useSelector(
       (state) => state.userData
     );
 
@@ -68,9 +68,19 @@ export default function Login() {
      }
 
      if (isAuthenticated) {
-       history.push(redirect);
+       if (user.role === "admin") {
+         history.push("/admin-dashboard");
+       } else if (user.role === "vendor") {
+         if (user.isApproved === false) {
+           history.push("/vendor/pending");
+         } else {
+           history.push("/vendor/dashboard");
+         }
+       } else {
+         history.push(redirect);
+       }
      }
-   }, [dispatch, isAuthenticated, loading, error, alert , history , redirect]);
+   }, [dispatch, isAuthenticated, loading, error, alert , history , redirect, user]);
 
      function handleLoginSubmit(e) {
        e.preventDefault();

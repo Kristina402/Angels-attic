@@ -39,6 +39,9 @@ import {
   USER_DETAILS_REQUEST,
   USER_DETAILS_SUCCESS,
   USER_DETAILS_FAIL,
+  REGISTER_VENDOR_REQUEST,
+  REGISTER_VENDOR_SUCCESS,
+  REGISTER_VENDOR_FAIL,
 } from "../constants/userConstanat";
 
 
@@ -166,6 +169,37 @@ export const profileReducer = (state = {}, action) => {
       return {
         ...state,
         isDeleted: false,
+      };
+    case CLEAR_ERRORS:
+      return {
+        ...state,
+        error: null,
+      };
+    default:
+      return state;
+  }
+};
+
+export const vendorReducer = (state = {}, action) => {
+  switch (action.type) {
+    case REGISTER_VENDOR_REQUEST:
+      return {
+        ...state,
+        loading: true,
+      };
+    case REGISTER_VENDOR_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: true,
+        message: action.payload,
+        isAuthenticated: true,
+      };
+    case REGISTER_VENDOR_FAIL:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
       };
     case CLEAR_ERRORS:
       return {

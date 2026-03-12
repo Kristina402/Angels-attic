@@ -59,14 +59,12 @@ function UpdateProduct() {
   const fileInputRef = useRef();
   const [toggle, setToggle] = useState(false);
   const categories = [
-    "Women’s Wear",
-    "Men’s Wear",
-    "Accessories",
-    "Vintage",
-    "Footwear",
-    "Bags",
-    "Outerwear",
-    "Home & Living",
+    "bags",
+    "bottoms",
+    "footwares",
+    "jackets",
+    "skirts",
+    "tops",
   ];
   const handleCategoryChange = (e) => {
     setCategory(e.target.value);

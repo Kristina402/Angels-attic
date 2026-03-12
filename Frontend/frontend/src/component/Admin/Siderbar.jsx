@@ -132,7 +132,7 @@ function accountHandler() {
             <div className={classes.divider} />
             <ul className={classes.sideBarMenu}>
               <Link
-                to="/admin/dashboard"
+                to="/admin-dashboard"
                 style={{ color: "inherit", textDecoration: "none" }}
               >
                 <li className={classes.sideBarMenuItem}>
@@ -143,6 +143,18 @@ function accountHandler() {
                   </span>
                 </li>
               </Link>
+
+              {user && user.role === "admin" && (
+                <Link
+                  to="/admin/users"
+                  style={{ color: "inherit", textDecoration: "none" }}
+                >
+                  <li className={classes.sideBarMenuItem}>
+                    <ManageAccountsIcon fontSize="large" />
+                    <span className={classes.sideBarMenuItem_text}>Users</span>
+                  </li>
+                </Link>
+              )}
 
               <Link to="/" style={{ color: "inherit", textDecoration: "none" }}>
                 <li className={classes.sideBarMenuItem}>

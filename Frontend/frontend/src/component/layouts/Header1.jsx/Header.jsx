@@ -20,6 +20,16 @@ function Header() {
   const [sideMenu, setSideMenu] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
+  // Update searchValue when keyword changes in URL
+  React.useEffect(() => {
+    const keyword = history.location.pathname.split("/products/")[1];
+    if (keyword) {
+      setSearchValue(decodeURIComponent(keyword));
+    } else if (history.location.pathname === "/products") {
+      setSearchValue("");
+    }
+  }, [history.location.pathname]);
+
   // this is for handle sideBar
   const handleSideBarMenu = () => {
     setSideMenu(!sideMenu);
@@ -57,16 +67,6 @@ function Header() {
         <div className="headerTop">
           <div className="headerTopLeft"></div>
           <div className="headerTopRight">
-            <div className="headerLogin">
-              {isAuthenticated && (
-                <Link
-                  to="/account"
-                  style={{ color: "inherit", textDecoration: "none" }}
-                >
-                  <button>My Account</button>
-                </Link>
-              )}
-            </div>
           </div>
         </div>
 
@@ -116,11 +116,6 @@ function Header() {
                 </li>
                 <li>
                   <Link to="/contact">Contact</Link>
-                </li>
-                <li>
-                  <Link to={isAuthenticated ? "/account" : "/signup"}>
-                    {isAuthenticated ? "Account" : "Sign Up"}
-                  </Link>
                 </li>
               </ul>
             </nav>

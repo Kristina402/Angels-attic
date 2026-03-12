@@ -112,7 +112,7 @@ const Navbar = ({ toggleHandler }) => {
       </IconButton>
       <div className={classes.dashboardHead}>
         <Link
-          to="/admin/dashboard"
+          to="/admin-dashboard"
           style={{ textDecoration: "none", color: "none" , width: "100%" , height: "100%"}}
         >
           <img

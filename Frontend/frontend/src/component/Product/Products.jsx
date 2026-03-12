@@ -24,14 +24,12 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 const categories = [
-  "Women’s Wear",
-  "Men’s Wear",
-  "Accessories",
-  "Vintage",
-  "Footwear",
-  "Bags",
-  "Outerwear",
-  "Home & Living",
+  "bags",
+  "bottoms",
+  "footwares",
+  "jackets",
+  "skirts",
+  "tops",
 ];
 
 function Products() {
@@ -53,6 +51,15 @@ function Products() {
   const [category, setCategory] = React.useState("");
   const [ratings, setRatings] = React.useState(0);
   const [selectedCategory, setSelectedCategory] = React.useState("");
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get("category");
+    if (categoryParam) {
+      setCategory(categoryParam);
+      setSelectedCategory(categoryParam);
+    }
+  }, []);
 
   useEffect(() => {
     if (error) {
@@ -194,7 +201,7 @@ const handleRatingChange = (event) => {
                             checked={category === selectedCategory}
                             onChange={() => handleCategoryChange(category)}
                           />
-                          {category}
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
                         </label>
                       </li>
                     ))}

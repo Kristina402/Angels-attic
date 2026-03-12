@@ -6,209 +6,257 @@ import {
   CardMedia,
   CardContent,
   Typography,
-  Button,
+  IconButton,
   Box,
+  Tooltip,
+  Button,
 } from "@material-ui/core";
 import Rating from "@material-ui/lab/Rating";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { dispalyMoney, generateDiscountedPrice } from "../DisplayMoney/DisplayMoney";
+import { useDispatch, useSelector } from "react-redux";
+import { addToWishlist, removeFromWishlist } from "../../actions/wishlistAction";
 import { addItemToCart } from "../../actions/cartAction";
-import { useDispatch } from "react-redux";
+import { useAlert } from "react-alert";
 import { colors, typography, shadows } from "../theme";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "280px",
-    height: "auto",
-    margin: theme.spacing(1.5),
+    width: "100%",
+    position: "relative",
     backgroundColor: colors.neutral.white,
-    borderRadius: "16px",
+    borderRadius: "24px",
     overflow: "hidden",
-    boxShadow: shadows.card,
-    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    border: "1px solid #f2f2f2",
+    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
     "&:hover": {
-      boxShadow: shadows.cardHover,
+      boxShadow: "0 15px 35px rgba(0,0,0,0.08)",
+      transform: "translateY(-8px)",
+      "& $media": {
+        transform: "scale(1.05)",
+      },
     },
   },
+  wishlistButton: {
+    position: "absolute",
+    top: "12px",
+    right: "12px",
+    zIndex: 2,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    backdropFilter: "blur(8px)",
+    padding: "8px",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+    "&:hover": {
+      backgroundColor: "#fff",
+      "& $wishlistIcon": {
+        color: "#ff3b30",
+      },
+    },
+  },
+  wishlistIcon: {
+    fontSize: "20px",
+    transition: "all 0.3s ease",
+    color: "#8e8e93",
+  },
+  wishlistIconActive: {
+    color: "#ff3b30",
+  },
+  mediaWrapper: {
+    width: "100%",
+    aspectRatio: "3/4",
+    overflow: "hidden",
+    backgroundColor: "#f5f5f7",
+  },
   media: {
-    height: 200,
-    width: "90%",
-    objectFit: "contain",
-    margin: "1rem auto 0",
-    borderRadius: "12px",
-    backgroundColor: colors.neutral.offWhite,
-    transition: "transform 0.3s ease",
+    height: "100%",
+    width: "100%",
+    objectFit: "cover",
+    transition: "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
   },
   cardContent: {
-    padding: theme.spacing(2),
+    padding: "20px",
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
   },
   productName: {
     fontFamily: typography.fontFamily.primary,
-    fontWeight: typography.weight.medium,
-    fontSize: "14px",
-    color: colors.neutral.black,
-    lineHeight: 1.2,
-    marginBottom: theme.spacing(0.5),
+    fontWeight: 700,
+    fontSize: "1.05rem",
+    color: "#1a1a1a",
+    lineHeight: 1.3,
+    marginBottom: "6px",
     display: "-webkit-box",
     overflow: "hidden",
-    textOverflow: "ellipsis",
-    WebkitLineClamp: 2,
+    WebkitLineClamp: 1,
     WebkitBoxOrient: "vertical",
-    minHeight: "2.4em",
-    padding: "0 4px",
+  },
+  sizeTag: {
+    color: "#8e8e93",
+    fontSize: "0.8rem",
+    fontWeight: 600,
+    textTransform: "uppercase",
+    marginBottom: "8px",
+    letterSpacing: "0.02em",
+  },
+  priceRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    marginBottom: "12px",
+  },
+  finalPrice: {
+    fontWeight: 800,
+    fontSize: "1.15rem",
+    color: "#1a1a1a",
+  },
+  oldPrice: {
+    textDecoration: "line-through",
+    color: "#aeaeb2",
+    fontSize: "0.9rem",
+    fontWeight: 500,
   },
   ratingBox: {
     display: "flex",
     alignItems: "center",
-    marginBottom: theme.spacing(0.5),
-    padding: "0 4px",
+    gap: "4px",
+    marginBottom: "16px",
   },
   rating: {
-    color: "#ffA41C",
-    fontSize: "12px",
+    fontSize: "14px",
   },
   reviewCount: {
-    fontFamily: typography.fontFamily.secondary,
-    fontSize: "11px",
-    color: colors.neutral.gray,
+    fontSize: "12px",
+    color: "#8e8e93",
+    fontWeight: 500,
   },
-  description: {
-    display: "none",
-  },
-  priceBox: {
+  actions: {
     display: "flex",
-    flexDirection: "column",
-    gap: "2px",
-    padding: "0 4px",
+    gap: "8px",
+    marginTop: "auto",
   },
-  oldPrice: {
-    fontFamily: typography.fontFamily.primary,
-    textDecoration: "line-through",
-    color: colors.neutral.gray,
-    fontSize: "12px",
-  },
-  finalPrice: {
-    fontFamily: typography.fontFamily.primary,
-    fontWeight: typography.weight.bold,
-    fontSize: "16px",
-    color: colors.primary.main,
-  },
-  discountBadge: {
-    fontSize: "12px",
-    color: colors.neutral.gray,
-    marginLeft: "5px",
-  },
-  buttonWrapper: {
-    padding: theme.spacing(0, 2, 2, 2),
-  },
-  button: {
-    backgroundColor: colors.neutral.black,
-    color: colors.neutral.white,
-    borderRadius: "50px",
-    fontFamily: typography.fontFamily.primary,
-    fontWeight: typography.weight.semiBold,
-    width: "100%",
-    height: 45,
-    textTransform: "none",
-    fontSize: typography.size.sm,
-    letterSpacing: "0.5px",
-    transition: "all 0.3s ease",
+  btnDetails: {
+    flex: 1,
+    borderRadius: "14px !important",
+    textTransform: "none !important",
+    fontWeight: "700 !important",
+    fontSize: "0.85rem !important",
+    padding: "8px !important",
+    color: "#1a1a1a !important",
+    border: "1.5px solid #f2f2f2 !important",
     "&:hover": {
-      backgroundColor: colors.primary.main,
-      color: colors.neutral.white,
-      transform: "translateY(-2px)",
-      boxShadow: `0 4px 15px rgba(227, 6, 5, 0.3)`,
+      backgroundColor: "#fdfdfd !important",
+      borderColor: "#1a1a1a !important",
+    },
+  },
+  btnCart: {
+    flex: 1,
+    borderRadius: "14px !important",
+    textTransform: "none !important",
+    fontWeight: "700 !important",
+    fontSize: "0.85rem !important",
+    padding: "8px !important",
+    backgroundColor: "#1a1a1a !important",
+    color: "#fff !important",
+    "&:hover": {
+      backgroundColor: "#000 !important",
+      boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
     },
   },
 }));
 
-// Animation variants
 const cardVariants = {
   initial: { opacity: 0, y: 20 },
   animate: { 
     opacity: 1, 
     y: 0,
-    transition: { duration: 0.4, ease: "easeOut" }
-  },
-  hover: {
-    y: -8,
-    transition: { duration: 0.3, ease: "easeOut" }
-  }
-};
-
-const buttonVariants = {
-  hover: {
-    scale: 1.02,
-    transition: { duration: 0.2 }
-  },
-  tap: {
-    scale: 0.98
+    transition: { duration: 0.4 }
   }
 };
 
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
+  const alert = useAlert();
   const classes = useStyles();
-  let discountPrice = generateDiscountedPrice(product.price);
-  discountPrice = dispalyMoney(discountPrice);
+  
+  const { wishlistItems } = useSelector((state) => state.wishlist);
+  const isItemInWishlist = wishlistItems.find((i) => i.productId === product._id);
+
+  const discountPrice = generateDiscountedPrice(product.price);
   const oldPrice = dispalyMoney(product.price);
 
-  const addTocartHandler = (id, qty) => {
-    dispatch(addItemToCart(id, qty));
+  const wishlistHandler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isItemInWishlist) {
+      dispatch(removeFromWishlist(product._id));
+      alert.success("Removed from wishlist");
+    } else {
+      dispatch(addToWishlist(product._id));
+      alert.success("Added to wishlist");
+    }
   };
 
-  const discountPercent = Math.round(
-    ((product.price - generateDiscountedPrice(product.price)) / product.price) * 100
-  );
+  const addToCartHandler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(addItemToCart(product._id, 1));
+    alert.success("Item added to bag");
+  };
 
   return (
-    <motion.div
-      variants={cardVariants}
-      initial="initial"
-      animate="animate"
-      whileHover="hover"
-    >
+    <motion.div variants={cardVariants} initial="initial" animate="animate" style={{ height: "100%" }}>
       <Card className={classes.root} elevation={0}>
-        <Link
-          className="productCard"
-          to={`/product/${product._id}`}
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <CardActionArea>
-            <CardMedia className={classes.media} image={product.images[0].url} />
+        <Tooltip title={isItemInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}>
+          <IconButton className={classes.wishlistButton} onClick={wishlistHandler}>
+            {isItemInWishlist ? (
+              <FavoriteIcon className={`${classes.wishlistIcon} ${classes.wishlistIconActive}`} />
+            ) : (
+              <FavoriteBorderIcon className={classes.wishlistIcon} />
+            )}
+          </IconButton>
+        </Tooltip>
+
+        <Link to={`/product/${product._id}`} style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", height: "100%" }}>
+          <CardActionArea style={{ display: "flex", flexDirection: "column", alignItems: "stretch", flexGrow: 1 }}>
+            <div className={classes.mediaWrapper}>
+              <CardMedia className={classes.media} image={product.images[0].url} title={product.name} />
+            </div>
             <CardContent className={classes.cardContent}>
-              <Typography className={classes.productName}>
-                {product.name}
-              </Typography>
+              <Typography className={classes.sizeTag}>Size: {product.size}</Typography>
+              <Typography className={classes.productName}>{product.name}</Typography>
               
-              <Box className={classes.priceBox}>
-                <Typography className={classes.finalPrice}>
-                  {discountPrice}
-                </Typography>
-                <Box style={{ display: "flex", alignItems: "center" }}>
-                  <Typography className={classes.oldPrice}>
-                    {oldPrice}
-                  </Typography>
-                  <Typography className={classes.discountBadge}>
-                    -{discountPercent}%
-                  </Typography>
-                </Box>
+              <Box className={classes.priceRow}>
+                <Typography className={classes.finalPrice}>{dispalyMoney(discountPrice)}</Typography>
+                {product.price > discountPrice && (
+                  <Typography className={classes.oldPrice}>{oldPrice}</Typography>
+                )}
               </Box>
 
               <Box className={classes.ratingBox}>
-                <Rating
-                  name="rating"
-                  value={product.ratings}
-                  precision={0.1}
-                  readOnly
-                  size="small"
-                  className={classes.rating}
-                />
-                <Typography className={classes.reviewCount}>
-                  ({product.numOfReviews})
-                </Typography>
+                <Rating value={product.ratings} precision={0.1} readOnly size="small" className={classes.rating} />
+                <Typography className={classes.reviewCount}>({product.numOfReviews})</Typography>
               </Box>
+
+              <div className={classes.actions}>
+                <Button className={classes.btnDetails} variant="outlined">
+                  View Details
+                </Button>
+                <Button 
+                  className={classes.btnCart} 
+                  variant="contained"
+                  onClick={addToCartHandler}
+                  disabled={product.Stock < 1}
+                >
+                  {product.Stock < 1 ? "Sold Out" : "Add to Bag"}
+                </Button>
+              </div>
             </CardContent>
           </CardActionArea>
         </Link>

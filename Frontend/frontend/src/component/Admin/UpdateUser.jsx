@@ -206,7 +206,9 @@ function UpdateUser() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
+  const [isApproved, setIsApproved] = useState(false);
   const [toggle, setToggle] = useState(false);
+
   // togle handler =>
   const toggleHandler = () => {
     console.log("toggle");
@@ -221,6 +223,7 @@ function UpdateUser() {
       setName(user.name);
       setEmail(user.email);
       setRole(user.role);
+      setIsApproved(user.isApproved);
     }
 
     if (error) {
@@ -242,13 +245,11 @@ function UpdateUser() {
 
   const updateUserSubmitHandler = (e) => {
     e.preventDefault();
-
     const myForm = new FormData();
-
     myForm.set("name", name);
     myForm.set("email", email);
     myForm.set("role", role);
-
+    myForm.set("isApproved", isApproved);
     dispatch(updateUser(userId, myForm));
   };
 
@@ -353,8 +354,41 @@ function UpdateUser() {
                       </MenuItem>
                       <MenuItem value="admin">Admin</MenuItem>
                       <MenuItem value="user">User</MenuItem>
+                      <MenuItem value="vendor">Vendor</MenuItem>
                     </Select>
                   </div>
+
+                  {role === "vendor" && (
+                    <div style={{ position: "relative", marginTop: "1rem" }}>
+                      <label
+                        htmlFor="approval_field"
+                        style={{
+                          marginLeft: "10px",
+                          fontSize: "12px",
+                          width: "300px",
+                          color: "#414141",
+                        }}
+                      >
+                        Approval Status*
+                      </label>
+                      <Select
+                        value={isApproved}
+                        onChange={(e) => setIsApproved(e.target.value)}
+                        className={classes.select}
+                        MenuProps={{
+                          classes: { paper: classes.selectMenuPaper },
+                          anchorOrigin: {
+                            vertical: "bottom",
+                            horizontal: "left",
+                          },
+                          getContentAnchorEl: null,
+                        }}
+                      >
+                        <MenuItem value={true}>Approved</MenuItem>
+                        <MenuItem value={false}>Pending</MenuItem>
+                      </Select>
+                    </div>
+                  )}
 
                   <Button
                     id="createProductBtn"

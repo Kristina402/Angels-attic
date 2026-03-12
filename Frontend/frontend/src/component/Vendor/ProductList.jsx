@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { DataGrid } from "@material-ui/data-grid";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   clearErrors,
   getAdminProducts,
   deleteProduct,
 } from "../../actions/productAction";
 import { Link, useHistory } from "react-router-dom";
-import { useAlert } from "react-alert"; 
-import { Box, Typography, Paper, IconButton, Tooltip } from "@mui/material";
-import { makeStyles } from "@mui/styles";
+import { useAlert } from "react-alert";
+import { Button, Typography, Box, Paper, IconButton, Chip, Tooltip } from "@mui/material";
+import MetaData from "../layouts/MataData/MataData";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import MetaData from "../layouts/MataData/MataData";
-import Loader from "../layouts/loader/Loader";
-import AdminSidebar from "./AdminSidebar";
-import AdminHeader from "./AdminHeader";
+import VendorSidebar from "./VendorSidebar";
+import VendorHeader from "./VendorHeader";
 import { DELETE_PRODUCT_RESET } from "../../constants/productsConstatns";
+import { makeStyles } from "@mui/styles";
+import axios from "axios";
+import Loader from "../layouts/loader/Loader";
 
 const useStyles = makeStyles((theme) => ({
   dashboard: {
@@ -71,32 +72,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function ProductList() {
+const ProductList = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const alert = useAlert();
   const history = useHistory();
 
-  const { error, products, loading } = useSelector((state) => state.products);
-  const { error: deleteError, isDeleted } = useSelector(
-    (state) => state.deleteUpdateProduct
-  );
-
-  useEffect(() => {
-    if (error) {
-      alert.error(error);
-      dispatch(clearErrors());
-    }
-    if (deleteError) {
-      alert.error(deleteError);
-      dispatch(clearErrors());
-    }
-    if (isDeleted) {
-      alert.success("Product Deleted Successfully");
-      dispatch({ type: DELETE_PRODUCT_RESET });
-    }
-    dispatch(getAdminProducts());
-  }, [dispatch, alert, deleteError, error, isDeleted]);
+  const { error, products } = useSelector((state) => state.products);
+  const { error: deleteError, isDeleted } = useSelector((state) => state.product);
+  
+  const [vendorProducts, setVendorProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const deleteProductHandler = (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
@@ -104,50 +90,90 @@ function ProductList() {
     }
   };
 
+  const fetchVendorProducts = async () => {
+    try {
+      const { data } = await axios.get("/api/v1/vendor/products");
+      setVendorProducts(data.products);
+      setLoading(false);
+    } catch (err) {
+      alert.error(err.response?.data?.message || "Failed to fetch products");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (error) {
+      alert.error(error);
+      dispatch(clearErrors());
+    }
+
+    if (deleteError) {
+      alert.error(deleteError);
+      dispatch(clearErrors());
+    }
+
+    if (isDeleted) {
+      alert.success("Product Deleted Successfully");
+      dispatch({ type: DELETE_PRODUCT_RESET });
+      fetchVendorProducts();
+    }
+
+    fetchVendorProducts();
+  }, [dispatch, alert, error, deleteError, isDeleted, history]);
+
   const columns = [
-    {
-      field: "id",
-      headerName: "Product ID",
-      minWidth: 230,
-      flex: 0.5,
-    },
+    { field: "id", headerName: "Product ID", minWidth: 200, flex: 0.5 },
     {
       field: "name",
       headerName: "Name",
-      minWidth: 200,
-      flex: 0.8,
+      minWidth: 350,
+      flex: 1,
     },
     {
       field: "stock",
       headerName: "Stock",
       type: "number",
-      minWidth: 100,
+      minWidth: 150,
       flex: 0.3,
+      renderCell: (params) => {
+        const stock = params.value;
+        return (
+          <Chip 
+            label={stock} 
+            size="small"
+            sx={{ 
+              backgroundColor: stock > 0 ? "#ECFDF5" : "#FEF2F2",
+              color: stock > 0 ? "#10B981" : "#EF4444",
+              fontWeight: "700"
+            }}
+          />
+        );
+      }
     },
     {
       field: "price",
       headerName: "Price",
       type: "number",
-      minWidth: 120,
-      flex: 0.4,
+      minWidth: 270,
+      flex: 0.5,
     },
     {
       field: "actions",
-      headerName: "Actions",
       flex: 0.3,
+      headerName: "Actions",
+      minWidth: 150,
+      type: "number",
       sortable: false,
-      minWidth: 120,
       renderCell: (params) => {
-        const id = params.getValue(params.id, "id");
         return (
           <Box sx={{ display: "flex", gap: "0.5rem" }}>
             <Tooltip title="Edit Product">
-              <IconButton size="small" component={Link} to={`/admin/product/${id}`}>
+              <IconButton size="small" component={Link} to={`/admin/product/${params.getValue(params.id, "id")}`}>
                 <EditIcon className={classes.actionIcon} />
               </IconButton>
             </Tooltip>
             <Tooltip title="Delete Product">
-              <IconButton size="small" onClick={() => deleteProductHandler(id)}>
+              <IconButton size="small" onClick={() => deleteProductHandler(params.getValue(params.id, "id"))}>
                 <DeleteIcon className={classes.deleteIcon} />
               </IconButton>
             </Tooltip>
@@ -158,21 +184,24 @@ function ProductList() {
   ];
 
   const rows = [];
-  products && products.forEach((item) => {
-    rows.push({
-      id: item._id,
-      stock: item.Stock,
-      price: item.price,
-      name: item.name,
+  vendorProducts &&
+    vendorProducts.forEach((item) => {
+      rows.push({
+        id: item._id,
+        stock: item.Stock,
+        price: item.price,
+        name: item.name,
+      });
     });
-  });
+
+  if (loading) return <Loader />;
 
   return (
     <Box className={classes.dashboard}>
-      <MetaData title="All Products - Admin" />
-      <AdminSidebar />
+      <MetaData title="All Products - Vendor" />
+      <VendorSidebar />
       <Box className={classes.mainContent}>
-        <AdminHeader title="Manage Products" />
+        <VendorHeader title="My Products" />
         
         <Paper className={classes.sectionPaper} sx={{ mt: 2 }}>
           <Typography className={classes.sectionTitle}>Product Inventory</Typography>
@@ -184,14 +213,12 @@ function ProductList() {
               disableSelectionOnClick
               className={classes.dataGrid}
               autoHeight
-              loading={loading}
             />
           </div>
         </Paper>
       </Box>
     </Box>
   );
-}
+};
 
 export default ProductList;
-

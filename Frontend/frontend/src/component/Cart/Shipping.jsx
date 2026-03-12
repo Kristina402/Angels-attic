@@ -1,12 +1,10 @@
 import React from "react";
-import "./Shipping.css";
 import { useSelector, useDispatch } from "react-redux";
 import { saveShippingInfo } from "../../actions/cartAction";
 import MetaData from "../layouts/MataData/MataData";
 import CheckoutSteps from "./CheckoutSteps ";
 import { useAlert } from "react-alert";
 import { useHistory } from "react-router-dom";
-
 import {
   Typography,
   TextField,
@@ -14,333 +12,319 @@ import {
   Checkbox,
   FormControlLabel,
   Grid,
+  Box,
+  Paper,
+  Divider,
+  Container,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import { dispalyMoney } from "../DisplayMoney/DisplayMoney";
 
 const useStyles = makeStyles((theme) => ({
-  shippingRoot: {
-    width: "60%",
-    margin: "auto",
+  shippingPage: {
+    backgroundColor: "#fdfdfd",
+    minHeight: "100vh",
+    paddingTop: "5rem",
+    paddingBottom: "5rem",
   },
-  heading: {
-    marginBottom: theme.spacing(2),
-    alignSelf: "flex-start",
+  mainContainer: {
+    marginTop: "2rem",
   },
-  formControl: {
-    marginBottom: theme.spacing(2),
-    minWidth: 200,
+  formPaper: {
+    padding: "2.5rem",
+    borderRadius: "20px",
+    border: "1px solid #eee",
+    boxShadow: "none",
   },
-  submitButton: {
-    marginTop: theme.spacing(2),
-    width: "50%",
-    backgroundColor: "#000000",
-    color: "#FFFFFF",
-    height: "3rem",
-    "&:hover": {
-      backgroundColor: "#ed1c24",
-      color: "#FFFFFF",
-    },
+  summaryPaper: {
+    padding: "2rem",
+    borderRadius: "20px",
+    border: "1px solid #eee",
+    boxShadow: "none",
+    backgroundColor: "#fafafa",
+    position: "sticky",
+    top: "2rem",
   },
-  outlinedInput: {
+  inputField: {
     "& .MuiOutlinedInput-root": {
+      borderRadius: "12px",
+      backgroundColor: "#fff",
       "& fieldset": {
-        borderColor: "#000000",
+        borderColor: "#e0e0e0",
       },
       "&:hover fieldset": {
-        borderColor: "#000000", 
+        borderColor: "#000",
       },
       "&.Mui-focused fieldset": {
-        borderColor: "#000000", 
+        borderColor: "#000",
       },
     },
-    "& .MuiInputBase-input": {
-      color: "#000000", 
+  },
+  btnPrimary: {
+    backgroundColor: "#000",
+    color: "#fff",
+    borderRadius: "12px",
+    padding: "1rem 2rem",
+    fontWeight: 700,
+    textTransform: "none",
+    fontSize: "1rem",
+    "&:hover": {
+      backgroundColor: "#333",
     },
-    "& .MuiInputLabel-root": {
-      color: "#000000", 
+    [theme.breakpoints.down("xs")]: {
+      width: "100%",
     },
   },
-
-
+  btnSecondary: {
+    color: "#000",
+    textTransform: "none",
+    fontWeight: 600,
+    fontSize: "0.9rem",
+    "&:hover": {
+      backgroundColor: "transparent",
+      textDecoration: "underline",
+    },
+  },
+  summaryTitle: {
+    fontWeight: 800,
+    marginBottom: "1.5rem",
+    fontSize: "1.2rem",
+  },
+  summaryItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginBottom: "1rem",
+  },
+  totalItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginTop: "1.5rem",
+    fontWeight: 800,
+    fontSize: "1.1rem",
+  },
 }));
 
 const Shipping = () => {
   const alert = useAlert();
   const dispatch = useDispatch();
   const history = useHistory();
-  const { shippingInfo } = useSelector((state) => state.cart);
+  const { shippingInfo, cartItems } = useSelector((state) => state.cart);
 
   const classes = useStyles();
-  const [address, setAddress] = React.useState(shippingInfo.address);
-  const [firstName, setFirstName] = React.useState(shippingInfo.firstName);
-  const [lastName, setLastName] = React.useState(shippingInfo.lastName);
-  const [city, setCity] = React.useState(shippingInfo.city);
-  const [pinCode, setPinCode] = React.useState(shippingInfo.pinCode);
-  const [state, setState] = React.useState(shippingInfo.state);
-  const [country, setCountry] = React.useState(shippingInfo.country || "India");
+  const [address, setAddress] = React.useState(shippingInfo.address || "");
+  const [firstName, setFirstName] = React.useState(shippingInfo.firstName || "");
+  const [lastName, setLastName] = React.useState(shippingInfo.lastName || "");
+  const [city, setCity] = React.useState(shippingInfo.city || "");
+  const [pinCode, setPinCode] = React.useState(shippingInfo.pinCode || "");
+  const [state, setState] = React.useState(shippingInfo.state || "");
   const [phoneNo, setPhone] = React.useState(shippingInfo.phoneNo || "");
-  const [email, setEmail] = React.useState(shippingInfo.email);
+  const [email, setEmail] = React.useState(shippingInfo.email || "");
   const [saveAddress, setSaveAddress] = React.useState(false);
-  const [sameBillingDelivery, setSameBillingDelivery] = React.useState(false);
-const [isValidEmail, setIsValidEmail] = React.useState(true);
-const [isPhoneNoValid, setIsPhoneNoValid] = React.useState(true);
+  const [sameBillingDelivery, setSameBillingDelivery] = React.useState(true);
 
-  const handleAddressChange = (event) => {
-    setAddress(event.target.value);
+  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const deliveryFee = subtotal > 5000 ? 0 : 200;
+  const totalPrice = subtotal + deliveryFee;
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (!email || !firstName || !lastName || !address || !city || !state || !pinCode || !phoneNo) {
+      alert.error("Please fill all the fields");
+      return;
+    }
+
+    if (phoneNo.length !== 10) {
+      alert.error("Phone Number should be 10 digits");
+      return;
+    }
+
+    dispatch(
+      saveShippingInfo({
+        address,
+        city,
+        state,
+        pinCode,
+        phoneNo,
+        email,
+        firstName,
+        lastName,
+        country: "India" // Set default since it was removed from form
+      })
+    );
+    history.push("/confirm/order");
   };
-
-  const handleFirstNameChange = (event) => {
-    setFirstName(event.target.value);
-  };
-
-  const handleLastNameChange = (event) => {
-    setLastName(event.target.value);
-  };
-
-  const handleCityChange = (event) => {
-    setCity(event.target.value);
-  };
-
-  const handlePincodeChange = (event) => {
-    setPinCode(event.target.value);
-  };
-
-  const handleStateChange = (event) => {
-
-    setState(event.target.value);
-  };
-
-  const handleCountryChange = (value) => {
-    setCountry(value.label);
-  };
-
-  const handlePhoneChange = (event) => {
-    const newPhoneNo = event.target.value;
-    setPhone(newPhoneNo);
-    setIsPhoneNoValid(newPhoneNo !== "" && newPhoneNo.length === 10);
-  }; 
-
- const handleEmailChange = (event) => {
-   const newEmail = event.target.value;
-   
-   setEmail(newEmail);
-   setIsValidEmail(
-     newEmail === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)
-   );
- };
-
-  const handleSaveAddressChange = (event) => {
-    setSaveAddress(event.target.checked);
-  };
-
-  const handleSameBillingDeliveryChange = (event) => {
-    setSameBillingDelivery(event.target.checked);
-  };
-
- const handleSubmit = (event) => {
-   event.preventDefault();
-
-   if (
-     email === "" ||
-     firstName === "" ||
-     lastName === "" ||
-     address === "" ||
-     city === "" ||
-     state === "" ||
-     country === "" ||
-     pinCode === "" ||
-     phoneNo === ""
-   ) {
-     alert.error("Please fill all the fields");
-     return;
-   }
-
-   if (phoneNo && phoneNo.length !== 10) {
-     alert.error("Phone Number should be 10 digits Long");
-     return;
-   }
-
-   dispatch(
-     saveShippingInfo({
-       address,
-       city,
-       state,
-       country,
-       pinCode,
-       phoneNo,
-       email,
-       firstName,
-       lastName,
-     })
-   );
-   history.push("/process/payment");
- };
-
-
-  
-
-
 
   return (
-    <>
-      <div className="shippingPage">
-        <MetaData title={"Shipping Info"} />
+    <Box className={classes.shippingPage}>
+      <MetaData title="Checkout - Delivery" />
+      <Container maxWidth="lg">
         <CheckoutSteps activeStep={1} />
 
-        <div className="shippingPage__container">
-          <div className="shippingPage__container__left">
-            <div className={classes.shippingRoot}>
+        <Grid container spacing={4} className={classes.mainContainer}>
+          {/* Left Column - Shipping Form */}
+          <Grid item xs={12} md={8}>
+            <Paper className={classes.formPaper}>
+              <Typography variant="h5" style={{ fontWeight: 800, marginBottom: "2rem" }}>
+                Shipping Address
+              </Typography>
+              
               <form onSubmit={handleSubmit}>
-                <Typography variant="h6" className={classes.heading}>
-                  SHIPPING ADDRESS
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} sm={6}>
                     <TextField
+                      fullWidth
                       label="First Name"
                       variant="outlined"
-                      fullWidth
                       value={firstName}
-                      onChange={handleFirstNameChange}
-                      className={classes.outlinedInput}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className={classes.inputField}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid item xs={12} sm={6}>
                     <TextField
+                      fullWidth
                       label="Last Name"
                       variant="outlined"
-                      fullWidth
                       value={lastName}
-                      onChange={handleLastNameChange}
-                      className={classes.outlinedInput}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className={classes.inputField}
                     />
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
+                      fullWidth
                       label="Address"
                       variant="outlined"
-                      fullWidth
                       value={address}
-                      onChange={handleAddressChange}
-                      className={classes.outlinedInput}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className={classes.inputField}
+                      multiline
+                      rows={2}
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid item xs={12} sm={6}>
                     <TextField
+                      fullWidth
                       label="City"
                       variant="outlined"
-                      fullWidth
                       value={city}
-                      onChange={handleCityChange}
-                      className={classes.outlinedInput}
+                      onChange={(e) => setCity(e.target.value)}
+                      className={classes.inputField}
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid item xs={12} sm={6}>
                     <TextField
-                      label="Pincode"
-                      variant="outlined"
                       fullWidth
-                      value={pinCode}
-                      onChange={handlePincodeChange}
-                      className={classes.outlinedInput}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
                       label="State"
                       variant="outlined"
-                      fullWidth
                       value={state}
-                      onChange={handleStateChange}
-                      className={classes.outlinedInput}
+                      onChange={(e) => setState(e.target.value)}
+                      className={classes.inputField}
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid item xs={12} sm={6}>
                     <TextField
-                      label="Country"
-                      variant="outlined"
                       fullWidth
-                      value={country}
-                      onChange={handleCountryChange}
-                      className={classes.outlinedInput}
+                      label="Pincode"
+                      variant="outlined"
+                      value={pinCode}
+                      onChange={(e) => setPinCode(e.target.value)}
+                      className={classes.inputField}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Phone Number"
+                      variant="outlined"
+                      value={phoneNo}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className={classes.inputField}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Email"
+                      variant="outlined"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={classes.inputField}
                     />
                   </Grid>
 
                   <Grid item xs={12}>
-                    <TextField
-                      label="Phone"
-                      variant="outlined"
-                      fullWidth
-                      value={phoneNo}
-                      onChange={handlePhoneChange}
-                      className={classes.outlinedInput}
-                      error={!isPhoneNoValid && phoneNo !== ""}
-                      helperText={
-                        !isPhoneNoValid &&
-                        phoneNo &&
-                        "Please enter a valid phone number."
-                      }
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      label="Email"
-                      variant="outlined"
-                      fullWidth
-                      value={email}
-                      onChange={handleEmailChange}
-                      className={classes.outlinedInput}
-                      error={!isValidEmail && email !== ""}
-                      helperText={
-                        !isValidEmail &&
-                        email &&
-                        "Please enter a valid email address."
-                      }
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={saveAddress}
-                          style={{ color: "#000000" }}
-                          onChange={handleSaveAddressChange}
+                    <Box mt={1}>
+                      <FormControlLabel
+                        control={<Checkbox checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} color="default" />}
+                        label={<Typography variant="body2">Save address to address book</Typography>}
+                      />
+                      <Box>
+                        <FormControlLabel
+                          control={<Checkbox checked={sameBillingDelivery} onChange={(e) => setSameBillingDelivery(e.target.checked)} color="default" />}
+                          label={<Typography variant="body2">My billing and delivery information are the same</Typography>}
                         />
-                      }
-                      label="Save Address to Address Book"
-                    />
+                      </Box>
+                    </Box>
                   </Grid>
+
                   <Grid item xs={12}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={sameBillingDelivery}
-                          style={{ color: "#000000" }}
-                          onChange={handleSameBillingDeliveryChange}
-                        />
-                      }
-                      label="My billing and delivery information are the same."
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      className={classes.submitButton}
-                     
-                    >
-                      Continue
-                    </Button>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mt={4} flexWrap="wrap" gap={2}>
+                      <Button
+                        className={classes.btnSecondary}
+                        startIcon={<ArrowBackIosNewIcon style={{ fontSize: "14px" }} />}
+                        onClick={() => history.push("/cart")}
+                      >
+                        Back to Bag
+                      </Button>
+                      <Button
+                        type="submit"
+                        className={classes.btnPrimary}
+                        variant="contained"
+                      >
+                        Continue to Payment
+                      </Button>
+                    </Box>
                   </Grid>
                 </Grid>
               </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+            </Paper>
+          </Grid>
+
+          {/* Right Column - Order Summary */}
+          <Grid item xs={12} md={4}>
+            <Paper className={classes.summaryPaper}>
+              <Typography className={classes.summaryTitle}>Order Summary</Typography>
+              <Divider style={{ marginBottom: "1.5rem" }} />
+              
+              <Box className={classes.summaryItem}>
+                <Typography color="textSecondary">Products ({cartItems.length})</Typography>
+                <Typography style={{ fontWeight: 600 }}>{dispalyMoney(subtotal)}</Typography>
+              </Box>
+              <Box className={classes.summaryItem}>
+                <Typography color="textSecondary">Delivery fee</Typography>
+                <Typography style={{ fontWeight: 600 }}>{deliveryFee === 0 ? "FREE" : dispalyMoney(deliveryFee)}</Typography>
+              </Box>
+              
+              <Divider style={{ margin: "1.5rem 0" }} />
+              
+              <Box className={classes.totalItem}>
+                <Typography variant="h6" style={{ fontWeight: 800 }}>Total</Typography>
+                <Typography variant="h6" style={{ fontWeight: 800 }}>{dispalyMoney(totalPrice)}</Typography>
+              </Box>
+
+              <Box mt={3}>
+                <Typography variant="caption" color="textSecondary">
+                  By continuing, you agree to Angels Attic's Terms of Use and Privacy Policy.
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 
