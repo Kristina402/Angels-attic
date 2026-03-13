@@ -64,6 +64,15 @@ const LazyNewProduct = React.lazy(() => import("./component/Admin/NewProduct"));
 const LazyProductReviews = React.lazy(() =>
   import("./component/Admin/ProductReviews")
 );
+const LazySalesAnalysis = React.lazy(() =>
+  import("./component/Admin/SalesAnalysis")
+);
+const LazyReports = React.lazy(() =>
+  import("./component/Admin/Reports")
+);
+const LazySettings = React.lazy(() =>
+  import("./component/Admin/Settings")
+);
 
 function App() {
   const [stripeApiKey, setStripeApiKey] = useState("");
@@ -521,6 +530,21 @@ function App() {
               exact
               path="/admin/reviews"
               component={LazyProductReviews}
+            />
+            <AdminRoute
+              exact
+              path="/admin/analytics"
+              component={LazySalesAnalysis}
+            />
+            <AdminRoute
+              exact
+              path="/admin/reports"
+              component={LazyReports}
+            />
+            <AdminRoute
+              exact
+              path="/admin/settings"
+              component={LazySettings}
             />
             <AdminRoute
               exact

@@ -131,7 +131,7 @@ const AdminSidebar = () => {
   ];
 
   const analyticsItems = [
-    { label: "Sales Analytics", icon: <BarChartIcon />, path: "/admin/analytics" },
+    { label: "Sales Analysis", icon: <BarChartIcon />, path: "/admin/analytics" },
     { label: "Reports", icon: <AssessmentIcon />, path: "/admin/reports" },
   ];
 

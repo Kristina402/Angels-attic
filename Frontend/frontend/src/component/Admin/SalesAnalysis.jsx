@@ -3,13 +3,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { useAlert } from "react-alert";
 import MetaData from "../layouts/MataData/MataData";
 import Loader from "../layouts/loader/Loader";
-import VendorSidebar from "./VendorSidebar";
-import VendorHeader from "./VendorHeader";
-import { getVendorAnalytics, clearErrors } from "../../actions/analyticsAction";
+import AdminSidebar from "./AdminSidebar";
+import AdminHeader from "./AdminHeader";
+import { getAdminAnalytics, clearErrors } from "../../actions/analyticsAction";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { Box, Typography, Grid, Paper } from "@mui/material";
+import { Box, Typography, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Chip } from "@mui/material";
 import { makeStyles } from "@mui/styles";
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 
 const useStyles = makeStyles((theme) => ({
   dashboard: {
@@ -28,12 +31,13 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: "16px !important",
     border: "none !important",
     boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01) !important",
+    height: "100%",
   },
   sectionTitle: {
-    fontSize: "1.5rem !important",
+    fontSize: "1.25rem !important",
     fontWeight: "800 !important",
     color: "#1a1a1a",
-    marginBottom: "2rem !important",
+    marginBottom: "1.5rem !important",
   },
   statCard: {
     padding: "1.5rem",
@@ -63,9 +67,22 @@ const useStyles = makeStyles((theme) => ({
     color: "#94a3b8",
     fontWeight: "600 !important",
   },
+  table: {
+    "& .MuiTableCell-head": {
+      backgroundColor: "#F8F9FB",
+      color: "#64748b",
+      fontWeight: "700",
+      fontSize: "0.75rem",
+      textTransform: "uppercase",
+    },
+    "& .MuiTableCell-body": {
+      fontSize: "0.85rem",
+      color: "#334155",
+    },
+  },
 }));
 
-const SalesAnalytics = () => {
+const SalesAnalysis = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const alert = useAlert();
@@ -79,32 +96,36 @@ const SalesAnalytics = () => {
       alert.error(error);
       dispatch(clearErrors());
     }
-    dispatch(getVendorAnalytics());
+    dispatch(getAdminAnalytics());
   }, [dispatch, alert, error]);
 
-  const { totalAmount, totalOrders, totalItemsSold, monthlySales, topProducts } = analytics || {};
+  const { totalAmount, totalOrders, totalItemsSold, monthlySales, topProducts, recentTransactions } = analytics || {};
 
-  const barOptions = {
-    chart: { type: "column", height: 400, backgroundColor: "transparent" },
+  const trendOptions = {
+    chart: { type: "areaspline", height: 300, backgroundColor: "transparent" },
     title: { text: null },
     xAxis: { categories: monthlySales?.map((s) => s.name) || [] },
     yAxis: { title: { text: "Revenue" } },
     series: [{
       name: "Monthly Revenue",
       data: monthlySales?.map((s) => s.value) || [],
-      color: "#EC4899"
+      color: "#EC4899",
+      fillColor: {
+        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+        stops: [[0, "rgba(236, 72, 153, 0.2)"], [1, "rgba(236, 72, 153, 0)"]]
+      }
     }],
     credits: { enabled: false }
   };
 
-  const pieOptions = {
-    chart: { type: "pie", height: 400, backgroundColor: "transparent" },
+  const productOptions = {
+    chart: { type: "pie", height: 300, backgroundColor: "transparent" },
     title: { text: null },
     plotOptions: {
       pie: {
         allowPointSelect: true,
         cursor: "pointer",
-        dataLabels: { enabled: true, format: "<b>{point.name}</b>: {point.percentage:.1f} %" },
+        dataLabels: { enabled: false },
         showInLegend: true
       }
     },
@@ -119,10 +140,10 @@ const SalesAnalytics = () => {
 
   return (
     <Box className={classes.dashboard}>
-      <MetaData title="Sales Analytics - Vendor" />
-      <VendorSidebar />
+      <MetaData title="Sales Analysis - Admin" />
+      <AdminSidebar />
       <Box className={classes.mainContent}>
-        <VendorHeader title="Sales Analytics" />
+        <AdminHeader title="Sales Analysis" />
 
         {loading ? (
           <Loader />
@@ -132,10 +153,10 @@ const SalesAnalytics = () => {
               <Grid item xs={12} sm={6} md={4}>
                 <Paper className={classes.statCard}>
                   <Box className={classes.statIconBox} sx={{ bgcolor: "#eff6ff", color: "#3b82f6" }}>
-                    Rs
+                    <AttachMoneyIcon />
                   </Box>
                   <Box>
-                    <Typography className={classes.statLabel}>Total Sales</Typography>
+                    <Typography className={classes.statLabel}>Total Revenue</Typography>
                     <Typography className={classes.statValue}>
                       Rs. {totalAmount?.toLocaleString()}
                     </Typography>
@@ -146,7 +167,7 @@ const SalesAnalytics = () => {
               <Grid item xs={12} sm={6} md={4}>
                 <Paper className={classes.statCard}>
                   <Box className={classes.statIconBox} sx={{ bgcolor: "#fdf2f8", color: "#ec4899" }}>
-                    O
+                    <ShoppingBagOutlinedIcon />
                   </Box>
                   <Box>
                     <Typography className={classes.statLabel}>Total Orders</Typography>
@@ -158,26 +179,67 @@ const SalesAnalytics = () => {
               <Grid item xs={12} sm={6} md={4}>
                 <Paper className={classes.statCard}>
                   <Box className={classes.statIconBox} sx={{ bgcolor: "#ecfdf5", color: "#10b981" }}>
-                    S
+                    <Inventory2OutlinedIcon />
                   </Box>
                   <Box>
-                    <Typography className={classes.statLabel}>Items Sold</Typography>
+                    <Typography className={classes.statLabel}>Total Items Sold</Typography>
                     <Typography className={classes.statValue}>{totalItemsSold}</Typography>
                   </Box>
                 </Paper>
               </Grid>
 
-              <Grid item xs={12} md={7}>
+              <Grid item xs={12} md={8}>
                 <Paper className={classes.sectionPaper}>
-                  <Typography className={classes.sectionTitle}>Monthly Sales</Typography>
-                  <HighchartsReact highcharts={Highcharts} options={barOptions} />
+                  <Typography className={classes.sectionTitle}>Sales Trend</Typography>
+                  <HighchartsReact highcharts={Highcharts} options={trendOptions} />
                 </Paper>
               </Grid>
 
-              <Grid item xs={12} md={5}>
+              <Grid item xs={12} md={4}>
                 <Paper className={classes.sectionPaper}>
                   <Typography className={classes.sectionTitle}>Top Products</Typography>
-                  <HighchartsReact highcharts={Highcharts} options={pieOptions} />
+                  <HighchartsReact highcharts={Highcharts} options={productOptions} />
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Paper className={classes.sectionPaper}>
+                  <Typography className={classes.sectionTitle}>Recent Transactions</Typography>
+                  <TableContainer>
+                    <Table className={classes.table}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Order ID</TableCell>
+                          <TableCell>Customer</TableCell>
+                          <TableCell>Date</TableCell>
+                          <TableCell>Amount</TableCell>
+                          <TableCell>Status</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {recentTransactions?.map((row) => (
+                          <TableRow key={row._id}>
+                            <TableCell sx={{ fontWeight: 600 }}>#{row._id}</TableCell>
+                            <TableCell>{row.user?.name}</TableCell>
+                            <TableCell>{new Date(row.createdAt).toLocaleDateString()}</TableCell>
+                            <TableCell>Rs. {row.totalPrice.toLocaleString()}</TableCell>
+                            <TableCell>
+                              <Chip
+                                label={row.orderStatus}
+                                size="small"
+                                sx={{
+                                  bgcolor: "#ecfdf5",
+                                  color: "#10b981",
+                                  fontWeight: 700,
+                                  fontSize: "0.7rem",
+                                }}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
                 </Paper>
               </Grid>
             </Grid>
@@ -188,4 +250,4 @@ const SalesAnalytics = () => {
   );
 };
 
-export default SalesAnalytics;
+export default SalesAnalysis;
