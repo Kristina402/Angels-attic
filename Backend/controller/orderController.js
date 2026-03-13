@@ -1,5 +1,7 @@
 const Order = require("../model/orderModel");
 const Product = require("../model/productModel");
+const Notification = require("../models/notificationModel");
+const User = require("../model/userModel");
 const ErrorHandler = require("../utils/errorHandler");
 const asyncWrapper = require("../middleWare/asyncWrapper");
 
@@ -26,6 +28,17 @@ exports.newOrder = asyncWrapper(async (req, res, next) => {
     paidAt: Date.now(),
     user: req.user._id,
   });
+
+  // Create notification for admin
+  const admins = await User.find({ role: "admin" });
+  for (const admin of admins) {
+    await Notification.create({
+      recipient: admin._id,
+      message: `New order placed: #${order._id}`,
+      type: "new_order",
+      link: `/admin/order/${order._id}`,
+    });
+  }
 
   res.status(201).json({
     success: true,
@@ -77,9 +90,21 @@ exports.getVendorOrders = asyncWrapper(async (req, res, next) => {
   });
 });
 
-// get all Orders -- Admin
+// get all Orders -- Admin/Vendor
 exports.getAllOrders = asyncWrapper(async (req, res, next) => {
-  const orders = await Order.find();
+  let orders;
+  if (req.user.role === "admin") {
+    orders = await Order.find();
+  } else if (req.user.role === "vendor") {
+    // Find all products by this vendor
+    const vendorProducts = await Product.find({ user: req.user._id });
+    const productIds = vendorProducts.map((p) => p._id);
+
+    // Find all orders that contain at least one of these products
+    orders = await Order.find({
+      "orderItems.productId": { $in: productIds },
+    });
+  }
 
   let totalAmount = 0;
 
@@ -111,6 +136,7 @@ exports.updateOrder = asyncWrapper(async (req, res, next) => {
       await updateStock(o.productId, o.quantity);
     });
   }
+  const oldStatus = order.orderStatus;
   order.orderStatus = req.body.status;
 
   if (req.body.status === "Delivered") {
@@ -118,6 +144,20 @@ exports.updateOrder = asyncWrapper(async (req, res, next) => {
   }
 
   await order.save({ validateBeforeSave: false });
+
+  // Create notification for user/admin on status update
+  if (oldStatus !== req.body.status) {
+    const admins = await User.find({ role: "admin" });
+    for (const admin of admins) {
+      await Notification.create({
+        recipient: admin._id,
+        message: `Order #${order._id} status updated to: ${req.body.status}`,
+        type: "payment_update", // Using payment_update for general status updates as requested
+        link: `/admin/order/${order._id}`,
+      });
+    }
+  }
+
   res.status(200).json({
     success: true,
   });

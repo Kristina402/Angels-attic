@@ -78,12 +78,17 @@ exports.getProductDetails = asyncWrapper(async (req, res, next) => {
   });
 });
 
-// Update Product -- Admin
+// Update Product -- Admin/Vendor
 exports.updateProduct = asyncWrapper(async (req, res, next) => {
   let product = await Product.findById(req.params.id);
 
   if (!product) {
     return next(new ErrorHandler("Product not found", 404));
+  }
+
+  // Check ownership if vendor
+  if (req.user.role === "vendor" && product.user.toString() !== req.user.id) {
+    return next(new ErrorHandler("You are not allowed to update this product", 403));
   }
 
   // Images Start Here
@@ -129,12 +134,17 @@ exports.updateProduct = asyncWrapper(async (req, res, next) => {
   });
 });
 
-// Delete Product
+// Delete Product -- Admin/Vendor
 exports.deleteProduct = asyncWrapper(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
 
   if (!product) {
     return next(new ErrorHandler("Product not found", 404));
+  }
+
+  // Check ownership if vendor
+  if (req.user.role === "vendor" && product.user.toString() !== req.user.id) {
+    return next(new ErrorHandler("You are not allowed to delete this product", 403));
   }
 
   // Deleting Images From Cloudinary
@@ -253,9 +263,14 @@ exports.deleteReview = asyncWrapper(async (req, res, next) => {
   });
 });
 
-// Get All Product (Admin)
+// Get All Product (Admin/Vendor)
 exports.getAdminProducts = asyncWrapper(async (req, res, next) => {
-  const products = await Product.find();
+  let products;
+  if (req.user.role === "admin") {
+    products = await Product.find();
+  } else if (req.user.role === "vendor") {
+    products = await Product.find({ user: req.user._id });
+  }
 
   res.status(200).json({
     success: true,

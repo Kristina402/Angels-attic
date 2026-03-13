@@ -44,7 +44,7 @@ import {
 
 
 // login user
-export function login(email, password) {
+export function login(email, password, history, redirect) {
 
   return async function (dispatch) {
     try {
@@ -59,6 +59,20 @@ export function login(email, password) {
       );
 
       dispatch({ type: LOGIN_SUCCESS, payload: data.user });
+
+      // Redirect after successful login
+      if (data.user.role === "admin") {
+        history.push("/admin-dashboard");
+      } else if (data.user.role === "vendor") {
+        if (data.user.isApproved === false) {
+          history.push("/vendor/pending");
+        } else {
+          history.push("/vendor/dashboard");
+        }
+      } else {
+        history.push(redirect);
+      }
+
     } catch (error) {
       dispatch({
         type: LOGIN_FAIL,

@@ -1,11 +1,11 @@
 const ErrorHandler = require("../utils/errorHandler");
 const asyncWrapper = require("../middleWare/asyncWrapper");
 const userModel = require("../model/userModel");
+const Notification = require("../models/notificationModel");
 const sendJWtToken = require("../utils/JwtToken");
 const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
 const cloudinary = require("cloudinary");
-
 
 // signUp controller>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 exports.registerUser = asyncWrapper(async (req, res) => {
@@ -14,8 +14,6 @@ exports.registerUser = asyncWrapper(async (req, res) => {
     width: 150,
     crop: "scale",
   });
-
-
 
   const { name, email, password } = req.body;
   const user = await userModel.create({
@@ -69,6 +67,26 @@ exports.registerVendor = asyncWrapper(async (req, res, next) => {
       url: avatarData.url,
     },
   });
+
+  // Create notification for admin
+  const admins = await userModel.find({ role: "admin" });
+  for (const admin of admins) {
+    await Notification.create({
+      recipient: admin._id,
+      message: `New vendor registration: ${storeName}`,
+      type: "new_vendor",
+      link: `/admin/user/${user._id}`,
+    });
+
+    if (kycDocument) {
+      await Notification.create({
+        recipient: admin._id,
+        message: `New KYC verification request from: ${storeName}`,
+        type: "kyc_request",
+        link: `/admin/user/${user._id}`,
+      });
+    }
+  }
 
   sendJWtToken(user, 201, res);
 });

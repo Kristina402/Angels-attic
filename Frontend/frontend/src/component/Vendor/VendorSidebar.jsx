@@ -42,9 +42,9 @@ const useStyles = makeStyles((theme) => ({
     gap: "0.75rem",
   },
   logoIcon: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "10px",
+    width: "50px",
+    height: "50px",
+    borderRadius: "12px",
     backgroundColor: "#FDF2F8",
     display: "flex",
     alignItems: "center",
@@ -161,9 +161,8 @@ const VendorSidebar = () => {
     <Box className={classes.sidebar}>
       <Box className={classes.logoContainer}>
         <Box className={classes.logoIcon}>
-          <ShoppingBagIcon sx={{ color: "#EC4899" }} />
+          <ShoppingBagIcon sx={{ color: "#EC4899", fontSize: "28px" }} />
         </Box>
-        <Typography className={classes.logoText}>Vendor Panel</Typography>
       </Box>
 
       <Typography className={classes.sectionLabel}>Main Menu</Typography>

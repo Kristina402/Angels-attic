@@ -30,6 +30,8 @@ import {
   
 
 } from "./reducers/orderReducer";
+import { analyticsReducer } from "./reducers/analyticsReducer";
+import { notificationReducer } from "./reducers/notificationReducer";
 
 const rootReducer = combineReducers({
   products: productsReducer,
@@ -52,6 +54,8 @@ const rootReducer = combineReducers({
   getAllReview : getALLReviewReducer,
   wishlist: wishlistReducer,
   vendor: vendorReducer,
+  analytics: analyticsReducer,
+  notifications: notificationReducer,
 });
 
 // get all Cart values from local storage and pass this initial state into store

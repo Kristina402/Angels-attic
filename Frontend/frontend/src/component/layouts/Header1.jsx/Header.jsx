@@ -109,6 +109,9 @@ function Header() {
             <nav className="main_nav">
               <ul>
                 <li>
+                  <Link to="/">Home</Link>
+                </li>
+                <li>
                   <Link to="/products">Shop</Link>
                 </li>
                 <li>

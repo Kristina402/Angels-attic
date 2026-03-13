@@ -66,8 +66,6 @@ const ProfileModal = ({ user, isAuthenticated }) => {
       history.push("/admin-dashboard");
     } else if (user.role === "vendor") {
       history.push("/vendor/dashboard");
-    } else {
-      history.push("/dashboard");
     }
   }
 
@@ -149,7 +147,7 @@ const ProfileModal = ({ user, isAuthenticated }) => {
             )}
             <div className="divider" />
             <div className="profile-menu">
-              {isAuthenticated && (
+              {isAuthenticated && (user.role === "admin" || user.role === "vendor") && (
                 <div className="menu-item" onClick={dashboardHandler}>
                   <DashboardIcon className="menu-icon" />
                   <span>Dashboard</span>

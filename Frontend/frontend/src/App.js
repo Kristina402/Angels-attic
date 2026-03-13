@@ -6,7 +6,7 @@ import axios from "axios";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import CricketBallLoader from "./component/layouts/loader/Loader";
-import PrivateRoute, { PublicRoute } from "./component/Route/PrivateRoute";
+import PrivateRoute, { AdminRoute, VendorRoute, PublicRoute } from "./component/Route/PrivateRoute";
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import "./App.css";
 
@@ -38,11 +38,11 @@ import TermsAndConditions from "./Terms&Condtions/TermsCondtion";
 import PrivacyPolicy from "./Terms&Condtions/Privacy";
 import VendorRegistration from "./component/User/VendorRegistration";
 import VendorDashboard from "./component/Vendor/Dashboard";
-import CustomerDashboard from "./component/Customer/Dashboard";
 import VendorProductList from "./component/Vendor/ProductList";
 import VendorOrderList from "./component/Vendor/OrderList";
 import VendorNewProduct from "./component/Vendor/NewProduct";
 import PendingApproval from "./component/Vendor/PendingApproval";
+import SalesAnalytics from "./component/Vendor/SalesAnalytics";
 // const LazyPayment = React.lazy(() => import("./component/Cart/Payment"));
 const LazyDashboard = React.lazy(() => import("./component/Admin/Dashboard"));
 const LazyProductList = React.lazy(() =>
@@ -344,18 +344,6 @@ function App() {
 
           <Route
             exact
-            path="/dashboard"
-            render={() => (
-              <>
-                {<Header />}
-                <PrivateRoute exact path="/dashboard" component={CustomerDashboard} />
-                {<Footer />}
-              </>
-            )}
-          />
-
-          <Route
-            exact
             path="/vendor/dashboard"
             render={() => (
               <>
@@ -385,6 +373,18 @@ function App() {
               <>
                 {<Header />}
                 <PrivateRoute isVendor={true} exact path="/vendor/orders" component={VendorOrderList} />
+                {<Footer />}
+              </>
+            )}
+          />
+
+          <Route
+            exact
+            path="/vendor/order/:id"
+            render={() => (
+              <>
+                {<Header />}
+                <PrivateRoute isVendor={true} exact path="/vendor/order/:id" component={LazyProcessOrder} />
                 {<Footer />}
               </>
             )}
@@ -502,65 +502,91 @@ function App() {
         {/* Admin routes */}
         <Suspense fallback={<CricketBallLoader />}>
           <Switch>
-            <PrivateRoute
-              isAdmin={true}
+            <AdminRoute
               exact
               path="/admin-dashboard"
               component={LazyDashboard}
             />
-            <PrivateRoute
-              isAdmin={true}
+            <AdminRoute
               exact
               path="/admin/products"
               component={LazyProductList}
             />
-            <PrivateRoute
-              isAdmin={true}
+            <AdminRoute
               exact
               path="/admin/product/:id"
               component={LazyUpdateProduct}
             />
-            <PrivateRoute
-              isAdmin={true}
+            <AdminRoute
               exact
               path="/admin/reviews"
               component={LazyProductReviews}
             />
-            <PrivateRoute
-              isAdmin={true}
+            <AdminRoute
               exact
               path="/admin/orders"
               component={LazyOrderList}
             />
-            <PrivateRoute
-              isAdmin={true}
+            <AdminRoute
               exact
               path="/admin/order/:id"
               component={LazyProcessOrder}
             />
-            <PrivateRoute
-              isAdmin={true}
+            <AdminRoute
               exact
               path="/admin/new/product"
               component={LazyNewProduct}
             />
-            <PrivateRoute
-              isAdmin={true}
+            <AdminRoute
               exact
               path="/admin/users"
               component={LazyUserList}
             />
-            <PrivateRoute
-              isAdmin={true}
+            <AdminRoute
               exact
               path="/admin/vendors"
               component={LazyVendorList}
             />
-            <PrivateRoute
-              isAdmin={true}
+            <AdminRoute
               exact
               path="/admin/user/:id"
               component={LazyUpdateUser}
+            />
+          </Switch>
+        </Suspense>
+
+        {/* Vendor routes */}
+        <Suspense fallback={<CricketBallLoader />}>
+          <Switch>
+            <VendorRoute
+              exact
+              path="/vendor/dashboard"
+              component={VendorDashboard}
+            />
+            <VendorRoute
+              exact
+              path="/vendor/products"
+              component={VendorProductList}
+            />
+            <VendorRoute
+              exact
+              path="/vendor/orders"
+              component={VendorOrderList}
+            />
+            <VendorRoute
+              exact
+              path="/vendor/order/:id"
+              component={LazyProcessOrder}
+            />
+            <VendorRoute
+              exact
+              path="/vendor/product/new"
+              component={VendorNewProduct}
+            />
+            <VendorRoute
+              exact
+              path="/vendor/analytics"
+              component={SalesAnalytics}
             />
           </Switch>
         </Suspense>

@@ -90,7 +90,9 @@ const VendorList = () => {
 
   const updateVendorStatusHandler = (id, status) => {
     const userData = { isApproved: status };
-    dispatch(updateUser(id, userData));
+    dispatch(updateUser(id, userData)).then(() => {
+      window.location.reload();
+    });
   };
 
   useEffect(() => {
@@ -110,6 +112,7 @@ const VendorList = () => {
     if (isUpdated) {
       alert.success("Vendor status updated successfully");
       dispatch({ type: UPDATE_USER_RESET });
+      dispatch(getAllUsers()); // Re-fetch users after update
     }
 
     if (isDeleted) {

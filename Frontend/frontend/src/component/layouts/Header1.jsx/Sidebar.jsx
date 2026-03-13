@@ -29,9 +29,9 @@ const Sidebar = ({ handleSideBarMenu, isAuthenticated, user }) => {
         <CloseIcon />
       </button>
       <ul className="sidebar-menu">
-        {isAuthenticated && user.role === "admin" && (
+        {isAuthenticated && (user.role === "admin" || user.role === "vendor") && (
           <Link
-            to="/admin-dashboard"
+            to={user.role === "admin" ? "/admin-dashboard" : "/vendor/dashboard"}
             style={{ color: "inherit", textDecoration: "none" }}
           >
             <li className="sidebar-menu-item">

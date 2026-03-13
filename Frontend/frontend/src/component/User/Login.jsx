@@ -14,7 +14,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
-import { login, clearErrors } from "../../actions/userAction";
+import { login, clearErrors, load_UserProfile } from "../../actions/userAction";
 import CricketBallLoader from "../layouts/loader/Loader";
 import { useAlert } from "react-alert";
 import { Link } from "react-router-dom";
@@ -66,25 +66,11 @@ export default function Login() {
        alert.error(error);
        dispatch(clearErrors());
      }
-
-     if (isAuthenticated) {
-       if (user.role === "admin") {
-         history.push("/admin-dashboard");
-       } else if (user.role === "vendor") {
-         if (user.isApproved === false) {
-           history.push("/vendor/pending");
-         } else {
-           history.push("/vendor/dashboard");
-         }
-       } else {
-         history.push(redirect);
-       }
-     }
-   }, [dispatch, isAuthenticated, loading, error, alert , history , redirect, user]);
+   }, [dispatch, error, alert]);
 
      function handleLoginSubmit(e) {
        e.preventDefault();
-       dispatch(login(email, password));
+       dispatch(login(email, password, history, redirect));
      }
 
 
