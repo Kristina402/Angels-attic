@@ -50,6 +50,7 @@ const ProductDetails = () => {
   const { products: relatedProducts } = useSelector((state) => state.products);
 
   const isItemInWishlist = wishlistItems.find((i) => i.productId === match.params.id);
+  const isSold = product && product.availabilityStatus === "Sold";
 
   useEffect(() => {
     if (error) {
@@ -66,7 +67,11 @@ const ProductDetails = () => {
   }, [dispatch, product]);
 
   const addToCartHandler = () => {
-    dispatch(addItemToCart(match.params.id, quantity));
+    if (isSold) {
+      alert.error("Item is already sold");
+      return;
+    }
+    dispatch(addItemToCart(match.params.id, 1));
     alert.success("Item added to bag");
   };
 
@@ -78,16 +83,6 @@ const ProductDetails = () => {
       dispatch(addToWishlist(match.params.id));
       alert.success("Added to wishlist");
     }
-  };
-
-  const increaseQuantity = () => {
-    if (product.Stock <= quantity) return;
-    setQuantity(quantity + 1);
-  };
-
-  const decreaseQuantity = () => {
-    if (1 >= quantity) return;
-    setQuantity(quantity - 1);
   };
 
   if (loading || !product || !product.images) return <CricketBallLoader />;
@@ -118,6 +113,11 @@ const ProductDetails = () => {
                 <Grid item xs={10}>
                   <Box className="main_image_container">
                     <img src={product.images[selectedImage].url} alt={product.name} />
+                    {isSold && (
+                      <Box className="sold_out_overlay">
+                        <Typography variant="h2">Sold Out</Typography>
+                      </Box>
+                    )}
                   </Box>
                 </Grid>
               </Grid>
@@ -168,9 +168,9 @@ const ProductDetails = () => {
                   <Typography variant="subtitle2">Availability:</Typography>
                   <Typography 
                     variant="body1" 
-                    className={product.Stock < 1 ? "out_of_stock" : "in_stock"}
+                    className={isSold ? "out_of_stock" : "in_stock"}
                   >
-                    {product.Stock < 1 ? "Sold Out" : product.Stock === 1 ? "Only 1 item available!" : "In Stock"}
+                    {isSold ? "Sold Out" : "Only 1 item available!"}
                   </Typography>
                 </Box>
               </Box>
@@ -180,31 +180,24 @@ const ProductDetails = () => {
               </Typography>
 
               <Box className="purchase_actions">
-                <Box className="quantity_selector">
-                  <IconButton onClick={decreaseQuantity} size="small">
-                    <RemoveIcon fontSize="small" />
-                  </IconButton>
-                  <Typography className="quantity_value">{quantity}</Typography>
-                  <IconButton onClick={increaseQuantity} size="small">
-                    <AddIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-
-                <Box className="button_group">
+                <Box className="button_group" style={{ width: '100%' }}>
                   <Button
                     variant="contained"
                     className="add_to_cart_btn"
                     onClick={addToCartHandler}
-                    disabled={product.Stock < 1}
+                    disabled={isSold}
                     startIcon={<ShoppingBagOutlinedIcon />}
+                    fullWidth
                   >
-                    Add to Bag
+                    {isSold ? "Sold Out" : "Add to Bag"}
                   </Button>
                   <Button
                     variant="outlined"
                     className={`wishlist_btn ${isItemInWishlist ? "active" : ""}`}
                     onClick={wishlistHandler}
                     startIcon={isItemInWishlist ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                    fullWidth
+                    style={{ marginTop: '1rem' }}
                   >
                     {isItemInWishlist ? "Added to Wishlist" : "Add to Wishlist"}
                   </Button>

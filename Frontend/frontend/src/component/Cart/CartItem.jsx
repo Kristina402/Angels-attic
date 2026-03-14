@@ -187,28 +187,12 @@ const CartItem = ({ item, deleteCartItems, decreaseQuantity, increaseQuantity, i
         </Box>
 
         <div className={classes.item_actions_new}>
-          <div className={classes.quantity_controls_new}>
-            <IconButton 
-              className={classes.qty_btn_new}
-              onClick={() => decreaseQuantity(id, item.quantity)}
-              size="small"
-            >
-              <RemoveIcon fontSize="small" />
-            </IconButton>
-            <Typography className={classes.qty_value_new}>
-              {item.quantity}
-            </Typography>
-            <IconButton 
-              className={classes.qty_btn_new}
-              onClick={() => increaseQuantity(id, item.quantity, item.stock)}
-              size="small"
-            >
-              <AddIcon fontSize="small" />
-            </IconButton>
-          </div>
+          <Typography className={classes.subtotal_text}>
+            Quantity: 1
+          </Typography>
           
           <Typography className={classes.subtotal_text}>
-            Total: {dispalyMoney(item.price * item.quantity)}
+            Total: {dispalyMoney(item.price)}
           </Typography>
         </div>
       </CardContent>

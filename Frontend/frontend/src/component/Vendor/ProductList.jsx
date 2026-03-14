@@ -78,8 +78,8 @@ const ProductList = () => {
   const alert = useAlert();
   const history = useHistory();
 
-  const { error, products } = useSelector((state) => state.products);
-  const { error: deleteError, isDeleted } = useSelector((state) => state.product);
+  const { error, products } = useSelector((state) => state.products || { products: [] });
+  const { error: deleteError, isDeleted } = useSelector((state) => state.deleteUpdateProduct || {});
   
   const [vendorProducts, setVendorProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -130,20 +130,19 @@ const ProductList = () => {
       flex: 1,
     },
     {
-      field: "stock",
-      headerName: "Stock",
-      type: "number",
+      field: "status",
+      headerName: "Status",
       minWidth: 150,
       flex: 0.3,
       renderCell: (params) => {
-        const stock = params.value;
+        const status = params.value;
         return (
           <Chip 
-            label={stock} 
+            label={status} 
             size="small"
             sx={{ 
-              backgroundColor: stock > 0 ? "#ECFDF5" : "#FEF2F2",
-              color: stock > 0 ? "#10B981" : "#EF4444",
+              backgroundColor: status === "Available" ? "#ECFDF5" : "#FEF2F2",
+              color: status === "Available" ? "#10B981" : "#EF4444",
               fontWeight: "700"
             }}
           />
@@ -168,7 +167,7 @@ const ProductList = () => {
         return (
           <Box sx={{ display: "flex", gap: "0.5rem" }}>
             <Tooltip title="Edit Product">
-              <IconButton size="small" component={Link} to={`/admin/product/${params.getValue(params.id, "id")}`}>
+              <IconButton size="small" component={Link} to={`/vendor/product/${params.getValue(params.id, "id")}`}>
                 <EditIcon className={classes.actionIcon} />
               </IconButton>
             </Tooltip>
@@ -188,7 +187,7 @@ const ProductList = () => {
     vendorProducts.forEach((item) => {
       rows.push({
         id: item._id,
-        stock: item.Stock,
+        status: item.availabilityStatus,
         price: item.price,
         name: item.name,
       });

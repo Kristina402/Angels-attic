@@ -15,7 +15,7 @@ export const addToWishlist = (id) => async (dispatch, getState) => {
       name: data.product.name,
       price: data.product.price,
       image: data.product.images[0].url,
-      stock: data.product.Stock,
+      stock: data.product.availabilityStatus === "Available" ? 1 : 0,
     },
   });
 

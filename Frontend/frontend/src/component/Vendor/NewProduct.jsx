@@ -95,13 +95,16 @@ function NewProduct() {
   const [price, setPrice] = useState(0);
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [Stock, setStock] = useState(0);
+  const [size, setSize] = useState("");
+  const [condition, setCondition] = useState("Pre-loved");
   const [info, setInfo] = useState("");
   const [images, setImages] = useState([]);
   const [imagesPreview, setImagesPreview] = useState([]);
   const fileInputRef = useRef();
 
   const categories = ["bags", "bottoms", "footwares", "jackets", "skirts", "tops"];
+  const sizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
+  const conditions = ["New", "Like New", "Pre-loved"];
 
   useEffect(() => {
     if (error) {
@@ -123,7 +126,8 @@ function NewProduct() {
     myForm.set("price", price);
     myForm.set("description", description);
     myForm.set("category", category);
-    myForm.set("Stock", Stock);
+    myForm.set("size", size);
+    myForm.set("condition", condition);
     myForm.set("info", info);
     images.forEach((currImg) => {
       myForm.append("images", currImg);
@@ -229,22 +233,33 @@ function NewProduct() {
               </Select>
             </FormControl>
 
-            <TextField
-              fullWidth
-              variant="outlined"
-              label="Stock"
-              type="number"
-              value={Stock}
-              onChange={(e) => setStock(e.target.value)}
-              required
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <StorageIcon color="action" />
-                  </InputAdornment>
-                ),
-              }}
-            />
+            <FormControl fullWidth variant="outlined">
+              <Select
+                value={size}
+                onChange={(e) => setSize(e.target.value)}
+                displayEmpty
+                required
+              >
+                <MenuItem value="" disabled>Choose Size</MenuItem>
+                {sizes.map((s) => (
+                  <MenuItem key={s} value={s}>{s}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth variant="outlined">
+              <Select
+                value={condition}
+                onChange={(e) => setCondition(e.target.value)}
+                displayEmpty
+                required
+              >
+                <MenuItem value="" disabled>Choose Condition</MenuItem>
+                {conditions.map((c) => (
+                  <MenuItem key={c} value={c}>{c}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
             <TextField
               fullWidth

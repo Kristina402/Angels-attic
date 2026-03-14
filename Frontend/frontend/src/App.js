@@ -40,11 +40,16 @@ import VendorRegistration from "./component/User/VendorRegistration";
 import VendorDashboard from "./component/Vendor/Dashboard";
 import VendorProductList from "./component/Vendor/ProductList";
 import VendorOrderList from "./component/Vendor/OrderList";
-import VendorNewProduct from "./component/Vendor/NewProduct";
 import PendingApproval from "./component/Vendor/PendingApproval";
 import SalesAnalytics from "./component/Vendor/SalesAnalytics";
 // const LazyPayment = React.lazy(() => import("./component/Cart/Payment"));
 const LazyDashboard = React.lazy(() => import("./component/Admin/Dashboard"));
+const VendorNewProduct = React.lazy(() =>
+  import("./component/Vendor/NewProduct")
+);
+const VendorUpdateProduct = React.lazy(() =>
+  import("./component/Vendor/UpdateProduct")
+);
 const LazyProductList = React.lazy(() =>
   import("./component/Admin/ProductList")
 );
@@ -353,66 +358,6 @@ function App() {
 
           <Route
             exact
-            path="/vendor/dashboard"
-            render={() => (
-              <>
-                {<Header />}
-                <PrivateRoute isVendor={true} exact path="/vendor/dashboard" component={VendorDashboard} />
-                {<Footer />}
-              </>
-            )}
-          />
-
-          <Route
-            exact
-            path="/vendor/products"
-            render={() => (
-              <>
-                {<Header />}
-                <PrivateRoute isVendor={true} exact path="/vendor/products" component={VendorProductList} />
-                {<Footer />}
-              </>
-            )}
-          />
-
-          <Route
-            exact
-            path="/vendor/orders"
-            render={() => (
-              <>
-                {<Header />}
-                <PrivateRoute isVendor={true} exact path="/vendor/orders" component={VendorOrderList} />
-                {<Footer />}
-              </>
-            )}
-          />
-
-          <Route
-            exact
-            path="/vendor/order/:id"
-            render={() => (
-              <>
-                {<Header />}
-                <PrivateRoute isVendor={true} exact path="/vendor/order/:id" component={LazyProcessOrder} />
-                {<Footer />}
-              </>
-            )}
-          />
-
-          <Route
-            exact
-            path="/vendor/product/new"
-            render={() => (
-              <>
-                {<Header />}
-                <PrivateRoute isVendor={true} exact path="/vendor/product/new" component={VendorNewProduct} />
-                {<Footer />}
-              </>
-            )}
-          />
-
-          <Route
-            exact
             path="/account"
             render={() => (
               <>
@@ -606,6 +551,11 @@ function App() {
               exact
               path="/vendor/product/new"
               component={VendorNewProduct}
+            />
+            <VendorRoute
+              exact
+              path="/vendor/product/:id"
+              component={VendorUpdateProduct}
             />
             <VendorRoute
               exact

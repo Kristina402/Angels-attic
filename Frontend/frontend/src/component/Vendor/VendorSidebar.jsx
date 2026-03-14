@@ -133,7 +133,6 @@ const VendorSidebar = () => {
 
   const analyticsItems = [
     { label: "Sales Analytics", icon: <BarChartIcon />, path: "/vendor/analytics" },
-    { label: "Manage Stock", icon: <InventoryIcon />, path: "/vendor/stock" },
   ];
 
   const systemItems = [

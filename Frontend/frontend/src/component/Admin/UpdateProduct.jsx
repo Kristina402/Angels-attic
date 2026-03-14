@@ -50,22 +50,22 @@ function UpdateProduct() {
   const [price, setPrice] = useState(0);
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
+  const [size, setSize] = useState("");
+  const [condition, setCondition] = useState("Pre-loved");
+  const [availabilityStatus, setAvailabilityStatus] = useState("Available");
   const [isCategory, setIsCategory] = useState(false);
-  const [Stock, setStock] = useState(0);
   const [images, setImages] = useState([]);
   const [info , setInfo] = useState('');
   const [imagesPreview, setImagesPreview] = useState([]);
   const [oldImages, setOldImages] = useState([]);
   const fileInputRef = useRef();
   const [toggle, setToggle] = useState(false);
-  const categories = [
-    "bags",
-    "bottoms",
-    "footwares",
-    "jackets",
-    "skirts",
-    "tops",
-  ];
+  
+  const categories = ["bags", "bottoms", "footwares", "jackets", "skirts", "tops"];
+  const sizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
+  const conditions = ["New", "Like New", "Pre-loved"];
+  const statuses = ["Available", "Sold"];
+
   const handleCategoryChange = (e) => {
     setCategory(e.target.value);
     setIsCategory(true);
@@ -78,9 +78,12 @@ function UpdateProduct() {
       setName(product.name);
       setDescription(product.description);
       setPrice(product.price);
-      setCategory("");
+      setCategory(product.category);
+      setIsCategory(true);
       setInfo(product.info);  
-      setStock(product.Stock);
+      setSize(product.size || "");
+      setCondition(product.condition || "Pre-loved");
+      setAvailabilityStatus(product.availabilityStatus || "Available");
       setOldImages(product.images);
     }
 
@@ -117,12 +120,13 @@ function UpdateProduct() {
     myForm.set("price", price);
     myForm.set("description", description);
     myForm.set("category", category);
-    myForm.set("Stock", Stock);
+    myForm.set("size", size);
+    myForm.set("condition", condition);
+    myForm.set("availabilityStatus", availabilityStatus);
     myForm.set("info", info);
     images.forEach((currImg) => {
       myForm.append("images", currImg);
     });
-
 
     dispatch(updateProduct(productId, myForm));
   };
@@ -239,28 +243,7 @@ function UpdateProduct() {
 
                     <TextField
                       variant="outlined"
-                      label="Stock"
-                      value={Stock}
-                      required
-                      className={`${classes.passwordInput} ${classes.textField}`}
-                      onChange={(e) => setStock(e.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment
-                            position="end"
-                            style={{
-                              fontSize: 20,
-                              color: "#414141",
-                            }}
-                          >
-                            <StorageIcon />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    <TextField
-                      variant="outlined"
-                      label="Prodcut Info"
+                      label="Product Info"
                       value={info}
                       required
                       className={`${classes.passwordInput} ${classes.textField}`}
@@ -279,6 +262,63 @@ function UpdateProduct() {
                         ),
                       }}
                     />
+
+                    <div className={classes.selectOption}>
+                      <Typography variant="body2" className={classes.labelText}>
+                        Availability Status
+                      </Typography>
+                      <FormControl className={classes.formControl}>
+                        <Select
+                          variant="outlined"
+                          fullWidth
+                          value={availabilityStatus}
+                          onChange={(e) => setAvailabilityStatus(e.target.value)}
+                          className={classes.select}
+                        >
+                          {statuses.map((s) => (
+                            <MenuItem key={s} value={s}>{s}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </div>
+
+                    <div className={classes.selectOption}>
+                      <Typography variant="body2" className={classes.labelText}>
+                        Size
+                      </Typography>
+                      <FormControl className={classes.formControl}>
+                        <Select
+                          variant="outlined"
+                          fullWidth
+                          value={size}
+                          onChange={(e) => setSize(e.target.value)}
+                          className={classes.select}
+                        >
+                          {sizes.map((s) => (
+                            <MenuItem key={s} value={s}>{s}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </div>
+
+                    <div className={classes.selectOption}>
+                      <Typography variant="body2" className={classes.labelText}>
+                        Condition
+                      </Typography>
+                      <FormControl className={classes.formControl}>
+                        <Select
+                          variant="outlined"
+                          fullWidth
+                          value={condition}
+                          onChange={(e) => setCondition(e.target.value)}
+                          className={classes.select}
+                        >
+                          {conditions.map((c) => (
+                            <MenuItem key={c} value={c}>{c}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </div>
 
                     <div className={classes.selectOption}>
                       {!isCategory && (

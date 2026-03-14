@@ -43,7 +43,8 @@ function NewProduct() {
   const [price, setPrice] = useState(0);
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [Stock, setStock] = useState(0);
+  const [size, setSize] = useState("");
+  const [condition, setCondition] = useState("Pre-loved");
   const [info , setInfo] = useState("")
   const [images, setImages] = useState([]);
   const [imagesPreview, setImagesPreview] = useState([]);
@@ -66,14 +67,10 @@ function NewProduct() {
   const handleImageUpload = () => {
     fileInputRef.current.click();
   };
- const categories = [
-   "bags",
-   "bottoms",
-   "footwares",
-   "jackets",
-   "skirts",
-   "tops",
- ];
+  const categories = ["bags", "bottoms", "footwares", "jackets", "skirts", "tops"];
+  const sizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
+  const conditions = ["New", "Like New", "Pre-loved"];
+
   useEffect(() => {
     if (error) {
       alert.error(error);
@@ -94,7 +91,8 @@ function NewProduct() {
     myForm.set("price", price);
     myForm.set("description", description);
     myForm.set("category", category);
-    myForm.set("Stock", Stock);
+    myForm.set("size", size);
+    myForm.set("condition", condition);
     myForm.set("info", info);
     images.forEach((currImg) => {
       myForm.append("images", currImg);
@@ -205,27 +203,6 @@ function NewProduct() {
                   />
                   <TextField
                     variant="outlined"
-                    label="Stock"
-                    value={Stock}
-                    required
-                    className={`${classes.passwordInput} ${classes.textField}`}
-                    onChange={(e) => setStock(e.target.value)}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment
-                          position="end"
-                          style={{
-                            fontSize: 20,
-                            color: "#414141",
-                          }}
-                        >
-                          <StorageIcon />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  <TextField
-                    variant="outlined"
                     label="Product info"
                     value={info}
                     required
@@ -245,6 +222,44 @@ function NewProduct() {
                       ),
                     }}
                   />
+
+                  <div className={classes.selectOption}>
+                    <Typography variant="body2" className={classes.labelText}>
+                      Choose Size
+                    </Typography>
+                    <FormControl className={classes.formControl}>
+                      <Select
+                        variant="outlined"
+                        fullWidth
+                        value={size}
+                        onChange={(e) => setSize(e.target.value)}
+                        className={classes.select}
+                      >
+                        {sizes.map((s) => (
+                          <MenuItem key={s} value={s}>{s}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </div>
+
+                  <div className={classes.selectOption}>
+                    <Typography variant="body2" className={classes.labelText}>
+                      Choose Condition
+                    </Typography>
+                    <FormControl className={classes.formControl}>
+                      <Select
+                        variant="outlined"
+                        fullWidth
+                        value={condition}
+                        onChange={(e) => setCondition(e.target.value)}
+                        className={classes.select}
+                      >
+                        {conditions.map((c) => (
+                          <MenuItem key={c} value={c}>{c}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </div>
 
                   <div className={classes.selectOption}>
                     {!isCategory && (

@@ -40,6 +40,11 @@ exports.newOrder = asyncWrapper(async (req, res, next) => {
     });
   }
 
+  // Update product status to Sold
+  for (const item of orderItems) {
+    await updateAvailabilityStatus(item.productId);
+  }
+
   res.status(201).json({
     success: true,
     order,
@@ -131,11 +136,6 @@ exports.updateOrder = asyncWrapper(async (req, res, next) => {
     return next(new ErrorHandler("You have already delivered this order", 400));
   }
 
-  if (req.body.status === "Shipped") {
-    order.orderItems.forEach(async (o) => {
-      await updateStock(o.productId, o.quantity);
-    });
-  }
   const oldStatus = order.orderStatus;
   order.orderStatus = req.body.status;
 
@@ -163,12 +163,13 @@ exports.updateOrder = asyncWrapper(async (req, res, next) => {
   });
 });
 
-async function updateStock(id, quantity) {
+async function updateAvailabilityStatus(id) {
   const product = await Product.findById(id);
 
-  product.Stock -= quantity;
-
-  await product.save({ validateBeforeSave: false });
+  if (product) {
+    product.availabilityStatus = "Sold";
+    await product.save({ validateBeforeSave: false });
+  }
 }
 
 // delete Order -- Admin

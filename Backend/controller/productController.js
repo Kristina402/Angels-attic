@@ -43,6 +43,8 @@ exports.getAllProducts = asyncWrapper(async (req, res, next) => {
   const resultPerPage = 8;
   const productsCount = await Product.countDocuments();
 
+  // For public view, we might want to filter Available items only, 
+  // but let's keep it flexible so frontend can decide how to show Sold items.
   const apiFeature = new ApiFeatures(Product.find(), req.query)
     .search()
     .filter();

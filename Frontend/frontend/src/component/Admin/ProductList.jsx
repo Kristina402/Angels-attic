@@ -8,7 +8,7 @@ import {
 } from "../../actions/productAction";
 import { Link, useHistory } from "react-router-dom";
 import { useAlert } from "react-alert"; 
-import { Box, Typography, Paper, IconButton, Tooltip } from "@mui/material";
+import { Box, Typography, Paper, IconButton, Tooltip, Chip } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -118,11 +118,24 @@ function ProductList() {
       flex: 0.8,
     },
     {
-      field: "stock",
-      headerName: "Stock",
-      type: "number",
-      minWidth: 100,
+      field: "status",
+      headerName: "Status",
+      minWidth: 150,
       flex: 0.3,
+      renderCell: (params) => {
+        const status = params.value;
+        return (
+          <Chip 
+            label={status} 
+            size="small"
+            sx={{ 
+              backgroundColor: status === "Available" ? "#ECFDF5" : "#FEF2F2",
+              color: status === "Available" ? "#10B981" : "#EF4444",
+              fontWeight: "700"
+            }}
+          />
+        );
+      }
     },
     {
       field: "price",
@@ -161,7 +174,7 @@ function ProductList() {
   products && products.forEach((item) => {
     rows.push({
       id: item._id,
-      stock: item.Stock,
+      status: item.availabilityStatus,
       price: item.price,
       name: item.name,
     });

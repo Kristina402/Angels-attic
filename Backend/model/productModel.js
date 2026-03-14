@@ -48,11 +48,10 @@ const productSchema = new mongoose.Schema({
     enum: ["New", "Like New", "Pre-loved"],
     default: "Pre-loved",
   },
-  Stock: {
-    type: Number,
-    required: [true, "Please Enter Product Stock"],
-    maxLength: [4, "Stock cannot exceed 4 characters"],
-    default: 1,
+  availabilityStatus: {
+    type: String,
+    enum: ["Available", "Sold"],
+    default: "Available",
   },
   numOfReviews: {
     type: Number,

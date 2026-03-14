@@ -7,10 +7,9 @@ import {
   CardContent,
   Typography,
   IconButton,
-  Box,
-  Tooltip,
   Button,
 } from "@material-ui/core";
+import { Box, Tooltip, Chip } from "@mui/material";
 import Rating from "@material-ui/lab/Rating";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -187,6 +186,7 @@ const ProductCard = ({ product }) => {
   
   const { wishlistItems } = useSelector((state) => state.wishlist);
   const isItemInWishlist = wishlistItems.find((i) => i.productId === product._id);
+  const isSold = product.availabilityStatus === "Sold";
 
   const discountPrice = generateDiscountedPrice(product.price);
   const oldPrice = dispalyMoney(product.price);
@@ -206,6 +206,10 @@ const ProductCard = ({ product }) => {
   const addToCartHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isSold) {
+      alert.error("Item is already sold");
+      return;
+    }
     dispatch(addItemToCart(product._id, 1));
     alert.success("Item added to bag");
   };
@@ -227,9 +231,54 @@ const ProductCard = ({ product }) => {
           <CardActionArea style={{ display: "flex", flexDirection: "column", alignItems: "stretch", flexGrow: 1 }}>
             <div className={classes.mediaWrapper}>
               <CardMedia className={classes.media} image={product.images[0].url} title={product.name} />
+              {isSold && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: '#fff',
+                      fontWeight: 800,
+                      fontSize: '1.2rem',
+                      textTransform: 'uppercase',
+                      border: '2px solid #fff',
+                      padding: '8px 16px',
+                      borderRadius: '4px',
+                      transform: 'rotate(-15deg)',
+                    }}
+                  >
+                    Sold Out
+                  </Typography>
+                </Box>
+              )}
             </div>
             <CardContent className={classes.cardContent}>
-              <Typography className={classes.sizeTag}>Size: {product.size}</Typography>
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Typography className={classes.sizeTag}>Size: {product.size}</Typography>
+                <Chip 
+                  label={product.condition} 
+                  size="small" 
+                  sx={{ 
+                    fontSize: '0.6rem', 
+                    height: '18px', 
+                    backgroundColor: '#F3F4F6',
+                    color: '#4B5563',
+                    fontWeight: 600,
+                    textTransform: 'uppercase'
+                  }} 
+                />
+              </Box>
               <Typography className={classes.productName}>{product.name}</Typography>
               
               <Box className={classes.priceRow}>
@@ -252,9 +301,9 @@ const ProductCard = ({ product }) => {
                   className={classes.btnCart} 
                   variant="contained"
                   onClick={addToCartHandler}
-                  disabled={product.Stock < 1}
+                  disabled={isSold}
                 >
-                  {product.Stock < 1 ? "Sold Out" : "Add to Bag"}
+                  {isSold ? "Sold Out" : "Add to Bag"}
                 </Button>
               </div>
             </CardContent>
