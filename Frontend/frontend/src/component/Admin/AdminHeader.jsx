@@ -258,10 +258,16 @@ const AdminHeader = ({ title }) => {
     dispatch(logout());
     alert.success("Logged out successfully");
     handleClose();
+    history.push("/login");
   };
 
   const handleAccount = () => {
-    history.push("/account");
+    history.push("/admin/settings");
+    handleClose();
+  };
+
+  const handleSettings = () => {
+    history.push("/admin/settings");
     handleClose();
   };
 
@@ -431,7 +437,7 @@ const AdminHeader = ({ title }) => {
           <MenuItem onClick={handleAccount} className={classes.menuItem}>
             <PersonOutlineIcon style={{ fontSize: "20px" }} /> Profile
           </MenuItem>
-          <MenuItem onClick={handleClose} className={classes.menuItem}>
+          <MenuItem onClick={handleSettings} className={classes.menuItem}>
             <SettingsIcon style={{ fontSize: "20px" }} /> Settings
           </MenuItem>
           <Divider sx={{ my: 1 }} />

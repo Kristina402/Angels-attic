@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useHistory } from "react-router-dom";
 import { Box, Typography, List, ListItem, ListItemIcon, ListItemText, Divider, Avatar } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -113,6 +113,7 @@ const useStyles = makeStyles((theme) => ({
 const AdminSidebar = () => {
   const classes = useStyles();
   const location = useLocation();
+  const history = useHistory();
   const dispatch = useDispatch();
   const alert = useAlert();
   const { user } = useSelector((state) => state.userData);
@@ -120,6 +121,7 @@ const AdminSidebar = () => {
   const logoutHandler = () => {
     dispatch(logout());
     alert.success("Logged out successfully");
+    history.push("/login");
   };
 
   const menuItems = [
