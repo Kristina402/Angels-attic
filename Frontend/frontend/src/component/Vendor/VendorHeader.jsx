@@ -168,12 +168,12 @@ const VendorHeader = ({ title }) => {
         </IconButton>
 
         <Box className={classes.vendorProfile} onClick={handleClick}>
-          <Avatar className={classes.vendorAvatar}>
-            {getInitials(user.name)}
+          <Avatar className={classes.vendorAvatar} src={user.avatar?.url}>
+            {!user.avatar?.url && getInitials(user.name)}
           </Avatar>
           <Box className={classes.vendorInfo}>
             <Typography className={classes.vendorName}>{user.name}</Typography>
-            <Typography className={classes.vendorRole}>Vendor</Typography>
+            <Typography className={classes.vendorRole}>{user.storeName || "Vendor"}</Typography>
           </Box>
           <KeyboardArrowDownIcon sx={{ color: "#94a3b8", fontSize: "20px" }} />
         </Box>
@@ -195,15 +195,15 @@ const VendorHeader = ({ title }) => {
           transformOrigin={{ horizontal: "right", vertical: "top" }}
           anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         >
-          <MenuItem onClick={() => { handleClose(); history.push("/account"); }}>
+          <MenuItem onClick={() => { handleClose(); history.push("/vendor/settings"); }}>
             <PersonOutlineIcon sx={{ mr: 1.5, color: "#64748b" }} /> Profile
           </MenuItem>
           <MenuItem onClick={() => { handleClose(); history.push("/vendor/settings"); }}>
             <SettingsIcon sx={{ mr: 1.5, color: "#64748b" }} /> Settings
           </MenuItem>
-          <Divider />
+          <Divider sx={{ my: 1 }} />
           <MenuItem onClick={logoutHandler} sx={{ color: "#ef4444" }}>
-            <ExitToAppIcon sx={{ mr: 1.5, color: "#ef4444" }} /> Logout
+            <ExitToAppIcon sx={{ mr: 1.5 }} /> Logout
           </MenuItem>
         </Menu>
       </Box>

@@ -258,6 +258,8 @@ exports.updateProfile = asyncWrapper(async (req, res, next) => {
     email: req.body.email,
     phone: req.body.phone,
     gender: req.body.gender,
+    storeName: req.body.storeName,
+    storeDescription: req.body.storeDescription,
   };
 
   // if avatar not empty then

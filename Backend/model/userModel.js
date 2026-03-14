@@ -44,6 +44,9 @@ const userSchema = new mongoose.Schema({
   storeName: {
     type: String,
   },
+  storeDescription: {
+    type: String,
+  },
   address: {
     type: String,
   },

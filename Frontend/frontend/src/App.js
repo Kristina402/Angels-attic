@@ -38,6 +38,7 @@ import TermsAndConditions from "./Terms&Condtions/TermsCondtion";
 import PrivacyPolicy from "./Terms&Condtions/Privacy";
 import VendorRegistration from "./component/User/VendorRegistration";
 import VendorDashboard from "./component/Vendor/Dashboard";
+import VendorSettings from "./component/Vendor/VendorSettings";
 import VendorProductList from "./component/Vendor/ProductList";
 import VendorOrderList from "./component/Vendor/OrderList";
 import PendingApproval from "./component/Vendor/PendingApproval";
@@ -561,6 +562,11 @@ function App() {
               exact
               path="/vendor/analytics"
               component={SalesAnalytics}
+            />
+            <VendorRoute
+              exact
+              path="/vendor/settings"
+              component={VendorSettings}
             />
           </Switch>
         </Suspense>
