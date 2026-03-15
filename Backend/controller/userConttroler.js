@@ -323,11 +323,22 @@ exports.updateUserRole = asyncWrapper(async (req, res, next) => {
     newUserData.isApproved = req.body.isApproved;
   }
 
-  await userModel.findByIdAndUpdate(req.params.id, newUserData, {
+  const oldUser = await userModel.findById(req.params.id);
+  const user = await userModel.findByIdAndUpdate(req.params.id, newUserData, {
     new: true,
     runValidators: true,
     useFindAndModify: false,
   });
+
+  // If approval status changed, notify the user
+  if (req.user.role === "admin" && oldUser.isApproved !== user.isApproved) {
+    await Notification.create({
+      recipient: user._id,
+      message: `Your vendor registration for "${user.storeName}" has been ${user.isApproved ? "approved" : "disapproved"} by an admin.`,
+      type: "vendor_approval",
+      link: `/vendor/dashboard`,
+    });
+  }
 
   res.status(200).json({
     success: true,

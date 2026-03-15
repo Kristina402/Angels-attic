@@ -30,7 +30,27 @@ exports.createProduct = asyncWrapper(async (req, res, next) => {
   req.body.images = imagesLinks;
   req.body.user = req.user.id;
 
+  // Vendors' products need approval, admins' don't
+  if (req.user.role === "vendor") {
+    req.body.isApproved = false;
+  } else {
+    req.body.isApproved = true;
+  }
+
   const product = await Product.create(req.body);
+
+  // If vendor, notify admins
+  if (req.user.role === "vendor") {
+    const admins = await User.find({ role: "admin" });
+    for (const admin of admins) {
+      await Notification.create({
+        recipient: admin._id,
+        message: `New product submission from vendor: ${product.name}`,
+        type: "product_approval",
+        link: `/admin/product/${product._id}`,
+      });
+    }
+  }
 
   res.status(201).json({
     success: true,
@@ -124,11 +144,22 @@ exports.updateProduct = asyncWrapper(async (req, res, next) => {
     req.body.images = imagesLinks;
   }
 
+  const oldApproved = product.isApproved;
   product = await Product.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
     useFindAndModify: false,
   });
+
+  // If status changed, notify the vendor
+  if (req.user.role === "admin" && oldApproved !== product.isApproved) {
+    await Notification.create({
+      recipient: product.user,
+      message: `Your product "${product.name}" has been ${product.isApproved ? "approved" : "disapproved"} by an admin.`,
+      type: "product_approval",
+      link: `/vendor/products`,
+    });
+  }
 
   res.status(200).json({
     success: true,

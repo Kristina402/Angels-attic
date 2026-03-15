@@ -12,7 +12,7 @@ const notificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ["new_order", "new_vendor", "payment_update", "kyc_request"],
+    enum: ["new_order", "new_vendor", "payment_update", "kyc_request", "product_approval", "vendor_approval", "customer_message"],
     required: true,
   },
   link: {

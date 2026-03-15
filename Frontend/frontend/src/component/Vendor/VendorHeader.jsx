@@ -248,9 +248,12 @@ const VendorHeader = ({ title }) => {
       case "new_order":
         return <ShoppingBagOutlinedIcon fontSize="small" />;
       case "product_approval":
+      case "vendor_approval":
         return <CheckCircleOutlineIcon fontSize="small" />;
-      default:
+      case "customer_message":
         return <MessageOutlinedIcon fontSize="small" />;
+      default:
+        return <NotificationsNoneIcon fontSize="small" />;
     }
   };
 
@@ -259,9 +262,12 @@ const VendorHeader = ({ title }) => {
       case "new_order":
         return classes.orderIcon;
       case "product_approval":
+      case "vendor_approval":
         return classes.approvalIcon;
-      default:
+      case "customer_message":
         return classes.messageIcon;
+      default:
+        return classes.approvalIcon;
     }
   };
 

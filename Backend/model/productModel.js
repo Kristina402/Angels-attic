@@ -83,6 +83,10 @@ const productSchema = new mongoose.Schema({
     ref: "userModel",
     required: true,
   },
+  isApproved: {
+    type: Boolean,
+    default: true, // Default to true for existing products
+  },
   createdAt: {
     type: Date,
     default: Date.now,

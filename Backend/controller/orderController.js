@@ -40,6 +40,28 @@ exports.newOrder = asyncWrapper(async (req, res, next) => {
     });
   }
 
+  // Create notifications for vendors
+  const productIds = orderItems.map(item => item.productId);
+  const products = await Product.find({ _id: { $in: productIds } });
+  
+  // Group products by vendor to avoid duplicate notifications per order
+  const vendorMap = new Map();
+  products.forEach(p => {
+    if (!vendorMap.has(p.user.toString())) {
+      vendorMap.set(p.user.toString(), []);
+    }
+    vendorMap.get(p.user.toString()).push(p.name);
+  });
+
+  for (const [vendorId, productNames] of vendorMap) {
+    await Notification.create({
+      recipient: vendorId,
+      message: `You received a new order for: ${productNames.join(", ")}`,
+      type: "new_order",
+      link: `/vendor/orders`, // Redirect to vendor orders list
+    });
+  }
+
   // Update product status to Sold
   for (const item of orderItems) {
     await updateAvailabilityStatus(item.productId);
