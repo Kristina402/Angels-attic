@@ -231,11 +231,12 @@ function UpdateProduct() {
                           <InputAdornment
                             position="end"
                             style={{
-                              fontSize: 20,
+                              fontSize: 14,
                               color: "#414141",
+                              fontWeight: 600
                             }}
                           >
-                            <AttachMoneyIcon />
+                            Rs.
                           </InputAdornment>
                         ),
                       }}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -9,6 +9,10 @@ import {
   Menu,
   MenuItem,
   Divider,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -18,10 +22,15 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import MessageOutlinedIcon from "@mui/icons-material/MessageOutlined";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../actions/userAction";
+import { getNotifications, markNotificationAsRead, clearErrors } from "../../actions/notificationAction";
 import { useAlert } from "react-alert";
 import { useHistory } from "react-router-dom";
+import { MARK_AS_READ_RESET } from "../../constants/notificationConstants";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -112,6 +121,54 @@ const useStyles = makeStyles((theme) => ({
     color: "#94a3b8",
     fontWeight: "600 !important",
   },
+  notificationMenu: {
+    "& .MuiPaper-root": {
+      width: "360px",
+      maxHeight: "480px",
+      borderRadius: "16px",
+      mt: 1.5,
+      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+      border: "1px solid #f1f5f9",
+    }
+  },
+  notificationHeader: {
+    padding: "1rem 1.25rem",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottom: "1px solid #f1f5f9",
+  },
+  notificationItem: {
+    padding: "1rem 1.25rem !important",
+    borderBottom: "1px solid #f8fafc",
+    cursor: "pointer",
+    transition: "background-color 0.2s",
+    "&:hover": {
+      backgroundColor: "#f8fafc",
+    },
+    "&.unread": {
+      backgroundColor: "#fdf2f8",
+      "&:hover": {
+        backgroundColor: "#fce7f3",
+      },
+    }
+  },
+  notificationIcon: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "10px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  orderIcon: { backgroundColor: "#dcfce7", color: "#22c55e" },
+  approvalIcon: { backgroundColor: "#dbeafe", color: "#3b82f6" },
+  messageIcon: { backgroundColor: "#fef3c7", color: "#f59e0b" },
+  emptyNotifications: {
+    padding: "3rem 2rem",
+    textAlign: "center",
+    color: "#94a3b8",
+  }
 }));
 
 const VendorHeader = ({ title }) => {
@@ -120,9 +177,27 @@ const VendorHeader = ({ title }) => {
   const alert = useAlert();
   const history = useHistory();
   const { user } = useSelector((state) => state.userData);
+  const { notifications, error, isUpdated } = useSelector((state) => state.notifications);
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [notifAnchorEl, setNotifAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const notifOpen = Boolean(notifAnchorEl);
+
+  useEffect(() => {
+    dispatch(getNotifications());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (error) {
+      alert.error(error);
+      dispatch(clearErrors());
+    }
+    if (isUpdated) {
+      dispatch(getNotifications());
+      dispatch({ type: MARK_AS_READ_RESET });
+    }
+  }, [dispatch, error, alert, isUpdated]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -132,10 +207,29 @@ const VendorHeader = ({ title }) => {
     setAnchorEl(null);
   };
 
+  const handleNotifClick = (event) => {
+    setNotifAnchorEl(event.currentTarget);
+  };
+
+  const handleNotifClose = () => {
+    setNotifAnchorEl(null);
+  };
+
+  const handleNotifItemClick = (notification) => {
+    if (!notification.read) {
+      dispatch(markNotificationAsRead(notification._id));
+    }
+    handleNotifClose();
+    if (notification.link) {
+      history.push(notification.link);
+    }
+  };
+
   const logoutHandler = () => {
     dispatch(logout());
     alert.success("Logged out successfully");
     handleClose();
+    history.push("/login");
   };
 
   const getInitials = (name) => {
@@ -145,6 +239,30 @@ const VendorHeader = ({ title }) => {
       .map((n) => n[0])
       .join("")
       .toUpperCase();
+  };
+
+  const unreadCount = notifications ? notifications.filter(n => !n.read).length : 0;
+
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case "new_order":
+        return <ShoppingBagOutlinedIcon fontSize="small" />;
+      case "product_approval":
+        return <CheckCircleOutlineIcon fontSize="small" />;
+      default:
+        return <MessageOutlinedIcon fontSize="small" />;
+    }
+  };
+
+  const getIconClass = (type) => {
+    switch (type) {
+      case "new_order":
+        return classes.orderIcon;
+      case "product_approval":
+        return classes.approvalIcon;
+      default:
+        return classes.messageIcon;
+    }
   };
 
   return (
@@ -161,11 +279,63 @@ const VendorHeader = ({ title }) => {
       </Box>
 
       <Box className={classes.rightSection}>
-        <IconButton className={classes.iconButton}>
-          <Badge variant="dot" color="error">
+        <IconButton className={classes.iconButton} onClick={handleNotifClick}>
+          <Badge badgeContent={unreadCount} color="error">
             <NotificationsNoneIcon />
           </Badge>
         </IconButton>
+
+        <Menu
+          anchorEl={notifAnchorEl}
+          open={notifOpen}
+          onClose={handleNotifClose}
+          className={classes.notificationMenu}
+          transformOrigin={{ horizontal: "right", vertical: "top" }}
+          anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        >
+          <Box className={classes.notificationHeader}>
+            <Typography sx={{ fontWeight: 800, color: "#1a1a1a" }}>Notifications</Typography>
+            {unreadCount > 0 && (
+              <Typography sx={{ fontSize: "0.75rem", fontWeight: 700, color: "#EC4899", cursor: "pointer" }}>
+                {unreadCount} New
+              </Typography>
+            )}
+          </Box>
+          <List sx={{ p: 0, maxHeight: "400px", overflowY: "auto" }}>
+            {notifications && notifications.length > 0 ? (
+              notifications.map((notif) => (
+                <ListItem 
+                  key={notif._id} 
+                  className={`${classes.notificationItem} ${!notif.read ? "unread" : ""}`}
+                  onClick={() => handleNotifItemClick(notif)}
+                >
+                  <ListItemAvatar>
+                    <Box className={`${classes.notificationIcon} ${getIconClass(notif.type)}`}>
+                      {getNotificationIcon(notif.type)}
+                    </Box>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={
+                      <Typography sx={{ fontSize: "0.875rem", fontWeight: notif.read ? 500 : 700, color: "#1e293b" }}>
+                        {notif.message}
+                      </Typography>
+                    }
+                    secondary={
+                      <Typography sx={{ fontSize: "0.75rem", color: "#94a3b8", mt: 0.5 }}>
+                        {new Date(notif.createdAt).toLocaleDateString()} at {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </Typography>
+                    }
+                  />
+                </ListItem>
+              ))
+            ) : (
+              <Box className={classes.emptyNotifications}>
+                <NotificationsNoneIcon sx={{ fontSize: 48, color: "#e2e8f0", mb: 2 }} />
+                <Typography sx={{ color: "#94a3b8", fontSize: "0.875rem" }}>No notifications yet</Typography>
+              </Box>
+            )}
+          </List>
+        </Menu>
 
         <Box className={classes.vendorProfile} onClick={handleClick}>
           <Avatar className={classes.vendorAvatar} src={user.avatar?.url}>

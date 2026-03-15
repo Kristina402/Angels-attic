@@ -1,70 +1,60 @@
-# Getting Started with Create React App
+# Angels Attic – Online Thrift Marketplace
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Description
+Angels Attic is a full-stack thrift marketplace platform that allows users to buy and sell pre-loved products in a secure and user-friendly environment. The platform promotes sustainable shopping by encouraging reuse and reducing waste.
 
-## Available Scripts
+## Introduction
+Angels Attic serves as a bridge between conscious consumers and sellers, providing a dedicated space for second-hand fashion and items. Our mission is to make sustainable shopping accessible and enjoyable for everyone.
 
-In the project directory, you can run:
+## Features
+- **User Registration & Login**: Secure authentication for buyers and sellers.
+- **Product Browsing**: Explore a wide range of unique, pre-loved items.
+- **Add to Cart**: Seamlessly manage items before purchase.
+- **Wishlist**: Save your favorite finds for later.
+- **Search & Filter**: Find exactly what you're looking for with advanced search and category filters.
+- **Secure Checkout**: Integrated order processing for safe transactions.
+- **Seller Product Upload**: Easy-to-use interface for vendors to list their unique items.
+- **Admin Management**: Comprehensive dashboard for system administrators to manage users, vendors, and products.
 
-### `npm start`
+## Tech Stack
+- **Frontend**: React.js, Material UI, CSS
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB Atlas, Mongoose
+- **Other Tools**: JWT Authentication, Cloudinary for image hosting
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Installation
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd "Angels Attic"
+   ```
 
-### `npm test`
+2. **Install dependencies**:
+   ```bash
+   # Install backend dependencies
+   npm install
+   
+   # Install frontend dependencies
+   cd Frontend/frontend
+   npm install
+   ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+3. **Run the project**:
+   ```bash
+   # From the root directory, run both frontend and backend
+   npm run dev
+   ```
 
-### `npm run build`
+## Project Purpose
+The platform supports sustainable fashion by enabling people to buy and sell second-hand products. By extending the lifecycle of clothing and accessories, Angels Attic helps reduce the environmental impact of the fashion industry and promotes a circular economy.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Future Improvements
+- **Payment Integration**: Implementing secure gateways for direct payments.
+- **Real-time Messaging**: Enabling direct communication between buyers and sellers.
+- **AI Product Recommendations**: Personalized suggestions based on user preferences.
+- **Mobile Optimization**: Enhancing the experience for mobile users with a dedicated app or PWA.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Author
+**Kristina Gurung**  
+Final Year Project – Computing

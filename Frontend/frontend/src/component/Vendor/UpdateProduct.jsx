@@ -214,7 +214,9 @@ function UpdateProduct() {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <AttachMoneyIcon color="action" />
+                      <Typography variant="body1" sx={{ color: "text.secondary", fontWeight: 600 }}>
+                        Rs.
+                      </Typography>
                     </InputAdornment>
                   ),
                 }}
