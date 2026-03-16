@@ -72,7 +72,7 @@ const ProductDetails = () => {
       return;
     }
     dispatch(addItemToCart(match.params.id, 1));
-    alert.success("Item added to bag");
+    alert.success("Item added to cart");
   };
 
   const wishlistHandler = () => {
@@ -189,7 +189,7 @@ const ProductDetails = () => {
                     startIcon={<ShoppingBagOutlinedIcon />}
                     fullWidth
                   >
-                    {isSold ? "Sold Out" : "Add to Bag"}
+                    {isSold ? "Sold Out" : "Add to Cart"}
                   </Button>
                   <Button
                     variant="outlined"

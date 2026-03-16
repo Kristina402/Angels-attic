@@ -25,6 +25,7 @@ import ForgetPassword from "./component/User/ForgetPassword";
 import ResetPassword from "./component/User/ResetPassword";
 import Shipping from "./component/Cart/Shipping";
 import Cart from "./component/Cart/Cart";
+import Checkout from "./component/Cart/Checkout";
 import Wishlist from "./component/Cart/Wishlist";
 import ConfirmOrder from "./component/Cart/ConfirmOrder";
 import OrderSuccess from "./component/Cart/OrderSuccess";
@@ -408,6 +409,18 @@ function App() {
               <>
                 {<Header />}
                 <PrivateRoute exact path="/orders" component={MyOrder} />
+                {<Footer />}
+              </>
+            )}
+          />
+
+          <Route
+            exact
+            path="/checkout"
+            render={() => (
+              <>
+                {<Header />}
+                <PrivateRoute exact path="/checkout" component={Checkout} />
                 {<Footer />}
               </>
             )}

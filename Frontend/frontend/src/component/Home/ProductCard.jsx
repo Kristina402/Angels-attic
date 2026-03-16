@@ -211,7 +211,7 @@ const ProductCard = ({ product }) => {
       return;
     }
     dispatch(addItemToCart(product._id, 1));
-    alert.success("Item added to bag");
+    alert.success("Item added to cart");
   };
 
   return (
@@ -303,7 +303,7 @@ const ProductCard = ({ product }) => {
                   onClick={addToCartHandler}
                   disabled={isSold}
                 >
-                  {isSold ? "Sold Out" : "Add to Bag"}
+                  {isSold ? "Sold Out" : "Add to Cart"}
                 </Button>
               </div>
             </CardContent>

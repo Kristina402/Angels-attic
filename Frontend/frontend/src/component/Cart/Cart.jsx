@@ -21,6 +21,7 @@ const Cart = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const { cartItems } = useSelector((state) => state.cart);
+  const { isAuthenticated } = useSelector((state) => state.userData);
 
   const increaseQuantity = (id, quantity, stock) => {
     const newQty = quantity + 1;
@@ -39,7 +40,11 @@ const Cart = () => {
   };
 
   const checkoutHandler = () => {
-    history.push("/login?redirect=/shipping");
+    if (isAuthenticated) {
+      history.push("/checkout");
+    } else {
+      history.push("/login?redirect=/checkout");
+    }
   };
 
   let totalPrice = cartItems.reduce(
@@ -52,7 +57,7 @@ const Cart = () => {
 
   return (
     <div className="cart_page_new">
-      <MetaData title="Shopping Bag - Angels Attic" />
+      <MetaData title="Shopping Cart - Angels Attic" />
       
       <Container maxWidth="lg">
         {cartItems.length === 0 ? (
@@ -67,7 +72,7 @@ const Cart = () => {
                 <ShoppingBagOutlinedIcon style={{ fontSize: "100px", color: "#f0f0f0" }} />
               </div>
               <Typography variant="h4" className="empty_cart_title">
-                Your bag is empty
+                Your cart is empty
               </Typography>
               <Typography className="empty_cart_text">
                 Looks like you haven't added any thrift finds yet. 
@@ -87,16 +92,17 @@ const Cart = () => {
             <header className="cart_header_new">
               <div className="cart_header_left">
                 <Typography variant="h4" className="cart_main_title">
-                  Shopping Bag
+                  Shopping Cart
                 </Typography>
                 <Typography className="cart_count_badge">
-                  {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your bag
+                  {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
                 </Typography>
               </div>
               <Button 
+                component={Link}
+                to="/products"
                 startIcon={<ArrowBackIosNewIcon style={{ fontSize: '12px' }} />}
                 className="back_to_shop_link"
-                onClick={() => history.push("/products")}
               >
                 Continue Shopping
               </Button>
@@ -138,7 +144,7 @@ const Cart = () => {
                   
                   <div className="summary_details_new">
                     <div className="summary_row_new">
-                      <span className="label">Bag Subtotal</span>
+                      <span className="label">Cart Subtotal</span>
                       <span className="value">{dispalyMoney(totalPrice)}</span>
                     </div>
                     {totalDiscount > 0 && (

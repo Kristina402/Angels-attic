@@ -113,15 +113,10 @@ const Shipping = () => {
 
   const classes = useStyles();
   const [address, setAddress] = React.useState(shippingInfo.address || "");
-  const [firstName, setFirstName] = React.useState(shippingInfo.firstName || "");
-  const [lastName, setLastName] = React.useState(shippingInfo.lastName || "");
+  const [fullName, setFullName] = React.useState(shippingInfo.fullName || "");
   const [city, setCity] = React.useState(shippingInfo.city || "");
-  const [pinCode, setPinCode] = React.useState(shippingInfo.pinCode || "");
-  const [state, setState] = React.useState(shippingInfo.state || "");
   const [phoneNo, setPhone] = React.useState(shippingInfo.phoneNo || "");
   const [email, setEmail] = React.useState(shippingInfo.email || "");
-  const [saveAddress, setSaveAddress] = React.useState(false);
-  const [sameBillingDelivery, setSameBillingDelivery] = React.useState(true);
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const deliveryFee = subtotal > 5000 ? 0 : 200;
@@ -130,7 +125,7 @@ const Shipping = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if (!email || !firstName || !lastName || !address || !city || !state || !pinCode || !phoneNo) {
+    if (!email || !fullName || !address || !city || !phoneNo) {
       alert.error("Please fill all the fields");
       return;
     }
@@ -144,16 +139,13 @@ const Shipping = () => {
       saveShippingInfo({
         address,
         city,
-        state,
-        pinCode,
         phoneNo,
         email,
-        firstName,
-        lastName,
-        country: "India" // Set default since it was removed from form
+        fullName,
+        country: "India" // Default
       })
     );
-    history.push("/confirm/order");
+    history.push("/order/confirm");
   };
 
   return (
@@ -167,74 +159,35 @@ const Shipping = () => {
           <Grid item xs={12} md={8}>
             <Paper className={classes.formPaper}>
               <Typography variant="h5" style={{ fontWeight: 800, marginBottom: "2rem" }}>
-                Shipping Address
+                Shipping Information
               </Typography>
               
               <form onSubmit={handleSubmit}>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} sm={6}>
+                  <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      label="First Name"
+                      label="Full Name"
                       variant="outlined"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
                       className={classes.inputField}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Last Name"
-                      variant="outlined"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      className={classes.inputField}
+                      required
                     />
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      label="Address"
+                      label="Email Address"
                       variant="outlined"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className={classes.inputField}
-                      multiline
-                      rows={2}
+                      required
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="City"
-                      variant="outlined"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className={classes.inputField}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="State"
-                      variant="outlined"
-                      value={state}
-                      onChange={(e) => setState(e.target.value)}
-                      className={classes.inputField}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Pincode"
-                      variant="outlined"
-                      value={pinCode}
-                      onChange={(e) => setPinCode(e.target.value)}
-                      className={classes.inputField}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
+                  <Grid item xs={12}>
                     <TextField
                       fullWidth
                       label="Phone Number"
@@ -242,32 +195,32 @@ const Shipping = () => {
                       value={phoneNo}
                       onChange={(e) => setPhone(e.target.value)}
                       className={classes.inputField}
+                      required
                     />
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      label="Email"
+                      label="Complete Address"
                       variant="outlined"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
                       className={classes.inputField}
+                      multiline
+                      rows={3}
+                      required
                     />
                   </Grid>
-
                   <Grid item xs={12}>
-                    <Box mt={1}>
-                      <FormControlLabel
-                        control={<Checkbox checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} color="default" />}
-                        label={<Typography variant="body2">Save address to address book</Typography>}
-                      />
-                      <Box>
-                        <FormControlLabel
-                          control={<Checkbox checked={sameBillingDelivery} onChange={(e) => setSameBillingDelivery(e.target.checked)} color="default" />}
-                          label={<Typography variant="body2">My billing and delivery information are the same</Typography>}
-                        />
-                      </Box>
-                    </Box>
+                    <TextField
+                      fullWidth
+                      label="City"
+                      variant="outlined"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      className={classes.inputField}
+                      required
+                    />
                   </Grid>
 
                   <Grid item xs={12}>
@@ -277,14 +230,14 @@ const Shipping = () => {
                         startIcon={<ArrowBackIosNewIcon style={{ fontSize: "14px" }} />}
                         onClick={() => history.push("/cart")}
                       >
-                        Back to Bag
+                        Back to Cart
                       </Button>
                       <Button
                         type="submit"
                         className={classes.btnPrimary}
                         variant="contained"
                       >
-                        Continue to Payment
+                        Proceed to Checkout
                       </Button>
                     </Box>
                   </Grid>

@@ -1,4 +1,4 @@
-import { ADD_TO_CART, REMOVE_CART_ITEM, SAVE_SHIPPING_INFO } from "../constants/cartConstant";
+import { ADD_TO_CART, EMPTY_CART, REMOVE_CART_ITEM, SAVE_SHIPPING_INFO } from "../constants/cartConstant";
 
 
 export function cartReducer(state = { cartItems: [], shippingInfo: {} }, action) {
@@ -31,6 +31,12 @@ export function cartReducer(state = { cartItems: [], shippingInfo: {} }, action)
         }
       }
 
+    case EMPTY_CART:
+      return {
+        ...state,
+        cartItems: []
+      }
+
     case REMOVE_CART_ITEM:
       return {
         ...state,
@@ -48,5 +54,3 @@ export function cartReducer(state = { cartItems: [], shippingInfo: {} }, action)
 
 
 }
-
-

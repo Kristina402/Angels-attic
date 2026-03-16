@@ -113,7 +113,7 @@ const CheckoutSteps = ({ activeStep }) => {
 
   const steps = [
     { label: "Bag", link: "/cart" },
-    { label: "Delivery", link: "/shipping" },
+    { label: "Checkout", link: "/checkout" },
     { label: "Payment", link: "/process/payment" },
     { label: "Order Complete", link: "/success" },
   ];
