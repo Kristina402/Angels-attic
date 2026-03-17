@@ -136,7 +136,7 @@ const Checkout = () => {
 
   const { shippingInfo, cartItems } = useSelector((state) => state.cart);
   const { user, isAuthenticated } = useSelector((state) => state.userData);
-  const { error, loading } = useSelector((state) => state.newOrder);
+  const { error, loading, order } = useSelector((state) => state.newOrder);
 
   const [fullName, setFullName] = useState(shippingInfo.fullName || (user ? user.name : ""));
   const [email, setEmail] = useState(shippingInfo.email || (user ? user.email : ""));
@@ -154,7 +154,12 @@ const Checkout = () => {
       alert.error(error);
       dispatch(clearErrors());
     }
-  }, [dispatch, error, alert]);
+
+    if (order && order.success) {
+      history.push(`/success?id=${order.order._id}`);
+      // Important: you might want to reset the order state here or in success page
+    }
+  }, [dispatch, error, alert, order, history]);
 
   const handlePlaceOrder = (e) => {
     e.preventDefault();
@@ -193,7 +198,6 @@ const Checkout = () => {
 
     if (paymentMethod === "COD") {
       dispatch(createOrder(orderData));
-      history.push("/success");
     } else {
       // For Online Payment, save order info and proceed to payment page
       const data = {

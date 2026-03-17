@@ -564,6 +564,9 @@ function ProcessOrder() {
                           <AccountTreeIcon />
                           <select onChange={(e) => setStatus(e.target.value)}>
                             <option value="">Choose Category</option>
+                            {order.orderStatus === "Pending" && (
+                              <option value="Processing">Processing</option>
+                            )}
                             {order.orderStatus === "Processing" && (
                               <option value="Shipped">Shipped</option>
                             )}

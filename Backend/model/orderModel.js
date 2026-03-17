@@ -10,16 +10,8 @@ const orderSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
-    state: {
-      type: String,
-      required: true,
-    },
     country: {
       type: String,
-      required: true,
-    },
-    pinCode: {
-      type: Number,
       required: true,
     },
     phoneNo: {
@@ -30,11 +22,7 @@ const orderSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
-    firstName: {
-      type: String,
-      required: true,
-    },
-    lastName: {
+    fullName: {
       type: String,
       required: true,
     },
@@ -106,7 +94,7 @@ const orderSchema = new mongoose.Schema({
   orderStatus: {
     type: String,
     required: true,
-    default: "Processing",
+    default: "Pending",
   },
   deliveredAt: Date,
   createdAt: {

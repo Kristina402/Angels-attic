@@ -95,6 +95,7 @@ const OrderList = () => {
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
       case "delivered": return { color: "#10B981", bgColor: "#ECFDF5" };
+      case "pending": return { color: "#6366F1", bgColor: "#EEF2FF" };
       case "processing": return { color: "#F59E0B", bgColor: "#FFFBEB" };
       case "shipped": return { color: "#3B82F6", bgColor: "#EFF6FF" };
       case "cancelled": return { color: "#EF4444", bgColor: "#FEF2F2" };

@@ -2,6 +2,7 @@ import {
   CREATE_ORDER_REQUEST,
   CREATE_ORDER_SUCCESS,
   CREATE_ORDER_FAIL,
+  CREATE_ORDER_RESET,
   CLEAR_ERRORS,
   MY_ORDER_REQUEST,
   MY_ORDER_SUCCESS,
@@ -32,13 +33,23 @@ export const newOrderReducer = (state = {}, action) => {
     case CREATE_ORDER_SUCCESS:
       return {
         ...state,
+        loading: false,
+        success: true,
         order: action.payload,
       };
 
     case CREATE_ORDER_FAIL:
       return {
+        ...state,
         loading: false,
+        success: false,
         error: action.payload,
+      };
+    case CREATE_ORDER_RESET:
+      return {
+        ...state,
+        success: false,
+        order: null,
       };
     case CLEAR_ERRORS:
       return {

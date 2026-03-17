@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CheckoutSteps from "./CheckoutSteps ";
 import { useSelector, useDispatch } from "react-redux";
 import MetaData from "../layouts/MataData/MataData";
@@ -131,12 +131,22 @@ const useStyles = makeStyles((theme) => ({
 function ConfirmOrder() {
   const { shippingInfo, cartItems } = useSelector((state) => state.cart);
   const { user, loading } = useSelector((state) => state.userData);
-  const { error } = useSelector((state) => state.newOrder);
+  const { error, success, order } = useSelector((state) => state.newOrder);
   
   const classes = useStyles();
   const dispatch = useDispatch();
   const history = useHistory();
   const alert = useAlert();
+
+  useEffect(() => {
+    if (error) {
+      alert.error(error);
+      dispatch(clearErrors());
+    }
+    if (success && order) {
+      history.push(`/success?id=${order.order._id}&total=${order.order.totalPrice}&status=${order.order.orderStatus}`);
+    }
+  }, [dispatch, error, alert, success, order, history]);
 
   const [paymentMethod, setPaymentMethod] = useState("COD");
 
@@ -164,7 +174,6 @@ function ConfirmOrder() {
 
     if (paymentMethod === "COD") {
       dispatch(createOrder(orderData));
-      history.push("/success");
     } else {
       // For Online Payment, save order info and proceed to payment page
       const data = {
