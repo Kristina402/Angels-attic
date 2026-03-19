@@ -11,52 +11,49 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "white",
   },
   form: {
-    width: "350px",
+    width: "400px",
     margin: "auto",
-    borderRadius: "5px",
-    padding: "2rem",
+    borderRadius: "15px",
+    padding: "2.5rem",
+    backgroundColor: "#fff",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
+    border: "1px solid #f0f0f0",
   },
 
   heading: {
     textAlign: "center",
-    marginBottom: theme.spacing(3),
-    color: "#414141",
-    fontWeight: "bold",
+    marginBottom: theme.spacing(1),
+    color: "#1a1a1a",
+    fontWeight: "800",
+    letterSpacing: "-0.5px",
   },
   nameInput: {
-    position: "relative",
-    "& > label": {
-      left: ".2rem",
-    },
-    padding: "4px 0px",
-    fontSize: "1rem",
     width: "100%",
-    marginBottom: theme.spacing(5.5),
-    height: ".7rem",
+    marginBottom: theme.spacing(2),
+    "& .MuiOutlinedInput-root": {
+      "&:hover fieldset": { borderColor: "#000" },
+      "&.Mui-focused fieldset": { borderColor: "#000" },
+    },
+    "& .MuiInputLabel-root.Mui-focused": { color: "#000" },
   },
   emailInput: {
-    position: "relative",
-    "& > label": {
-      left: ".2rem",
-    },
-    padding: "4px 0px",
-    fontSize: "1rem",
     width: "100%",
-    marginTop: "3rem",
-    height: ".7rem",
+    marginBottom: theme.spacing(2),
+    "& .MuiOutlinedInput-root": {
+      "&:hover fieldset": { borderColor: "#000" },
+      "&.Mui-focused fieldset": { borderColor: "#000" },
+    },
+    "& .MuiInputLabel-root.Mui-focused": { color: "#000" },
   },
   passwordInput: {
-    position: "relative",
-    "& > label": {
-      left: ".2rem",
-    },
-    padding: "4px 0px",
     width: "100%",
-    height: ".7rem",
-    marginTop: theme.spacing(5.5),
-    "&.MuiOutlinedInput-input": {
-      padding: "14px 14px",
+    marginBottom: theme.spacing(2),
+    "& .MuiOutlinedInput-root": {
+      "& .MuiOutlinedInput-input": { padding: "14px 14px" },
+      "&:hover fieldset": { borderColor: "#000" },
+      "&.Mui-focused fieldset": { borderColor: "#000" },
     },
+    "& .MuiInputLabel-root.Mui-focused": { color: "#000" },
   },
 
   strengthIndicator: {
@@ -68,9 +65,11 @@ const useStyles = makeStyles((theme) => ({
     top: "50%",
     color: "rgb(0 0 0 / 85%)",
     fontSize: "12px",
-    right: theme.spacing(2),
+    right: theme.spacing(1),
     transform: "translateY(-50%)",
     border: "none",
+    minWidth: "auto",
+    padding: "4px 8px",
     "&:hover": {
       color: "#ed1c24",
       background: "none",
@@ -78,12 +77,44 @@ const useStyles = makeStyles((theme) => ({
   },
   rememberMeContainer: {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    fontSize: "14px",
-    marginTop: theme.spacing(7),
+    flexDirection: "column",
+    alignItems: "flex-start",
+    marginTop: theme.spacing(2),
+    "& .MuiFormControlLabel-root": {
+      marginBottom: theme.spacing(1),
+    },
+    "& .MuiTypography-body1": {
+      fontSize: "0.9rem",
+      color: "#555",
+    },
     "& .MuiIconButton-label": {
       color: "black",
+    },
+  },
+  avatarContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "1.5rem",
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(3),
+    padding: "1rem",
+    border: "1px dashed #ccc",
+    borderRadius: "10px",
+    backgroundColor: "#fafafa",
+  },
+  avatarPreview: {
+    width: "60px",
+    height: "60px",
+  },
+  avatarInput: {
+    display: "none",
+  },
+  uploadButton: {
+    textTransform: "none",
+    backgroundColor: "#f5f5f5",
+    color: "#333",
+    "&:hover": {
+      backgroundColor: "#e0e0e0",
     },
   },
   forgotPasswordLink: {
@@ -106,17 +137,18 @@ const useStyles = makeStyles((theme) => ({
   loginButton: {
     color: "#fff",
     backgroundColor: "#000",
-    border: "2px solid #000",
-    margin: `${theme.spacing(3)}px 0`,
-    marginTop: "1rem",
+    borderRadius: "12px",
+    padding: "12px",
+    fontWeight: "700",
+    textTransform: "none",
+    fontSize: "1rem",
+    marginTop: "1.5rem",
     "&:disabled": {
-      backgroundColor: "#444444", // faded black
-      color: "#FFFFFF",
-      borderColor: "#444444",
+      backgroundColor: "#ccc",
+      color: "#fff",
     },
     "&:hover": {
-      backgroundColor: "#ff0000",
-      borderColor: "#ff0000",
+      backgroundColor: "#333",
     },
   },
   privacyText: {
@@ -174,8 +206,10 @@ const useStyles = makeStyles((theme) => ({
   // signUp
 
   avatar: {
-    margin: " 8px auto",
-    backgroundColor: "black",
+    margin: "0 auto 0.5rem",
+    backgroundColor: "#000",
+    width: "50px",
+    height: "50px",
   },
   gridcheckbox: {
     display: "flex",

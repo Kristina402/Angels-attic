@@ -248,9 +248,10 @@ function Home() {
                 whileInView="visible"
                 viewport={{ once: true, margin: "-50px" }}
               >
-                {recentProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
+                {recentProducts &&
+                  recentProducts.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))}
               </motion.div>
               <div className="recent_load_more_wrapper">
                 <button className="recent_load_more_button">Load More</button>

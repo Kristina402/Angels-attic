@@ -42,10 +42,17 @@ const VendorRegistration = () => {
   const [kycDocument, setKycDocument] = useState("");
   const [kycName, setKycName] = useState("");
 
+  const [isValidPassword, setIsValidPassword] = useState(true);
+
   const { name, email, phone, storeName, address, password, confirmPassword } = user;
 
   const handleInputChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setUser({ ...user, [name]: value });
+    if (name === "password") {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%])[A-Za-z\d!@#$%]{8,}$/;
+      setIsValidPassword(passwordRegex.test(value));
+    }
   };
 
   const handleFileChange = (e) => {
@@ -65,8 +72,21 @@ const VendorRegistration = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    if (!isValidPassword) {
+      alert.error("Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.");
+      return;
+    }
+
     if (password !== confirmPassword) {
-      alert.error("Passwords do not match");
+      alert.error("Passwords do not match.");
+      return;
+    }
+
+    const mobileRegex = /^[6-9]\d{9}$/;
+    const landlineRegex = /^0\d{7,9}$/;
+
+    if (!mobileRegex.test(phone) && !landlineRegex.test(phone)) {
+      alert.error("Enter a valid mobile or landline number.");
       return;
     }
 
@@ -184,6 +204,12 @@ const VendorRegistration = () => {
                       onChange={handleInputChange}
                       required
                       variant="outlined"
+                      error={!isValidPassword && password !== ""}
+                      helperText={
+                        !isValidPassword && password !== ""
+                          ? "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol."
+                          : ""
+                      }
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>

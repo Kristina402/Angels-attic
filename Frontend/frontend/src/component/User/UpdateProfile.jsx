@@ -61,6 +61,15 @@ function UpdateProfile() {
 
   const UpdateProfileSubmitHandler = (e) => {
     e.preventDefault();
+
+    const mobileRegex = /^[6-9]\d{9}$/;
+    const landlineRegex = /^0\d{7,9}$/;
+
+    if (!mobileRegex.test(phone) && !landlineRegex.test(phone)) {
+      alert.error("Enter a valid mobile or landline number.");
+      return;
+    }
+
     const myForm = new FormData();
     myForm.set("name", name);
     myForm.set("email", email);

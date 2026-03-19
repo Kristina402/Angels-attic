@@ -130,8 +130,11 @@ const Shipping = () => {
       return;
     }
 
-    if (phoneNo.length !== 10) {
-      alert.error("Phone Number should be 10 digits");
+    const mobileRegex = /^[6-9]\d{9}$/;
+    const landlineRegex = /^0\d{7,9}$/;
+
+    if (!mobileRegex.test(phoneNo) && !landlineRegex.test(phoneNo)) {
+      alert.error("Enter a valid mobile or landline number.");
       return;
     }
 

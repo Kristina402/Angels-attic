@@ -1,4 +1,6 @@
 const Product = require("../model/productModel");
+const User = require("../model/userModel");
+const Notification = require("../models/notificationModel");
 const ErrorHandler = require("../utils/errorHandler");
 const asyncWrapper = require("../middleWare/asyncWrapper");
 const ApiFeatures = require("../utils/apiFeatures");

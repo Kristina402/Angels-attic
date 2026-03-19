@@ -188,8 +188,9 @@ const ProductCard = ({ product }) => {
   const isItemInWishlist = wishlistItems.find((i) => i.productId === product._id);
   const isSold = product.availabilityStatus === "Sold";
 
-  const discountPrice = generateDiscountedPrice(product.price);
-  const oldPrice = dispalyMoney(product.price);
+  const discountPrice = product.price - (product.discount || 0);
+  const oldPrice = dispalyMoney(product.price + (product.discount || 0));
+  const finalPrice = dispalyMoney(product.price);
 
   const wishlistHandler = (e) => {
     e.preventDefault();
@@ -282,8 +283,8 @@ const ProductCard = ({ product }) => {
               <Typography className={classes.productName}>{product.name}</Typography>
               
               <Box className={classes.priceRow}>
-                <Typography className={classes.finalPrice}>{dispalyMoney(discountPrice)}</Typography>
-                {product.price > discountPrice && (
+                <Typography className={classes.finalPrice}>{finalPrice}</Typography>
+                {product.discount > 0 && (
                   <Typography className={classes.oldPrice}>{oldPrice}</Typography>
                 )}
               </Box>

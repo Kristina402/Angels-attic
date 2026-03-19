@@ -258,9 +258,9 @@ const handleRatingChange = (event) => {
                 ) : (
                   <div className="products">
                     {products &&
-                      products.map((product) => (
-                        <ProductCard key={product._id} product={product} />
-                      ))}
+                  products.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))}
                   </div>
                 )}
               </div>

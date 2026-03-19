@@ -32,12 +32,16 @@ function UpdatePassword() {
     setOldPassword(event.target.value);
   };
   const handlePasswordChange = (event) => {
-    setNewPassword(event.target.value);
-    setIsValidPassword(event.target.value.length >= 8);
+    const val = event.target.value;
+    setNewPassword(val);
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%])[A-Za-z\d!@#$%]{8,}$/;
+    setIsValidPassword(passwordRegex.test(val));
   };
   const handleConfirmPasswordChange = (event) => {
-    setconfirmPassword(event.target.value);
-    setisValidConfirmPassword(event.target.value.length >= 8);
+    const val = event.target.value;
+    setconfirmPassword(val);
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%])[A-Za-z\d!@#$%]{8,}$/;
+    setisValidConfirmPassword(passwordRegex.test(val));
   };
 
   const handleShowPasswordClick = () => {
@@ -47,8 +51,18 @@ function UpdatePassword() {
   function updatePasswordSubmitHandler(e) {
     e.preventDefault();
 
+    if (!isValidPassword) {
+      alert.error("Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.");
+      return;
+    }
+
+    if (newPassword === oldPassword) {
+      alert.error("New password must be different from current password.");
+      return;
+    }
+
     if (newPassword !== confirmPassword) {
-      alert.error("Password and Confirm Password do not match");
+      alert.error("Passwords do not match.");
       return;
     }
     const myForm = new FormData();
@@ -126,7 +140,7 @@ function UpdatePassword() {
               error={!isValidPassword && newPassword !== ""}
               helperText={
                 !isValidPassword && newPassword !== ""
-                  ? "Password must be at least 8 characters"
+                  ? "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol."
                   : ""
               }
               InputProps={{
@@ -151,7 +165,7 @@ function UpdatePassword() {
               error={!isValidConfirmPassword && confirmPassword !== ""}
               helperText={
                 !isValidConfirmPassword && confirmPassword !== ""
-                  ? "Password must be at least 8 characters"
+                  ? "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol."
                   : ""
               }
               className={`${classes.passwordInput} ${classes.textField}`}

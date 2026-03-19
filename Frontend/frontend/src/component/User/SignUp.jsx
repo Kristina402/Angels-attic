@@ -11,6 +11,7 @@ import {
   RadioGroup,
   FormControl,
   FormLabel,
+  Box,
 } from "@material-ui/core";
 import CricketBallLoader from "../layouts/loader/Loader";
 import MetaData from "../layouts/MataData/MataData";
@@ -101,8 +102,10 @@ function Signup() {
     setIsValidName(newName.length >= 4 && newName.length <= 20);
   };
   const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-      setIsValidPassword(event.target.value.length >= 8);
+    const val = event.target.value;
+    setPassword(val);
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%])[A-Za-z\d!@#$%]{8,}$/;
+    setIsValidPassword(passwordRegex.test(val));
   };
   const handleConfirmPasswordChange = (event) => {
     setconfirmPassword(event.target.value);
@@ -135,8 +138,14 @@ function Signup() {
     e.preventDefault();
   
 
+    if (!isValidPassword) {
+      alert.error("Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.");
+      setLoading(false);
+      return;
+    }
+
     if (password !== confirmPassword) {
-      alert.error("Password and Confirm Password do not match");
+      alert.error("Passwords do not match.");
       setLoading(false);
       return;
     }
@@ -159,16 +168,20 @@ function Signup() {
       ) : (
         <div className={classes.formContainer}>
           <form className={classes.form} onSubmit={handleSignUpSubmit}>
-            <Avatar className={classes.avatar}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography variant="h5" component="h1" className={classes.heading}>
-              Sign Up for an Account ! 
-            </Typography>
+            <Box textAlign="center" mb={3}>
+              <Avatar className={classes.avatar}>
+                <LockOutlinedIcon />
+              </Avatar>
+              <Typography variant="h5" component="h1" className={classes.heading}>
+                Sign Up for an Account
+              </Typography>
+            </Box>
 
-            <FormControl component="fieldset" style={{ marginBottom: "1rem" }}>
-              <FormLabel component="legend" style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.9rem" }}>Register as:</FormLabel>
-              <RadioGroup row name="role" value={role} onChange={handleRoleChange}>
+            <FormControl component="fieldset" fullWidth style={{ marginBottom: "1.5rem" }}>
+              <FormLabel component="legend" style={{ color: "#1a1a1a", fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.5rem" }}>
+                Register as:
+              </FormLabel>
+              <RadioGroup row name="role" value={role} onChange={handleRoleChange} style={{ justifyContent: "center" }}>
                 <FormControlLabel 
                   value="customer" 
                   control={<Radio color="primary" />} 
@@ -183,10 +196,10 @@ function Signup() {
             </FormControl>
 
             <TextField
-              label="Name"
+              label="Full Name"
               variant="outlined"
               fullWidth
-              className={`${classes.nameInput} ${classes.textField}`}
+              className={classes.nameInput}
               value={name}
               onChange={handleNameChange}
               error={!isValidName && name !== ""}
@@ -196,10 +209,10 @@ function Signup() {
             />
 
             <TextField
-              label="Email"
+              label="Email Address"
               variant="outlined"
               fullWidth
-              className={`${classes.emailInput} ${classes.textField}`}
+              className={classes.emailInput}
               value={email}
               onChange={handleEmailChange}
               error={!isValidEmail && email !== ""}
@@ -209,42 +222,51 @@ function Signup() {
                   : ""
               }
             />
+
             <TextField
               label="Password"
               variant="outlined"
               type={showPassword ? "text" : "password"}
               fullWidth
-              className={`${classes.passwordInput} ${classes.textField}`}
+              className={classes.passwordInput}
               error={!isValidPassword && password !== ""}
-               helperText={ !isValidPassword && password !== "" ? "Password must be at least 8 characters." : ""}
+              helperText={
+                !isValidPassword && password !== ""
+                  ? "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol."
+                  : ""
+              }
+              FormHelperTextProps={{
+                style: { fontSize: "0.75rem", lineHeight: "1.2", marginTop: "4px" }
+              }}
               InputProps={{
                 endAdornment: (
                   <Button
-                    variant="outlined"
+                    variant="text"
                     className={classes.showPasswordButton}
                     onClick={handleShowPasswordClick}
                   >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                    {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
                   </Button>
                 ),
               }}
               value={password}
               onChange={handlePasswordChange}
             />
+
             <TextField
               label="Confirm Password"
               variant="outlined"
               type={showPassword ? "text" : "password"}
               fullWidth
-              className={`${classes.passwordInput} ${classes.textField}`}
+              className={classes.passwordInput}
               InputProps={{
                 endAdornment: (
                   <Button
-                    variant="outlined"
+                    variant="text"
                     className={classes.showPasswordButton}
                     onClick={handleShowPasswordClick}
                   >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                    {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
                   </Button>
                 ),
               }}
@@ -267,8 +289,7 @@ function Signup() {
               />
               <label htmlFor="avatar-input">
                 <Button
-                  variant="contained"
-                  color="default"
+                  variant="outlined"
                   startIcon={<CloudUploadIcon />}
                   component="span"
                   className={classes.uploadButton}
@@ -278,32 +299,30 @@ function Signup() {
               </label>
             </div>
 
-            <Grid container className={classes.rememberMeContainer}>
-              <Grid item>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      color="primary"
-                      checked={areCheckboxesChecked.checkbox1}
-                      onChange={handleCheckboxChange("checkbox1")}
-                    />
-                  }
-                  label="I accept the Terms of Use"
-                />
-              </Grid>
-              <Grid item>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      color="primary"
-                      checked={areCheckboxesChecked.checkbox2}
-                      onChange={handleCheckboxChange("checkbox2")}
-                    />
-                  }
-                  label="I acknowledge the Privacy Policy"
-                />
-              </Grid>
-            </Grid>
+            <div className={classes.rememberMeContainer}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    color="primary"
+                    size="small"
+                    checked={areCheckboxesChecked.checkbox1}
+                    onChange={handleCheckboxChange("checkbox1")}
+                  />
+                }
+                label="I accept the Terms of Use"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    color="primary"
+                    size="small"
+                    checked={areCheckboxesChecked.checkbox2}
+                    onChange={handleCheckboxChange("checkbox2")}
+                  />
+                }
+                label="I acknowledge the Privacy Policy"
+              />
+            </div>
 
             <Button
               variant="contained"
@@ -311,14 +330,16 @@ function Signup() {
               fullWidth
               disabled={isSignInDisabled}
               type="submit"
+              size="large"
             >
               Sign Up
             </Button>
 
             <Typography
-              variant="body1"
+              variant="body2"
               align="center"
-              style={{ marginTop: "1rem" }}
+              color="textSecondary"
+              style={{ marginTop: "1.5rem" }}
             >
               Already have an account?
               <Link to="/login" className={classes.createAccount}>

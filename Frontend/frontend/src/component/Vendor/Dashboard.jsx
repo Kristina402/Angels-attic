@@ -190,7 +190,7 @@ const Dashboard = () => {
     dispatch(myOrders());
   }, [dispatch, alert, productsError, ordersError]);
 
-  const vendorProducts = products ? products.filter(p => p.user === user._id) : [];
+  const vendorProducts = products ? products.filter(p => (p.user && (p.user._id || p.user).toString() === user._id.toString())) : [];
   
   let totalSales = 0;
   orders && orders.forEach(order => {
