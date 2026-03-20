@@ -88,12 +88,10 @@ export function PublicRoute({ component: Component, render, ...rest }) {
     if (user?.role === "admin") {
       return <Redirect to="/admin-dashboard" />;
     }
-    if (user?.role === "vendor") {
-      if (user.isApproved === false) {
-        return <Redirect to="/vendor/pending" />;
-      }
-      return <Redirect to="/vendor/dashboard" />;
+    if (user?.role === "vendor" && user.isApproved === false) {
+      return <Redirect to="/vendor/pending" />;
     }
+    // Approved vendors can browse public pages (home, products, etc.)
   }
 
   return (

@@ -58,16 +58,12 @@ const rootReducer = combineReducers({
   notifications: notificationReducer,
 });
 
-// get all Cart values from local storage and pass this initial state into store
+// Cart is now user-specific and loaded dynamically after login via loadUserCart()
+// Remove legacy shared cart keys from previous implementation
+localStorage.removeItem("cartItem");
+localStorage.removeItem("shippingInfo");
+
 let initialState = {
-  cart: {
-    cartItems: localStorage.getItem("cartItem")
-      ? JSON.parse(localStorage.getItem("cartItem"))
-      : [],
-    shippingInfo: localStorage.getItem("shippingInfo")
-      ? JSON.parse(localStorage.getItem("shippingInfo"))
-      : [],
-  },
   wishlist: {
     wishlistItems: localStorage.getItem("wishlistItems")
       ? JSON.parse(localStorage.getItem("wishlistItems"))

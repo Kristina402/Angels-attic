@@ -19,10 +19,8 @@ export const calculateTotal = (arr) => {
 };
 
 
-export function generateDiscountedPrice(price) {
-  var discountPercentage = 35;
-  var discountAmount = (discountPercentage / 100) * price;
-  var discountedPrice = price - discountAmount;
+export function generateDiscountedPrice(price, discountAmount = 0) {
+  const discountedPrice = price - (discountAmount || 0);
   return discountedPrice.toFixed(2); 
 }
 

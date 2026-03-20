@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
     padding: "1rem 0",
     width: "100%",
     backgroundColor: "white",
-    overFlow : "hidden",
+    overFlow: "hidden",
   },
 
   paymentPage__container: {
@@ -328,7 +328,7 @@ const useStyles = makeStyles((theme) => ({
       },
     },
   },
- 
+
 }));
 
 const PaymentComponent = () => {
@@ -347,7 +347,7 @@ const PaymentComponent = () => {
   const [nameOnCard, setNameOnCard] = React.useState("");
   const [couponCode, setCouponCode] = useState("");
   const [isValid, setIsValid] = useState(true);
-    const [showDummyCard, setShowDummyCard] = useState(false);
+  const [showDummyCard, setShowDummyCard] = useState(false);
 
 
   const subTotal = cartItems.reduce((acc, currItem) => {
@@ -370,19 +370,18 @@ const PaymentComponent = () => {
   };
 
 
-  
-    const handleRadioChange = () => {
-      setShowDummyCard(!showDummyCard);
-    };
 
-    const handleCloseDummyCard = () => {
-      setShowDummyCard(false);
-    };
+  const handleRadioChange = () => {
+    setShowDummyCard(!showDummyCard);
+  };
+
+  const handleCloseDummyCard = () => {
+    setShowDummyCard(false);
+  };
 
 
-  const address = `${shippingInfo.address} , ${shippingInfo.city} ${
-    shippingInfo.state
-  } , ${shippingInfo.pinCode} , ${shippingInfo.country || "India"}`;
+  const address = `${shippingInfo.address} , ${shippingInfo.city} ${shippingInfo.state
+    } , ${shippingInfo.pinCode} , ${shippingInfo.country || "India"}`;
 
   const order = {
     shippingInfo,
@@ -399,9 +398,9 @@ const PaymentComponent = () => {
 
   async function paymentSubmitHandler(e) {
     e.preventDefault();
-    
+
     // Validate form inputs
-    if(nameOnCard.trim() === ""){
+    if (nameOnCard.trim() === "") {
       alert.error("Please enter name on card");
       return;
     }
@@ -482,7 +481,7 @@ const PaymentComponent = () => {
     } catch (error) {
       // if error while payment then again enable payment button
       console.error('Payment Error:', error);
-      
+
       // Provide more specific error messages
       if (error.response) {
         // Server responded with error status
@@ -497,7 +496,7 @@ const PaymentComponent = () => {
       }
     }
   }
-  
+
 
   useEffect(() => {
     if (error) {
@@ -519,333 +518,333 @@ const PaymentComponent = () => {
   let totalDiscount = totalPrice - discountedPrice;
   let final = totalPrice - totalDiscount;
   final = dispalyMoney(final);
-  totalDiscount = dispalyMoney(totalDiscount); 
+  totalDiscount = dispalyMoney(totalDiscount);
   totalPrice = dispalyMoney(totalPrice);
 
   return (
     <>
- 
-        <div className={classes.payemntPage}>
-          <CheckoutSteps activeStep={2} />
-          <MetaData title={"Payment"} />
-          <div className={classes.paymentPage__container}>
-            <div className={classes.PaymentBox}>
-              <Typography
-                variant="h5"
-                component="h1"
-                className={classes.PaymentHeading}
-              >
-                Payment method
-              </Typography>
-              <Typography
-                variant="subtitle2"
-                gutterBottom
-                className={classes.securePayemnt}
-              >
-                <AssuredWorkloadOutlinedIcon />
-                Payments are SSL encrypted so that your credit card and payment
-                details stay safe.
-              </Typography>
 
-              <div className={classes.cardContainer}>
-                <Typography variant="h6" className={classes.subHeading}>
-                  Credit Card <CreditCard fontSize="medium" />
-                </Typography>
-                <Grid container spacing={2} className={classes.cardDetails}>
-                  <Grid item xs={12}>
-                    <Typography
-                      variant="subtitle2"
-                      className={classes.labelText}
-                    >
-                      Card number
-                    </Typography>
-                    <div className={classes.cardNumberInput}>
-                      <CardMembership className={classes.inputIcon} />
-                      <CardNumberElement className={classes.paymentInput} />
-                    </div>
-                  </Grid>
-                  <Grid item xs={12} container justifyContent="space-between" />
-                  <Grid item xs={6}>
-                    <Typography
-                      variant="subtitle2"
-                      className={classes.labelText}
-                    >
-                      EXPIRY DATE
-                    </Typography>
-                    <div className={classes.expiryInput}>
-                      <Payment className={classes.inputIcon} />
-                      <CardExpiryElement className={classes.paymentInput2} />
-                    </div>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography
-                      variant="subtitle2"
-                      className={classes.labelText}
-                    >
-                      CVV/CVV
-                    </Typography>
-                    <div className={classes.cvvInput}>
-                      <Lock className={classes.inputIcon} />
-                      <CardCvcElement className={classes.paymentInput2} />
-                    </div>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography
-                      variant="subtitle2"
-                      className={classes.labelText}
-                    >
-                      NAME ON CARD
-                    </Typography>
-                    <TextField
-                      placeholder="John Doe"
-                      variant="outlined"
-                      fullWidth
-                      className={classes.outlinedInput}
-                      value={nameOnCard}
-                      required
-                      onChange={handleNameOnCardChange}
-                    />
-                  </Grid>
+      <div className={classes.payemntPage}>
+        <CheckoutSteps activeStep={3} />
+        <MetaData title={"Payment"} />
+        <div className={classes.paymentPage__container}>
+          <div className={classes.PaymentBox}>
+            <Typography
+              variant="h5"
+              component="h1"
+              className={classes.PaymentHeading}
+            >
+              Payment method
+            </Typography>
+            <Typography
+              variant="subtitle2"
+              gutterBottom
+              className={classes.securePayemnt}
+            >
+              <AssuredWorkloadOutlinedIcon />
+              Payments are SSL encrypted so that your credit card and payment
+              details stay safe.
+            </Typography>
+
+            <div className={classes.cardContainer}>
+              <Typography variant="h6" className={classes.subHeading}>
+                Credit Card <CreditCard fontSize="medium" />
+              </Typography>
+              <Grid container spacing={2} className={classes.cardDetails}>
+                <Grid item xs={12}>
+                  <Typography
+                    variant="subtitle2"
+                    className={classes.labelText}
+                  >
+                    Card number
+                  </Typography>
+                  <div className={classes.cardNumberInput}>
+                    <CardMembership className={classes.inputIcon} />
+                    <CardNumberElement className={classes.paymentInput} />
+                  </div>
                 </Grid>
-              </div>
-
-              <div className={classes.cardSelection}>
-                <Radio
-                  value="dummyCard"
-                  className={classes.radio}
-                  checked={showDummyCard}
-                  onChange={handleRadioChange}
-                />
-                <Typography variant="subtitle2" className={classes.radioText}>
-                  Use dummy card
-                </Typography>
-                <CreditCard fontSize="medium" />
-                {showDummyCard && <DummyCard onClose={handleCloseDummyCard} />}
-              </div>
-              <Typography
-                variant="body2"
-                className={classes.termsAndConditionsText}
-              >
-                By clicking "Place Order", you agree to the Angels Attic{" "}
-                <Link href="#" className={classes.privacyText}>
-                  Terms & Conditions
-                </Link>
-              </Typography>
-              <Button
-                variant="contained"
-                className={classes.placeOrderBtn}
-                fullWidth
-                // disabled={isDisable}
-                style={{ marginTop: "3rem" }}
-                onClick={paymentSubmitHandler}
-              >
-                Place Order
-              </Button>
+                <Grid item xs={12} container justifyContent="space-between" />
+                <Grid item xs={6}>
+                  <Typography
+                    variant="subtitle2"
+                    className={classes.labelText}
+                  >
+                    EXPIRY DATE
+                  </Typography>
+                  <div className={classes.expiryInput}>
+                    <Payment className={classes.inputIcon} />
+                    <CardExpiryElement className={classes.paymentInput2} />
+                  </div>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography
+                    variant="subtitle2"
+                    className={classes.labelText}
+                  >
+                    CVV/CVV
+                  </Typography>
+                  <div className={classes.cvvInput}>
+                    <Lock className={classes.inputIcon} />
+                    <CardCvcElement className={classes.paymentInput2} />
+                  </div>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography
+                    variant="subtitle2"
+                    className={classes.labelText}
+                  >
+                    NAME ON CARD
+                  </Typography>
+                  <TextField
+                    placeholder="John Doe"
+                    variant="outlined"
+                    fullWidth
+                    className={classes.outlinedInput}
+                    value={nameOnCard}
+                    required
+                    onChange={handleNameOnCardChange}
+                  />
+                </Grid>
+              </Grid>
             </div>
-            <div className={classes.payemntAmount}>
-              <div className="order_summary">
-                <h4>
-                  Order Summary &nbsp; ( {cartItems.length}{" "}
-                  {cartItems.length > 1 ? "items" : "item"} )
-                </h4>
-                <div className="order_summary_details">
-                  <div className="price order_Summary_Item">
-                    <span>Original Price</span>
-                    {/* ORIGINAL PRICE TOATAL */}
-                    <p>{totalPrice}</p>
-                  </div>
 
-                  <div className="discount order_Summary_Item">
-                    <span>Discount</span>
-                    <p>
-                      <del>{totalDiscount}</del>
+            <div className={classes.cardSelection}>
+              <Radio
+                value="dummyCard"
+                className={classes.radio}
+                checked={showDummyCard}
+                onChange={handleRadioChange}
+              />
+              <Typography variant="subtitle2" className={classes.radioText}>
+                Use dummy card
+              </Typography>
+              <CreditCard fontSize="medium" />
+              {showDummyCard && <DummyCard onClose={handleCloseDummyCard} />}
+            </div>
+            <Typography
+              variant="body2"
+              className={classes.termsAndConditionsText}
+            >
+              By clicking "Place Order", you agree to the Angels Attic{" "}
+              <Link href="#" className={classes.privacyText}>
+                Terms & Conditions
+              </Link>
+            </Typography>
+            <Button
+              variant="contained"
+              className={classes.placeOrderBtn}
+              fullWidth
+              // disabled={isDisable}
+              style={{ marginTop: "3rem" }}
+              onClick={paymentSubmitHandler}
+            >
+              Place Order
+            </Button>
+          </div>
+          <div className={classes.payemntAmount}>
+            <div className="order_summary">
+              <h4>
+                Order Summary &nbsp; ( {cartItems.length}{" "}
+                {cartItems.length > 1 ? "items" : "item"} )
+              </h4>
+              <div className="order_summary_details">
+                <div className="price order_Summary_Item">
+                  <span>Original Price</span>
+                  {/* ORIGINAL PRICE TOATAL */}
+                  <p>{totalPrice}</p>
+                </div>
+
+                <div className="discount order_Summary_Item">
+                  <span>Discount</span>
+                  <p>
+                    <del>{totalDiscount}</del>
+                  </p>
+                </div>
+
+                <div className="delivery order_Summary_Item">
+                  <span>Delivery</span>
+                  <p>
+                    <b>Free</b>
+                  </p>
+                </div>
+
+                <div className="separator_cart"></div>
+                <div className="total_price order_Summary_Item">
+                  <div>
+                    <h4>Total Price</h4>
+
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        marginTop: "-10px",
+                        color: "#414141",
+                      }}
+                    >
+                      (Inclusive of all taxes)
                     </p>
                   </div>
-
-                  <div className="delivery order_Summary_Item">
-                    <span>Delivery</span>
-                    <p>
-                      <b>Free</b>
-                    </p>
-                  </div>
-
-                  <div className="separator_cart"></div>
-                  <div className="total_price order_Summary_Item">
-                    <div>
-                      <h4>Total Price</h4>
-
-                      <p
-                        style={{
-                          fontSize: "14px",
-                          marginTop: "-10px",
-                          color: "#414141",
-                        }}
-                      >
-                        (Inclusive of all taxes)
-                      </p>
-                    </div>
-                    <p>
-                      <b>{final}</b>
-                    </p>
-                  </div>
+                  <p>
+                    <b>{final}</b>
+                  </p>
                 </div>
               </div>
+            </div>
 
-              <div className="separator"></div>
+            <div className="separator"></div>
 
-              <div className="coupon-box-wrapper">
-                <div
-                  className={`coupon-box-content ${isFocused ? "focused" : ""}`}
+            <div className="coupon-box-wrapper">
+              <div
+                className={`coupon-box-content ${isFocused ? "focused" : ""}`}
+              >
+                <TextField
+                  label="Enter coupon code"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  onFocus={handleFocus}
+                  onBlur={() => setIsFocused(false)}
+                  error={!isValid}
+                  helperText={!isValid && "Invalid coupon code"}
+                  variant="outlined"
+                  size="small"
+                  style={{
+                    width: "200px",
+                    marginRight: "1rem",
+                  }}
+                />
+
+                <Button
+                  variant="contained"
+                  color="primary"
+                  className="coupon-box-apply-btn"
+                  onClick={handleApplyCoupon}
                 >
-                  <TextField
-                    label="Enter coupon code"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    onFocus={handleFocus}
-                    onBlur={() => setIsFocused(false)}
-                    error={!isValid}
-                    helperText={!isValid && "Invalid coupon code"}
-                    variant="outlined"
-                    size="small"
-                    style={{
-                      width: "200px",
-                      marginRight: "1rem",
+                  Apply
+                </Button>
+              </div>
+            </div>
+
+            <div className={classes.order_Details}>
+              <h5 className={classes.orderSub_heading}>ORDER DETAILS</h5>
+              {cartItems &&
+                cartItems.map((item, idx) => (
+                  <Link to={`/product/${item.productId}`} style={{ textDecoration: "none", color: "inherit" }}>
+                    <OrderDetailsSection
+                      key={idx}
+                      item={item}
+                      totalDiscount={totalDiscount}
+                      totalPrice={totalPrice}
+                    />
+                  </Link>
+                ))}
+            </div>
+            <Divider className={classes.boldDivider} />
+            <div className={classes.shipping_Deatils}>
+              <Typography variant="h6" className={classes.orderSub_heading}>
+                DELIVERY ADDRESS
+              </Typography>
+
+              <div className={classes.shipping_Address}>
+                <div className={classes.shipping_Address_Details}>
+                  <Typography
+                    variant="subtitle2"
+                    style={{ fontSize: "16px", fontWeight: 400 }}
+                  >
+                    {user.name && user.name}
+                  </Typography>
+                  <Typography
+                    variant="subtitle2"
+                    style={{ fontSize: "16px", fontWeight: 400 }}
+                  >
+                    {address}
+                  </Typography>
+                </div>
+                <div className={classes.shipping_Address_edit}>
+                  <EditIcon
+                    className={classes.editIcon}
+                    onClick={() => {
+                      history.push("/shipping");
                     }}
                   />
+                </div>
+              </div>
+              <Typography
+                variant="subtitle2"
+                className={classes.mobileNo}
+                style={{
+                  fontWeight: 400,
+                  marginTop: "-5px",
+                  fontSize: "16px",
+                }}
+              >
+                {shippingInfo.phoneNo},
+              </Typography>
 
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className="coupon-box-apply-btn"
-                    onClick={handleApplyCoupon}
+              <Typography
+                variant="subtitle2"
+                className={classes.emailAddress}
+                style={{ fontWeight: 400, fontSize: "16px" }}
+              >
+                {user.email}
+              </Typography>
+            </div>
+
+            <div className={classes.shipping_Deatils}>
+              <Typography
+                variant="h6"
+                className={classes.orderSub_heading}
+                style={{ marginTop: "5px" }}
+              >
+                BILLING DETAILS
+              </Typography>
+
+              <div className={classes.shipping_Address}>
+                <div className={classes.shipping_Address_Details}>
+                  <Typography
+                    variant="subtitle2"
+                    style={{ fontSize: "16px", fontWeight: 400 }}
                   >
-                    Apply
-                  </Button>
+                    {user.name}
+                  </Typography>
+                  <Typography
+                    variant="subtitle2"
+                    style={{ fontSize: "16px", fontWeight: 400 }}
+                  >
+                    {address}
+                  </Typography>
+                </div>
+                <div className={classes.shipping_Address_edit}>
+                  <EditIcon
+                    className={classes.editIcon}
+                    onClick={() => {
+                      history.push("/shipping");
+                    }}
+                  />
                 </div>
               </div>
+              <Typography
+                variant="subtitle2"
+                className={classes.mobileNo}
+                style={{
+                  fontWeight: 400,
+                  marginTop: "-5px",
+                  fontSize: "16px",
+                }}
+              >
+                {shippingInfo.phoneNo},
+              </Typography>
 
-              <div className={classes.order_Details}>
-                <h5 className={classes.orderSub_heading}>ORDER DETAILS</h5>
-                {cartItems &&
-                  cartItems.map((item, idx) => (
-                    <Link to={`/product/${item.productId}`} style ={{textDecoration : "none" , color : "inherit"}}>
-                      <OrderDetailsSection
-                        key={idx}
-                        item={item}
-                        totalDiscount={totalDiscount}
-                        totalPrice={totalPrice}
-                      />
-                    </Link>
-                  ))}
-              </div>
-              <Divider className={classes.boldDivider} />
-              <div className={classes.shipping_Deatils}>
-                <Typography variant="h6" className={classes.orderSub_heading}>
-                  DELIVERY ADDRESS
-                </Typography>
-
-                <div className={classes.shipping_Address}>
-                  <div className={classes.shipping_Address_Details}>
-                    <Typography
-                      variant="subtitle2"
-                      style={{ fontSize: "16px", fontWeight: 400 }}
-                    >
-                      {user.name && user.name}
-                    </Typography>
-                    <Typography
-                      variant="subtitle2"
-                      style={{ fontSize: "16px", fontWeight: 400 }}
-                    >
-                      {address}
-                    </Typography>
-                  </div>
-                  <div className={classes.shipping_Address_edit}>
-                    <EditIcon
-                      className={classes.editIcon}
-                      onClick={() => {
-                        history.push("/shipping");
-                      }}
-                    />
-                  </div>
-                </div>
-                <Typography
-                  variant="subtitle2"
-                  className={classes.mobileNo}
-                  style={{
-                    fontWeight: 400,
-                    marginTop: "-5px",
-                    fontSize: "16px",
-                  }}
-                >
-                  {shippingInfo.phoneNo},
-                </Typography>
-
-                <Typography
-                  variant="subtitle2"
-                  className={classes.emailAddress}
-                  style={{ fontWeight: 400, fontSize: "16px" }}
-                >
-                  {user.email}
-                </Typography>
-              </div>
-
-              <div className={classes.shipping_Deatils}>
-                <Typography
-                  variant="h6"
-                  className={classes.orderSub_heading}
-                  style={{ marginTop: "5px" }}
-                >
-                  BILLING DETAILS
-                </Typography>
-
-                <div className={classes.shipping_Address}>
-                  <div className={classes.shipping_Address_Details}>
-                    <Typography
-                      variant="subtitle2"
-                      style={{ fontSize: "16px", fontWeight: 400 }}
-                    >
-                      {user.name}
-                    </Typography>
-                    <Typography
-                      variant="subtitle2"
-                      style={{ fontSize: "16px", fontWeight: 400 }}
-                    >
-                      {address}
-                    </Typography>
-                  </div>
-                  <div className={classes.shipping_Address_edit}>
-                    <EditIcon
-                      className={classes.editIcon}
-                      onClick={() => {
-                        history.push("/shipping");
-                      }}
-                    />
-                  </div>
-                </div>
-                <Typography
-                  variant="subtitle2"
-                  className={classes.mobileNo}
-                  style={{
-                    fontWeight: 400,
-                    marginTop: "-5px",
-                    fontSize: "16px",
-                  }}
-                >
-                  {shippingInfo.phoneNo},
-                </Typography>
-
-                <Typography
-                  variant="subtitle2"
-                  className={classes.emailAddress}
-                  style={{ fontWeight: 400, fontSize: "16px" }}
-                >
-                  {user.email}
-                </Typography>
-              </div>
+              <Typography
+                variant="subtitle2"
+                className={classes.emailAddress}
+                style={{ fontWeight: 400, fontSize: "16px" }}
+              >
+                {user.email}
+              </Typography>
             </div>
           </div>
         </div>
-    
+      </div>
+
     </>
   );
 };

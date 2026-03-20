@@ -113,22 +113,23 @@ const CheckoutSteps = ({ activeStep }) => {
 
   const steps = [
     { label: "Bag", link: "/cart" },
-    { label: "Checkout", link: "/checkout" },
+    { label: "Shipping", link: "/shipping" },
+    { label: "Confirm Order", link: "/order/confirm" },
     { label: "Payment", link: "/process/payment" },
     { label: "Order Complete", link: "/success" },
   ];
 
   return (
     <Box className={classes.root}>
-      <Stepper 
-        alternativeLabel 
-        activeStep={activeStep} 
+      <Stepper
+        alternativeLabel
+        activeStep={activeStep}
         connector={<ColorlibConnector />}
         style={{ backgroundColor: "transparent" }}
       >
         {steps.map((step, index) => (
           <Step key={step.label}>
-            <StepLabel 
+            <StepLabel
               StepIconComponent={ColorlibStepIcon}
               className={classes.stepLabel}
               onClick={() => index < activeStep && history.push(step.link)}

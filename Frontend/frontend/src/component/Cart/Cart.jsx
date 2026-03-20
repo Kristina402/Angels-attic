@@ -41,9 +41,9 @@ const Cart = () => {
 
   const checkoutHandler = () => {
     if (isAuthenticated) {
-      history.push("/checkout");
+      history.push("/shipping");
     } else {
-      history.push("/login?redirect=/checkout");
+      history.push("/login?redirect=/shipping");
     }
   };
 
@@ -51,17 +51,19 @@ const Cart = () => {
     (acc, item) => acc + item.price * item.quantity,
     0
   );
-  let discountedPrice = generateDiscountedPrice(totalPrice);
-  let totalDiscount = totalPrice - discountedPrice;
+  let totalDiscount = cartItems.reduce(
+    (acc, item) => acc + (item.discount || 0) * item.quantity,
+    0
+  );
   let final = totalPrice - totalDiscount;
 
   return (
     <div className="cart_page_new">
       <MetaData title="Shopping Cart - Angels Attic" />
-      
+
       <Container maxWidth="lg">
         {cartItems.length === 0 ? (
-          <motion.div 
+          <motion.div
             className="empty_cart_wrapper"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -75,11 +77,11 @@ const Cart = () => {
                 Your cart is empty
               </Typography>
               <Typography className="empty_cart_text">
-                Looks like you haven't added any thrift finds yet. 
+                Looks like you haven't added any thrift finds yet.
                 Start exploring our unique collection!
               </Typography>
-              <Button 
-                variant="contained" 
+              <Button
+                variant="contained"
                 className="continue_shopping_btn_large"
                 onClick={() => history.push("/products")}
               >
@@ -98,7 +100,7 @@ const Cart = () => {
                   {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
                 </Typography>
               </div>
-              <Button 
+              <Button
                 component={Link}
                 to="/products"
                 startIcon={<ArrowBackIosNewIcon style={{ fontSize: '12px' }} />}
@@ -141,7 +143,7 @@ const Cart = () => {
                   <Typography variant="h6" className="summary_title_new">
                     Order Summary
                   </Typography>
-                  
+
                   <div className="summary_details_new">
                     <div className="summary_row_new">
                       <span className="label">Cart Subtotal</span>
@@ -157,9 +159,9 @@ const Cart = () => {
                       <span className="label">Shipping</span>
                       <span className="value free_text">Calculated at checkout</span>
                     </div>
-                    
+
                     <Divider className="summary_divider_new" />
-                    
+
                     <div className="summary_row_new total_row_new">
                       <Typography variant="h6" className="total_label">Estimated Total</Typography>
                       <div className="total_price_box">
@@ -171,8 +173,8 @@ const Cart = () => {
                     </div>
                   </div>
 
-                  <Button 
-                    variant="contained" 
+                  <Button
+                    variant="contained"
                     className="checkout_btn_new"
                     onClick={checkoutHandler}
                     fullWidth

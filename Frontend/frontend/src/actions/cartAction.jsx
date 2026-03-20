@@ -5,6 +5,9 @@ import {
 } from "../constants/cartConstant";
 import axios from "axios";
 
+// Helper: get the localStorage key for this user's cart
+const getCartKey = (userId) => `cart_${userId}`;
+
 // Add to Cart
 export const addItemToCart = (id, quantity) => async (dispatch, getState) => {
   const { data } = await axios.get(`/api/v1/product/${id}`);
@@ -14,22 +17,28 @@ export const addItemToCart = (id, quantity) => async (dispatch, getState) => {
       productId: data.product._id,
       name: data.product.name,
       price: data.product.price,
+      discount: data.product.discount || 0,
       image: data.product.images[0].url,
       stock: data.product.availabilityStatus === "Available" ? 1 : 0,
       quantity,
     },
   });
 
-  // Save cart data to localStorage after dispatching the action
-  localStorage.setItem("cartItem", JSON.stringify(getState().cart.cartItems));
+  // Save to user-specific localStorage key
+  const userId = getState().userData.user?._id;
+  if (userId) {
+    localStorage.setItem(getCartKey(userId), JSON.stringify(getState().cart.cartItems));
+  }
 };
 
 // Remove item from Cart
 export const removeItemFromCart = (id) => async (dispatch, getState) => {
   dispatch({ type: REMOVE_CART_ITEM, payload: id });
 
-  // Save cart data to localStorage after dispatching the action
-  localStorage.setItem("cartItem", JSON.stringify(getState().cart.cartItems));
+  const userId = getState().userData.user?._id;
+  if (userId) {
+    localStorage.setItem(getCartKey(userId), JSON.stringify(getState().cart.cartItems));
+  }
 };
 
 // Save Shipping Info
@@ -39,6 +48,26 @@ export const saveShippingInfo = (data) => async (dispatch, getState) => {
     payload: data,
   });
 
-  // Save shipping info data to localStorage after dispatching the action
-  localStorage.setItem("shippingInfo", JSON.stringify(data));
+  const userId = getState().userData.user?._id;
+  if (userId) {
+    localStorage.setItem(`shippingInfo_${userId}`, JSON.stringify(data));
+  }
 };
+
+// Load cart for a specific user from localStorage (called after login/load)
+export const loadUserCart = (userId) => (dispatch) => {
+  const cartKey = getCartKey(userId);
+  const saved = localStorage.getItem(cartKey);
+  if (saved) {
+    const cartItems = JSON.parse(saved);
+    cartItems.forEach((item) => {
+      dispatch({ type: ADD_TO_CART, payload: item });
+    });
+  }
+  const shippingKey = `shippingInfo_${userId}`;
+  const savedShipping = localStorage.getItem(shippingKey);
+  if (savedShipping) {
+    dispatch({ type: SAVE_SHIPPING_INFO, payload: JSON.parse(savedShipping) });
+  }
+};
+

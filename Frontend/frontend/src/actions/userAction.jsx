@@ -41,6 +41,8 @@ import {
   REGISTER_VENDOR_SUCCESS,
   REGISTER_VENDOR_FAIL,
 } from "../constants/userConstanat";
+import { loadUserCart } from "./cartAction";
+import { EMPTY_CART } from "../constants/cartConstant";
 
 
 // login user
@@ -59,6 +61,9 @@ export function login(email, password, history, redirect) {
       );
 
       dispatch({ type: LOGIN_SUCCESS, payload: data.user });
+
+      // Load this user's cart from localStorage
+      dispatch(loadUserCart(data.user._id));
 
       // Redirect after successful login
       if (data.user.role === "admin") {
@@ -153,11 +158,16 @@ export const load_UserProfile = () => async (dispatch) => {
       // Parse the user data from JSON format stored in session storage
       const user = JSON.parse(userData);
        dispatch({ type: LOAD_USER_SUCCESS, payload: user });
+       // Load this user's cart from localStorage
+       dispatch(loadUserCart(user._id));
     } else {
       // If user data is not available in session storage, make a backend API call
       const { data } = await axios.get("/api/v1/profile");
    
       dispatch({ type: LOAD_USER_SUCCESS, payload: data.user });
+
+      // Load this user's cart from localStorage
+      dispatch(loadUserCart(data.user._id));
 
       // Save the user data to session storage for future use
       sessionStorage.setItem("user", JSON.stringify(data.user));
@@ -176,11 +186,14 @@ export function logout() {
   return async function (dispatch) {
     try {
       sessionStorage.removeItem("user");
-      await axios.get(`/api/v1/logout`); // token will expired from cookies and no more user data access
+      // Clear the in-memory cart so it doesn't leak to the next user
+      dispatch({ type: EMPTY_CART });
+      await axios.get(`/api/v1/logout`); // token will expired from cookies
       dispatch({ type: LOGOUT_SUCCESS });
 
     } catch (error) {
       sessionStorage.removeItem("user");
+      dispatch({ type: EMPTY_CART }); // still clear cart even on error
       dispatch({
         type: LOGOUT_FAIL,
         payload: error.response ? error.response.data.message : error.message,

@@ -21,11 +21,11 @@ import {
   UPDATE_PRODUCT_REQUEST,
   UPDATE_PRODUCT_SUCCESS,
   UPDATE_PRODUCT_FAIL,
- ALL_REVIEW_REQUEST,
- ALL_REVIEW_SUCCESS,
- DELETE_REVIEW_REQUEST,
- DELETE_REVIEW_SUCCESS,
- DELETE_REVIEW_FAIL,
+  ALL_REVIEW_REQUEST,
+  ALL_REVIEW_SUCCESS,
+  DELETE_REVIEW_REQUEST,
+  DELETE_REVIEW_SUCCESS,
+  DELETE_REVIEW_FAIL,
   CLEAR_ERRORS,
   ALL_REVIEW_FAIL,
 } from "../constants/productsConstatns";
@@ -125,12 +125,12 @@ export const getAdminProducts = () => async (dispatch) => {
 
 // Create Product
 export function createProduct(productData) {
-  return async function(dispatch) {
+  return async function (dispatch) {
     try {
       dispatch({
         type: NEW_PRODUCT_REQUEST,
       });
-         
+
       const config = {
         headers: { "Content-Type": "multipart/form-data" },
       };
@@ -157,7 +157,7 @@ export function createProduct(productData) {
 // Delete Product request
 
 export function deleteProduct(id) {
-  return async function(dispatch) {
+  return async function (dispatch) {
     try {
       dispatch({ type: DELETE_PRODUCT_REQUEST });
 
@@ -179,7 +179,7 @@ export function deleteProduct(id) {
 // update product request
 
 export function updateProduct(id, productData) {
-  return async function(dispatch) {
+  return async function (dispatch) {
     try {
       dispatch({ type: UPDATE_PRODUCT_REQUEST });
 

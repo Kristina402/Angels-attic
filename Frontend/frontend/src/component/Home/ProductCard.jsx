@@ -188,7 +188,6 @@ const ProductCard = ({ product }) => {
   const isItemInWishlist = wishlistItems.find((i) => i.productId === product._id);
   const isSold = product.availabilityStatus === "Sold";
 
-  const discountPrice = product.price - (product.discount || 0);
   const oldPrice = dispalyMoney(product.price + (product.discount || 0));
   const finalPrice = dispalyMoney(product.price);
 

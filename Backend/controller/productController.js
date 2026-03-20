@@ -32,27 +32,10 @@ exports.createProduct = asyncWrapper(async (req, res, next) => {
   req.body.images = imagesLinks;
   req.body.user = req.user.id;
 
-  // Vendors' products need approval, admins' don't
-  if (req.user.role === "vendor") {
-    req.body.isApproved = false;
-  } else {
-    req.body.isApproved = true;
-  }
+  // All products (admin or vendor) are approved immediately
+  req.body.isApproved = true;
 
   const product = await Product.create(req.body);
-
-  // If vendor, notify admins
-  if (req.user.role === "vendor") {
-    const admins = await User.find({ role: "admin" });
-    for (const admin of admins) {
-      await Notification.create({
-        recipient: admin._id,
-        message: `New product submission from vendor: ${product.name}`,
-        type: "product_approval",
-        link: `/admin/product/${product._id}`,
-      });
-    }
-  }
 
   res.status(201).json({
     success: true,
@@ -63,13 +46,13 @@ exports.createProduct = asyncWrapper(async (req, res, next) => {
 // Get All Product
 exports.getAllProducts = asyncWrapper(async (req, res, next) => {
   const resultPerPage = 8;
-  const productsCount = await Product.countDocuments();
+  const productsCount = await Product.countDocuments({ isApproved: true });
 
-  // For public view, we might want to filter Available items only, 
-  // but let's keep it flexible so frontend can decide how to show Sold items.
-  const apiFeature = new ApiFeatures(Product.find(), req.query)
+  // For public view, we only show approved products
+  const apiFeature = new ApiFeatures(Product.find({ isApproved: true }), req.query)
     .search()
-    .filter();
+    .filter()
+    .sort();
 
   let products = await apiFeature.query;
 

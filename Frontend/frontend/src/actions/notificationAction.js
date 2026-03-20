@@ -29,7 +29,7 @@ export const getNotifications = () => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: GET_NOTIFICATIONS_FAIL,
-      payload: error.response.data.message,
+      payload: error.response ? error.response.data.message : error.message,
     });
   }
 };
@@ -48,7 +48,7 @@ export const markNotificationAsRead = (id) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: MARK_AS_READ_FAIL,
-      payload: error.response.data.message,
+      payload: error.response ? error.response.data.message : error.message,
     });
   }
 };
@@ -67,7 +67,7 @@ export const markAllNotificationsRead = () => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: MARK_ALL_READ_FAIL,
-      payload: error.response.data.message,
+      payload: error.response ? error.response.data.message : error.message,
     });
   }
 };
@@ -86,7 +86,7 @@ export const clearAllNotifications = () => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: CLEAR_ALL_NOTIFICATIONS_FAIL,
-      payload: error.response.data.message,
+      payload: error.response ? error.response.data.message : error.message,
     });
   }
 };
