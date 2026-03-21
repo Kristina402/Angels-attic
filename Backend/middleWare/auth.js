@@ -19,6 +19,14 @@ if(!token){
 
     const user = await userModel.findById(deCodeToken.id); 
 
+    if (user.status === "Blocked") {
+      res.cookie("token", null, {
+        expires: new Date(Date.now()),
+        httpOnly: true,
+      });
+      return next(new ErrorHandler("Your account is blocked. Please contact support.", 403));
+    }
+
     req.user = user; // now we have user in req.user
  
     next();

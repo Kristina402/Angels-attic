@@ -1,72 +1,85 @@
 .privacy-policy-container {
-  width: 90%;
-  padding: 8rem 0;
-  background-color: #ffffff;
-   margin: 0 auto;
+  width: 100%;
+  padding: 10rem 0 5rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
 }
-.container___ {
-  width: 80%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
- 
-  justify-content: center;
-  padding: 20px;
 
+.container___ {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 3rem 4rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .container___ h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  text-align: center;
+  font-size: 2.5rem;
+  color: #1a1a1a;
+  margin-bottom: 1rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.effective-date {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+  display: block;
 }
 
 .container___ h2 {
-  font-size: 20px;
-  margin-top: 30px;
-  margin-bottom: 10px;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
 }
 
-p {
-  font-size: 16px;
-  line-height: 1.5;
-  margin-bottom: 15px;
+.container___ h3 {
+  font-size: 1.1rem;
+  color: #333;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
 }
+
+.container___ p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #444;
+  margin-bottom: 1.25rem;
+}
+
 .container___ ul {
-  margin-bottom: 15px;
-} 
+  margin-bottom: 2rem;
+  padding-left: 1.5rem;
+}
 
 .container___ li {
-  margin: 10px;
-  list-style: disc;
-}
-
-a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
+  margin-bottom: 0.75rem;
+  color: #444;
+  font-size: 1.05rem;
+  line-height: 1.6;
 }
 
 @media (max-width: 768px) {
-  .container {
-    padding: 10px;
+  .privacy-policy-container {
+    padding: 8rem 1rem 3rem;
+  }
+
+  .container___ {
+    padding: 2rem;
   }
 
   .container___ h1 {
-    font-size: 20px;
+    font-size: 1.8rem;
   }
 
   .container___ h2 {
-    font-size: 18px;
-    margin-top: 20px;
-    margin-bottom: 5px;
-  }
-
-  .container___ p {
-    font-size: 14px;
-    margin-bottom: 10px;
+    font-size: 1.3rem;
   }
 }

@@ -7,6 +7,7 @@ const TermsAndConditions = () => {
       <MetaData title="Terms And Conditions" />
       <div className="container___">
         <h1>Terms and Conditions of Sale</h1>
+        <span className="effective-date">Effective Date: March 21, 2024</span>
         <p>
           Thank you for using Angels Attic. We really appreciate your support
           and your interest in sustainable, pre-owned products. We want to make

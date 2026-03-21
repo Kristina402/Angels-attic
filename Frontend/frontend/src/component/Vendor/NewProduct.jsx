@@ -121,6 +121,27 @@ function NewProduct() {
 
   const createProductSubmitHandler = (e) => {
     e.preventDefault();
+
+    if (name.trim().length === 0) {
+      alert.error("Please Enter Product Name");
+      return;
+    }
+
+    if (price <= 0) {
+      alert.error("Price must be greater than 0.");
+      return;
+    }
+
+    if (description.trim().length < 10) {
+      alert.error("Description must be at least 10 characters");
+      return;
+    }
+
+    if (images.length === 0) {
+      alert.error("Please Upload Product Images");
+      return;
+    }
+
     const myForm = new FormData();
     myForm.set("name", name);
     myForm.set("price", price);
@@ -138,10 +159,17 @@ function NewProduct() {
 
   const createProductImagesChange = (e) => {
     const files = Array.from(e.target.files);
+    const allowedExtensions = ["image/jpeg", "image/jpg", "image/png"];
+    
     setImages([]);
     setImagesPreview([]);
 
     files.forEach((file) => {
+      if (!allowedExtensions.includes(file.type)) {
+        alert.error("Only JPG, JPEG, and PNG formats are allowed");
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = () => {
         if (reader.readyState === 2) {

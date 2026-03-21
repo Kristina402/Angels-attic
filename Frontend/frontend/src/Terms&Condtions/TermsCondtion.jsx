@@ -6,15 +6,8 @@ const TermsAndConditionsPage = () => {
   return (
     <div className="terms-container">
       <MetaData title="Terms and Conditions" />
-      <img
-        src={TermsImage}
-        alt="Terms and Conditions"
-        className="terms-image"
-      />
-      <div className="terms-overlay">
-        <h1 className="terms-title">TERMS AND CONDITIONS</h1>
-      </div>
       <div className="terms-content">
+        <h1 className="terms-title">Terms and Conditions</h1>
         <p>
           Thank you for using Angels Attic. We appreciate your trust in our
           thrift marketplace and your interest in sustainable, pre-owned

@@ -8,17 +8,16 @@ const PrivacyPolicy = () => {
     <div className="privacy-policy-container">
      <MetaData title={"Privacy Policy"} />
       <div className="container___">
-        <h1>Privacy Policy of Angels Attic</h1>
-        <p style={{ fontSize: "16px", fontWeight: "600" }}>
-          {" "}
-          Effective Date: 23-12-2021
-        </p>
+        <h1>Privacy Policy</h1>
+        <span className="effective-date">Effective Date: March 21, 2024</span>
         <p>
           At Angels Attic, we value the privacy of our community and are
           committed to protecting your personal information. This Privacy Policy
           explains how we collect, use, disclose, and safeguard your information
-          when you use our thrift marketplace and related services. By
-          accessing or using Angels Attic, you acknowledge that you have read,
+          when you use our thrift marketplace and related services.
+        </p>
+        <p>
+          By accessing or using Angels Attic, you acknowledge that you have read,
           understood, and agree to the terms outlined in this Privacy Policy.
         </p>
         <h2>1. Information We Collect</h2>

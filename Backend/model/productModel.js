@@ -9,6 +9,7 @@ const productSchema = new mongoose.Schema({
   description: {
     type: String,
     required: [true, "Please Enter Product Description"],
+    minLength: [10, "Description must be at least 10 characters"],
   },
   info: {
     type: String,
@@ -16,6 +17,7 @@ const productSchema = new mongoose.Schema({
   price: {
     type: Number,
     required: [true, "Please Enter Product Price"],
+    min: [1, "Price must be greater than 0"],
     maxLength: [8, "Price cannot exceed 8 characters"],
   },
   discount: {

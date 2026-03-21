@@ -7,11 +7,13 @@ import { Button, Box, Typography, Paper, IconButton, Chip, Tooltip } from "@mui/
 import MetaData from "../layouts/MataData/MataData";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import BlockIcon from "@mui/icons-material/Block";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import AdminSidebar from "./AdminSidebar";
 import AdminHeader from "./AdminHeader";
 import Loader from "../layouts/loader/Loader";
-import { getAllUsers, clearErrors, deleteUser } from "../../actions/userAction";
-import { DELETE_USER_RESET } from "../../constants/userConstanat";
+import { getAllUsers, clearErrors, deleteUser, updateUser } from "../../actions/userAction";
+import { DELETE_USER_RESET, UPDATE_USER_RESET } from "../../constants/userConstanat";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@mui/styles";
 
@@ -75,12 +77,20 @@ function UserList() {
   const { error: deleteError, isDeleted, message } = useSelector(
     (state) => state.profileData
   );
+  const { isUpdated } = useSelector((state) => state.profileData);
   const alert = useAlert();
   const history = useHistory();
 
   const deleteUserHandler = (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       dispatch(deleteUser(id));
+    }
+  };
+
+  const blockUserHandler = (id, currentStatus) => {
+    const newStatus = currentStatus === "Active" ? "Blocked" : "Active";
+    if (window.confirm(`Are you sure you want to ${newStatus === "Blocked" ? "block" : "unblock"} this user?`)) {
+      dispatch(updateUser(id, { status: newStatus }));
     }
   };
 
@@ -99,8 +109,13 @@ function UserList() {
       dispatch({ type: DELETE_USER_RESET });
     }
 
+    if (isUpdated) {
+      alert.success("User status updated successfully");
+      dispatch({ type: UPDATE_USER_RESET });
+    }
+
     dispatch(getAllUsers());
-  }, [dispatch, alert, error, deleteError, isDeleted, message]);
+  }, [dispatch, alert, error, deleteError, isDeleted, message, isUpdated]);
 
   const columns = [
     {
@@ -142,8 +157,28 @@ function UserList() {
       minWidth: 150,
       flex: 0.3,
       renderCell: (params) => {
+        const status = params.getValue(params.id, "status");
+        return (
+          <Chip 
+            label={status} 
+            size="small"
+            sx={{ 
+              backgroundColor: status === "Active" ? "#ECFDF5" : "#FEF2F2",
+              color: status === "Active" ? "#10B981" : "#EF4444",
+              fontWeight: "700"
+            }}
+          />
+        );
+      },
+    },
+    {
+      field: "approval",
+      headerName: "Approval",
+      minWidth: 150,
+      flex: 0.3,
+      renderCell: (params) => {
         const role = params.getValue(params.id, "role");
-        const isApproved = params.getValue(params.id, "status");
+        const isApproved = params.getValue(params.id, "isApproved");
         if (role === "vendor") {
           return (
             <Chip 
@@ -163,16 +198,26 @@ function UserList() {
     {
       field: "actions",
       headerName: "Actions",
-      minWidth: 120,
-      flex: 0.3,
+      minWidth: 180,
+      flex: 0.4,
       sortable: false,
       renderCell: (params) => {
         const id = params.getValue(params.id, "id");
+        const status = params.getValue(params.id, "status");
         return (
           <Box sx={{ display: "flex", gap: "0.5rem" }}>
-            <Tooltip title="Edit User">
+            <Tooltip title="Manage Status">
               <IconButton size="small" component={Link} to={`/admin/user/${id}`}>
                 <EditIcon className={classes.actionIcon} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={status === "Active" ? "Block User" : "Unblock User"}>
+              <IconButton size="small" onClick={() => blockUserHandler(id, status)}>
+                {status === "Active" ? (
+                  <BlockIcon sx={{ color: "#F59E0B" }} />
+                ) : (
+                  <CheckCircleOutlineIcon sx={{ color: "#10B981" }} />
+                )}
               </IconButton>
             </Tooltip>
             <Tooltip title="Delete User">
@@ -193,7 +238,8 @@ function UserList() {
       role: item.role,
       email: item.email,
       name: item.name,
-      status: item.isApproved,
+      status: item.status || "Active",
+      isApproved: item.isApproved,
     });
   });
 

@@ -16,7 +16,6 @@ const quickLinks = [
 
 const supportLinks = [
   { id: 1, label: "Contact Us", path: "/contact" },
-  { id: 2, label: "FAQ", path: "/terms/conditions" },
   { id: 3, label: "Privacy Policy", path: "/policy/privacy" },
   { id: 4, label: "Terms & Conditions", path: "/terms/conditions" },
 ];

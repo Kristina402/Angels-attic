@@ -62,6 +62,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "user",
   },
+  status: {
+    type: String,
+    default: "Active",
+    enum: ["Active", "Blocked"],
+  },
   isApproved: {
     type: Boolean,
     default: true, // Existing users are approved by default

@@ -6,6 +6,20 @@ const asyncWrapper = require("../middleWare/asyncWrapper");
 const ApiFeatures = require("../utils/apiFeatures");
 const cloudinary = require("cloudinary");
 
+const validateImages = (images) => {
+  const allowedExtensions = ["jpg", "jpeg", "png"];
+  for (let img of images) {
+    if (typeof img === "string" && img.startsWith("data:image/")) {
+      const mimeType = img.split(";")[0].split(":")[1];
+      const extension = mimeType.split("/")[1];
+      if (!allowedExtensions.includes(extension)) {
+        return false;
+      }
+    }
+  }
+  return true;
+};
+
 // Create Product -- Admin
 exports.createProduct = asyncWrapper(async (req, res, next) => {
   let images = [];
@@ -14,6 +28,14 @@ exports.createProduct = asyncWrapper(async (req, res, next) => {
     images.push(req.body.images);
   } else {
     images = req.body.images;
+  }
+
+  if (images.length === 0) {
+    return next(new ErrorHandler("Please Upload Product Images", 400));
+  }
+
+  if (!validateImages(images)) {
+    return next(new ErrorHandler("Only JPG, JPEG, and PNG formats are allowed", 400));
   }
 
   const imagesLinks = [];
@@ -107,7 +129,10 @@ exports.updateProduct = asyncWrapper(async (req, res, next) => {
     images = req.body.images;
   }
 
-  if (images !== undefined) {
+  if (images !== undefined && images.length > 0) {
+    if (!validateImages(images)) {
+      return next(new ErrorHandler("Only JPG, JPEG, and PNG formats are allowed", 400));
+    }
     // Deleting Images From Cloudinary
     for (let i = 0; i < product.images.length; i++) {
       await cloudinary.v2.uploader.destroy(product.images[i].public_id);

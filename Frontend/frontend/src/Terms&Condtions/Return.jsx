@@ -7,14 +7,8 @@ const ReturnPolicyPage = () => {
   return (
     <div className="container__0">
       <MetaData title="Return Policy" />
-      <div className="image-container">
-        <img
-          src={TermsImage}
-          alt="Background"
-        />
-        <h1 className="policy-text">RETURN POLICY</h1>
-      </div>
       <div className="content-container">
+        <h1 className="policy-text">Return Policy</h1>
         <p>
           Thank you for shopping with Angels Attic. We want every experience on
           our thrift marketplace to be positive. If you are not completely

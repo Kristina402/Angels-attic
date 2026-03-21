@@ -312,16 +312,14 @@ exports.getSingleUser = asyncWrapper(async (req, res, next) => {
 
 //>>>> update User Role -- Admin {may admin can change any user to admin}>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 exports.updateUserRole = asyncWrapper(async (req, res, next) => {
-  // add set new role of user
-  const newUserData = {
-    name: req.body.name,
-    email: req.body.email,
-    role: req.body.role,
-  };
+  // admin should NOT be able to change a user into vendor or admin
+  // Only allow admin to manage user status: Active, Blocked
+  const newUserData = {};
 
-  if (req.body.isApproved !== undefined) {
-    newUserData.isApproved = req.body.isApproved;
-  }
+  if (req.body.name) newUserData.name = req.body.name;
+  if (req.body.email) newUserData.email = req.body.email;
+  if (req.body.status) newUserData.status = req.body.status;
+  if (req.body.isApproved !== undefined) newUserData.isApproved = req.body.isApproved;
 
   const oldUser = await userModel.findById(req.params.id);
   const user = await userModel.findByIdAndUpdate(req.params.id, newUserData, {

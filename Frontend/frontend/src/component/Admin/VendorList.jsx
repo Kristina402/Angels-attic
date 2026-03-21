@@ -133,7 +133,27 @@ const VendorList = () => {
       minWidth: 130,
       flex: 0.3,
       renderCell: (params) => {
-        const isApproved = params.row.status;
+        const status = params.row.status || "Active";
+        return (
+          <Chip
+            label={status}
+            size="small"
+            sx={{
+              backgroundColor: status === "Active" ? "#ECFDF5" : "#FEF2F2",
+              color: status === "Active" ? "#10B981" : "#EF4444",
+              fontWeight: "700",
+            }}
+          />
+        );
+      },
+    },
+    {
+      field: "approval",
+      headerName: "Approval",
+      minWidth: 130,
+      flex: 0.3,
+      renderCell: (params) => {
+        const isApproved = params.row.isApproved;
         return (
           <Chip
             label={isApproved ? "Approved" : "Pending"}
@@ -192,7 +212,8 @@ const VendorList = () => {
           name: item.name,
           email: item.email,
           storeName: item.storeName || "N/A",
-          status: item.isApproved,
+          status: item.status || "Active",
+          isApproved: item.isApproved,
         });
       });
 
