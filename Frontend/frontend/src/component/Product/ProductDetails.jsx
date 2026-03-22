@@ -48,6 +48,7 @@ const ProductDetails = () => {
   const { product, loading, error } = useSelector((state) => state.productDetails);
   const { wishlistItems } = useSelector((state) => state.wishlist);
   const { products: relatedProducts } = useSelector((state) => state.products);
+  const { isAuthenticated } = useSelector((state) => state.userData);
 
   const isItemInWishlist = wishlistItems.find((i) => i.productId === match.params.id);
   const isSold = product && product.availabilityStatus === "Sold";
@@ -67,6 +68,12 @@ const ProductDetails = () => {
   }, [dispatch, product]);
 
   const addToCartHandler = () => {
+    if (!isAuthenticated) {
+      alert.error("Please login to add items to cart");
+      history.push("/login");
+      return;
+    }
+
     if (isSold) {
       alert.error("Item is already sold");
       return;
@@ -76,9 +83,14 @@ const ProductDetails = () => {
   };
 
   const wishlistHandler = () => {
+    if (!isAuthenticated) {
+      alert.error("Please login to use wishlist");
+      history.push("/login");
+      return;
+    }
+
     if (isItemInWishlist) {
       dispatch(removeFromWishlist(match.params.id));
-      alert.success("Removed from wishlist");
     } else {
       dispatch(addToWishlist(match.params.id));
       alert.success("Added to wishlist");

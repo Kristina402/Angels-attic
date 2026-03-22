@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-
 import { makeStyles } from "@material-ui/core/styles";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import { 
@@ -7,13 +6,15 @@ import {
   Button, 
   Box, 
   Dialog, 
-  DialogTitle, 
   DialogContent, 
-  DialogActions 
+  DialogActions,
+  Chip
 } from "@material-ui/core";
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { CREATE_ORDER_RESET } from "../../constants/orderConstant";
+import { motion } from "framer-motion";
+import MetaData from "../layouts/MataData/MataData";
 
 const useStyles = makeStyles((theme) => ({
   orderSuccess: {
@@ -106,61 +107,119 @@ function OrderSuccess() {
 
   return (
     <div className={classes.orderSuccess}>
-      <CheckCircleIcon className={classes.successIcon} />
+      <MetaData title="Order Successful - Angels Attic" />
+      
+      {/* Background Content (Hidden by Dialog but present for structure) */}
+      <Box sx={{ display: open ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <CheckCircleIcon className={classes.successIcon} />
+        <Typography variant="h4" className={classes.successText}>
+          Thank you for your order!
+        </Typography>
+        <Link to="/orders" className={classes.link}>
+          <Button variant="contained" className={classes.viewOrdersButton}>
+            View My Orders
+          </Button>
+        </Link>
+      </Box>
 
-      <Typography variant="h4" className={classes.successText}>
-        Congratulations!
-        <br />
-        Your Order has been Placed Successfully
-      </Typography>
-
-      {orderId && (
-        <Box mt={3}>
-          <Typography variant="body1">Order ID:</Typography>
-          <Typography variant="body1" className={classes.orderIdText}>
-            {orderId}
-          </Typography>
-        </Box>
-      )}
-
-      <Link to="/orders" className={classes.link}>
-        <Button variant="contained" className={classes.viewOrdersButton}>
-          View Orders
-        </Button>
-      </Link>
-
-      {/* Confirmation Popup */}
+      {/* Confirmation Popup - Main UI */}
       <Dialog
         open={open}
         onClose={handleClose}
         aria-labelledby="order-confirmation-title"
+        maxWidth="xs"
+        fullWidth
         PaperProps={{
-          style: { borderRadius: "20px", padding: "10px" }
+          style: { 
+            borderRadius: "24px", 
+            padding: "1.5rem",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.1)"
+          }
         }}
       >
-        <DialogTitle id="order-confirmation-title" className={classes.popupTitle}>
-          Order Confirmed!
-        </DialogTitle>
-        <DialogContent className={classes.popupContent}>
-          <CheckCircleIcon style={{ fontSize: "4rem", color: "#2e7d32", marginBottom: "1rem" }} />
-          <Typography variant="h6">Thank you for your purchase!</Typography>
-          <Typography variant="body1" style={{ marginTop: "1rem" }}>
-            Your order has been placed successfully.
+        <DialogContent className={classes.popupContent} style={{ paddingBottom: '0.5rem' }}>
+          <Box mb={3} display="flex" justifyContent="center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            >
+              <CheckCircleIcon style={{ fontSize: "6rem", color: "#10B981" }} />
+            </motion.div>
+          </Box>
+          
+          <Typography variant="h5" style={{ fontWeight: 800, color: "#1a1a1a", marginBottom: "0.5rem" }}>
+            Order Placed!
           </Typography>
-          <Typography variant="body2" className={classes.popupOrderId}>
-            Order ID: #{orderId}
+          
+          <Typography variant="body1" style={{ color: "#666", marginBottom: "2rem" }}>
+            Your thrift find is on its way.
           </Typography>
-          <Typography variant="body1" style={{ marginTop: "0.5rem", fontWeight: 600 }}>
-            Total Amount: Rs. {totalAmount}
-          </Typography>
-          <Typography variant="body1" style={{ marginTop: "0.5rem", color: "#666" }}>
-            Status: {status}
-          </Typography>
+
+          <Box 
+            p={2.5} 
+            mb={3} 
+            style={{ 
+              backgroundColor: "#F8F9FB", 
+              borderRadius: "16px",
+              textAlign: "left"
+            }}
+          >
+            <Box display="flex" justifyContent="space-between" mb={1.5}>
+              <Typography style={{ color: "#888", fontSize: "0.85rem", fontWeight: 600 }}>ORDER ID</Typography>
+              <Typography style={{ color: "#1a1a1a", fontSize: "0.85rem", fontWeight: 700 }}>#{orderId?.substring(0, 12)}...</Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between" mb={1.5}>
+              <Typography style={{ color: "#888", fontSize: "0.85rem", fontWeight: 600 }}>TOTAL PAID</Typography>
+              <Typography style={{ color: "#EC4899", fontSize: "0.85rem", fontWeight: 800 }}>Rs. {totalAmount}</Typography>
+            </Box>
+            <Box display="flex" justifyContent="space-between">
+              <Typography style={{ color: "#888", fontSize: "0.85rem", fontWeight: 600 }}>STATUS</Typography>
+              <Chip 
+                label={status || "Paid"} 
+                size="small" 
+                sx={{ 
+                  height: "20px", 
+                  fontSize: "0.7rem", 
+                  fontWeight: 700,
+                  backgroundColor: "#ECFDF5",
+                  color: "#10B981"
+                }} 
+              />
+            </Box>
+          </Box>
         </DialogContent>
-        <DialogActions style={{ justifyContent: "center", paddingBottom: "20px" }}>
-          <Button onClick={handleClose} variant="contained" style={{ backgroundColor: "#000", color: "#fff", borderRadius: "10px" }}>
-            Great!
+        
+        <DialogActions style={{ padding: "0 1rem 1.5rem", flexDirection: "column", gap: "0.8rem" }}>
+          <Button 
+            fullWidth
+            onClick={handleClose} 
+            variant="contained" 
+            style={{ 
+              backgroundColor: "#1a1a1a", 
+              color: "#fff", 
+              borderRadius: "12px",
+              padding: "0.8rem",
+              textTransform: "none",
+              fontWeight: 700,
+              fontSize: "1rem"
+            }}
+          >
+            Great, Thanks!
           </Button>
+          <Link to="/orders" style={{ textDecoration: 'none', width: '100%' }}>
+            <Button 
+              fullWidth
+              variant="text" 
+              style={{ 
+                color: "#666", 
+                textTransform: "none",
+                fontWeight: 600
+              }}
+            >
+              View My Orders
+            </Button>
+          </Link>
         </DialogActions>
       </Dialog>
     </div>

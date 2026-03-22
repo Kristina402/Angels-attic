@@ -242,7 +242,7 @@ function App() {
             )}
           />
 
-          <PublicRoute
+          <PrivateRoute
             exact
             path="/cart"
             render={() => (
@@ -254,7 +254,7 @@ function App() {
             )}
           />
 
-          <PublicRoute
+          <PrivateRoute
             exact
             path="/wishlist"
             render={() => (

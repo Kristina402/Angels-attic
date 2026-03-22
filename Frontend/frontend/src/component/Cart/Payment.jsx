@@ -348,6 +348,7 @@ const PaymentComponent = () => {
   const [couponCode, setCouponCode] = useState("");
   const [isValid, setIsValid] = useState(true);
   const [showDummyCard, setShowDummyCard] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
 
   const subTotal = cartItems.reduce((acc, currItem) => {
@@ -399,6 +400,9 @@ const PaymentComponent = () => {
   async function paymentSubmitHandler(e) {
     e.preventDefault();
 
+    // Prevent multiple submissions
+    if (isProcessing) return;
+
     // Validate form inputs
     if (nameOnCard.trim() === "") {
       alert.error("Please enter name on card");
@@ -424,6 +428,7 @@ const PaymentComponent = () => {
     }
 
     try {
+      setIsProcessing(true);
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -439,7 +444,10 @@ const PaymentComponent = () => {
       const client_secret = data.client_secret;
 
       // passed at App.js route statement
-      if (!stripe || !elements) return;
+      if (!stripe || !elements) {
+        setIsProcessing(false);
+        return;
+      }
 
       // this object is from stripe-js. only values need to put
       const result = await stripe.confirmCardPayment(client_secret, {
@@ -460,7 +468,7 @@ const PaymentComponent = () => {
 
       if (result.error) {
         // if error then again enable the button on
-
+        setIsProcessing(false);
         alert.error(result.error.message);
       } else {
         if (result.paymentIntent.status === "succeeded") {
@@ -469,17 +477,19 @@ const PaymentComponent = () => {
             id: result.paymentIntent.id,
             status: result.paymentIntent.status,
           };
-          alert.success(result.paymentIntent.status);
+          alert.success("Payment Successful");
 
           dispatch(createOrder(order));
 
           history.push("/success");
         } else {
+          setIsProcessing(false);
           alert.error("There's some issue while processing payment");
         }
       }
     } catch (error) {
       // if error while payment then again enable payment button
+      setIsProcessing(false);
       console.error('Payment Error:', error);
 
       // Provide more specific error messages
@@ -634,11 +644,15 @@ const PaymentComponent = () => {
               variant="contained"
               className={classes.placeOrderBtn}
               fullWidth
-              // disabled={isDisable}
-              style={{ marginTop: "3rem" }}
+              disabled={isProcessing}
+              style={{ 
+                marginTop: "3rem",
+                opacity: isProcessing ? 0.7 : 1,
+                cursor: isProcessing ? "not-allowed" : "pointer"
+              }}
               onClick={paymentSubmitHandler}
             >
-              Place Order
+              {isProcessing ? "Processing..." : "Place Order"}
             </Button>
           </div>
           <div className={classes.payemntAmount}>

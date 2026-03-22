@@ -14,7 +14,7 @@ import Rating from "@material-ui/lab/Rating";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { dispalyMoney, generateDiscountedPrice } from "../DisplayMoney/DisplayMoney";
 import { useDispatch, useSelector } from "react-redux";
 import { addToWishlist, removeFromWishlist } from "../../actions/wishlistAction";
@@ -182,9 +182,11 @@ const cardVariants = {
 const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
   const alert = useAlert();
+  const history = useHistory();
   const classes = useStyles();
   
   const { wishlistItems } = useSelector((state) => state.wishlist);
+  const { isAuthenticated } = useSelector((state) => state.userData);
   const isItemInWishlist = wishlistItems.find((i) => i.productId === product._id);
   const isSold = product.availabilityStatus === "Sold";
 
@@ -194,9 +196,15 @@ const ProductCard = ({ product }) => {
   const wishlistHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!isAuthenticated) {
+      alert.error("Please login to use wishlist");
+      history.push("/login");
+      return;
+    }
+
     if (isItemInWishlist) {
       dispatch(removeFromWishlist(product._id));
-      alert.success("Removed from wishlist");
     } else {
       dispatch(addToWishlist(product._id));
       alert.success("Added to wishlist");
@@ -206,6 +214,13 @@ const ProductCard = ({ product }) => {
   const addToCartHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!isAuthenticated) {
+      alert.error("Please login to add items to cart");
+      history.push("/login");
+      return;
+    }
+
     if (isSold) {
       alert.error("Item is already sold");
       return;

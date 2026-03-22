@@ -1,446 +1,324 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import {
   Card,
   Typography,
   Button,
   Divider,
   useMediaQuery,
+  Box,
+  Chip,
+  Grid,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import ReplayIcon from "@mui/icons-material/Replay";
-import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import RateReviewIcon from "@mui/icons-material/RateReview";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import EventIcon from "@mui/icons-material/Event";
 import { useDispatch } from "react-redux";
-import {useAlert} from "react-alert";
+import { useAlert } from "react-alert";
 import { addItemToCart } from "../../actions/cartAction";
-import {useHistory} from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import DialogBox from "../Product/DialogBox";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    padding: "1rem",
-  },
   orderCard: {
-    display: "flex",
-    flexDirection: "column",
-
-    justifyContent: "space-between",
-
-    borderRadius: 2,
-
-    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-    transition: "box-shadow 0.3s ease-in-out",
-    "&:hover": {
-      boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.2)",
-    },
+    backgroundColor: "#fff",
+    borderRadius: "20px !important",
+    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05) !important",
+    marginBottom: "2rem",
+    overflow: "hidden",
+    border: "none !important",
   },
-  firstBlock: {
-    height: "fit-content",
+  cardHeader: {
+    padding: "1.5rem 2rem",
+    backgroundColor: "#fafafa",
+    borderBottom: "1px solid #eee",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "1rem",
-    width: "100%",
-    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-    marginTop:"1rem",
+    flexWrap: "wrap",
+    gap: "1rem",
   },
-  leftSide: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    justifyContent: "center",
-  },
-  rightSide: {
-    display: "flex",
-    flexDirection: "column",
-
-    padding: "0rem 0rem  1rem",
-    justifyContent: "center",
-  },
-  orderPlaced: {
-    fontWeight: "bold",
-  },
-  orderDate: {
-    color: "#141414",
-  },
-  totalPrice: {
-    fontWeight: "bold",
-    paddingRight: "5rem",
-  },
-  orderId: {
-    paddingTop: "10px",
-    fontWeight: "800",
-  },
-  divider: {
-    margin: "1.5rem 0rem",
-    width: "50%",
-  },
-  secondBlock: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: 2,
-    marginBottom: 2,
-    padding: "0rem 1rem",
-  },
-  secondBlock_left: {
-    width: "fit-content",
-    display: "flex",
-    flexDirection: "column",
-  },
-  secondBlock_right: {
-    width: "fit-content",
-    display: "flex",
-    justifyContent: "flex-end   ",
-    padding: "1rem 0rem",
-  },
-
-  productDetailsContainer: {
+  headerInfo: {
     display: "flex",
     gap: "2rem",
-    alignItems: "center",
-    padding: "1rem 0rem",
-
-    marginBottom: 1,
+    flexWrap: "wrap",
   },
-  productName: {
-    fontWeight: "bold",
-    marginBottom: 1,
-  },
-  productQty: {
-    marginBottom: 1,
-  },
-  deliveryStatus: {
-    marginBottom: 1,
-  },
-
-  button: {
-    marginRight: 1,
-    color: "rgb(37, 37, 37) !important",
-    cursor: "pointer",
-    backgroundColor: "transparent !important",
-
-    border: "1px solid rgb(37, 37, 37) !important",
-    "&:hover": {
-      backgroundColor: "#E8E8E8 !important",
-      borderColor: "#E8E8E8 !important",
-    },
-  },
-  leftSide2: {
+  infoItem: {
     display: "flex",
     flexDirection: "column",
-    marginBottom: 2,
+    gap: "0.25rem",
   },
-  shipTo: {
-    fontWeight: "bold",
-    marginBottom: 1,
+  infoLabel: {
+    fontSize: "0.75rem !important",
+    color: "#888",
+    textTransform: "uppercase",
+    fontWeight: "700 !important",
+    letterSpacing: "0.5px",
   },
-  address: {
-    marginBottom: 1,
+  infoValue: {
+    fontSize: "0.9rem !important",
+    fontWeight: "600 !important",
+    color: "#1a1a1a",
   },
-
-  buttonsContainer: {
+  cardContent: {
+    padding: "2rem",
+  },
+  productRow: {
     display: "flex",
-    gap: "1rem",
-    padding: "10px 0px",
-    [theme.breakpoints.down("sm")]: {
-      justifyContent: "center",
-    },
-  },
-  buyAgainButton: {
-    color: "#fff !important",
-    cursor: "pointer",
-    padding: "0px 16px",
-    fontSize: "16px",
-    backgroundColor: "rgb(37, 37, 37) !important",
-    minHeight: "48px",
-    borderRadius: "8px",
-    border: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    "&:hover": {
-      backgroundColor: "#ed1c24 !important",
-      borderColor: "#ed1c24 !important",
-    },
-    [theme.breakpoints.down("sm")]: {
-      width: "100%",
-      fontSize: "14px",
-    },
-  },
-  reviewButton: {
-    color: "#fff !important",
-    width: "50vmin",
-    cursor: "pointer",
-    padding: "0px 4px",
-    fontSize: "16px",
-    backgroundColor: "rgb(37, 37, 37) !important",
-    minHeight: "48px",
-    borderRadius: "8px",
-    border: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    "&:hover": {
-      backgroundColor: "#ed1c24 !important",
-      borderColor: "#ed1c24 !important",
-    },
-    [theme.breakpoints.down("sm")]: {
-      width: "100%",
-      fontSize: "14px",
-    },
-  },
-  [theme.breakpoints.down("sm")]: {
-    root: {
-      width: "100%",
-    },
-    orderCard: {
-      flexDirection: "column",
-    },
-    firstBlock: {
-      flexDirection: "column",
-      alignItems: "center",
-    },
-    rightSide: {
-      width: "100%",
-      padding: "1rem",
-      marginTop: "1rem",
-      justifyContent: "center",
-    },
-    secondBlock: {
-      flexDirection: "column",
-    },
-    secondBlock_left: {
-      width: "100%",
-      alignItems: "center",
-    },
-    secondBlock_right: {
-      width: "100%",
-      padding: "1rem",
-      justifyContent: "center",
-    },
-    buttonsContainer: {
-      justifyContent: "center",
-    },
-    buyAgainButton: {
-      width: "100%",
-    },
-    reviewButton: {
-      width: "100%",
-    },
-    leftSide2: {
+    gap: "1.5rem",
+    marginBottom: "1.5rem",
+    "&:last-child": {
       marginBottom: 0,
     },
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+    },
+  },
+  imageWrapper: {
+    width: "120px",
+    height: "120px",
+    borderRadius: "12px",
+    overflow: "hidden",
+    backgroundColor: "#f5f5f5",
+    flexShrink: 0,
+  },
+  productImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
+  productInfo: {
+    flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  productName: {
+    fontSize: "1.1rem !important",
+    fontWeight: "700 !important",
+    color: "#1a1a1a",
+    marginBottom: "0.5rem !important",
+  },
+  productMeta: {
+    display: "flex",
+    gap: "1.5rem",
+    color: "#666",
+    fontSize: "0.9rem !important",
+  },
+  footerSection: {
+    padding: "1.5rem 2rem",
+    backgroundColor: "#fff",
+    borderTop: "1px solid #eee",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    [theme.breakpoints.down("sm")]: {
+      flexDirection: "column",
+      gap: "1.5rem",
+      alignItems: "flex-start",
+    },
+  },
+  shippingInfo: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.25rem",
   },
   addressText: {
-    fontSize: "14px",
-    fontWeight: "400",
-    lineHeight: "20px",
-    color: "#141414",
+    color: "#666",
+    fontSize: "0.85rem !important",
+    maxWidth: "300px",
   },
-  dialog: {
-    width: "80vw",
-    height: "70vh",
-    marginT: 0,
-    padding: "3rem",
-    overflow: "hidden",
+  actionButtons: {
+    display: "flex",
+    gap: "1rem",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+      flexDirection: "column",
+    },
+  },
+  btnPrimary: {
+    backgroundColor: "#1a1a1a !important",
+    color: "#fff !important",
+    borderRadius: "10px !important",
+    textTransform: "none !important",
+    fontWeight: "600 !important",
+    padding: "0.6rem 1.5rem !important",
+    "&:hover": {
+      backgroundColor: "#333 !important",
+    },
+  },
+  btnSecondary: {
+    borderColor: "#eee !important",
+    color: "#1a1a1a !important",
+    borderRadius: "10px !important",
+    textTransform: "none !important",
+    fontWeight: "600 !important",
+    padding: "0.6rem 1.5rem !important",
+    "&:hover": {
+      borderColor: "#1a1a1a !important",
+      backgroundColor: "transparent !important",
+    },
+  },
+  statusBadge: {
+    fontWeight: "700 !important",
+    fontSize: "0.75rem !important",
+    borderRadius: "8px !important",
   },
 }));
 
+const OrderCard = ({ item, user }) => {
+  const classes = useStyles();
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const alert = useAlert();
+  const [open, setOpen] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
 
- const createdAt = (user) => {
-   const createdAt = new Date(user.createdAt);
-   const options = {
-     year: "numeric",
-     month: "2-digit",
-     day: "2-digit",
-     hour: "2-digit",
-     minute: "2-digit",
-     hour12: true,
-     timeZone: "Asia/Kolkata",
-   };
+  const { shippingInfo, orderItems, orderStatus, createdAt, _id, totalPrice } = item;
 
-   const formatter = new Intl.DateTimeFormat("en-IN", options);
-   const formattedDate = formatter.format(createdAt);
-   return formattedDate;
- };
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(date);
+  };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Delivered":
+        return { bg: "#ECFDF5", text: "#10B981" };
+      case "Processing":
+        return { bg: "#FFFBEB", text: "#F59E0B" };
+      case "Shipped":
+        return { bg: "#EFF6FF", text: "#3B82F6" };
+      default:
+        return { bg: "#F3F4F6", text: "#6B7280" };
+    }
+  };
 
-const OrderCard = ({item , user}) => {
-    const dispatch = useDispatch();
-    const history = useHistory();
-    const alert = useAlert();
-    const [open, setOpen] = useState(false);
-   
-const classes = useStyles();
-  const isSmallScreen = useMediaQuery("(max-width: 999px)");
-  const { shippingInfo, orderItems } = item;
-   
-  const addToCartHandler = (id , qty = 0) => {
-    dispatch(addItemToCart(id , qty))
-    alert.success("Item Added to Cart")
-    history.push("/cart")
-  }
+  const statusStyle = getStatusColor(orderStatus);
 
-   const handleClickOpen = () => {
-     setOpen(true);
-   };
+  const addToCartHandler = (id) => {
+    dispatch(addItemToCart(id, 1));
+    alert.success("Item Added to Cart");
+    history.push("/cart");
+  };
 
-   const handleClose = () => {
-     console.log("called");
-     setOpen(false);
-   };
+  const handleReviewOpen = (productId) => {
+    setSelectedProductId(productId);
+    setOpen(true);
+  };
 
   return (
-    <div className={classes.root}>
-      {orderItems.map((product) => (
-        <Card className={classes.orderCard}>
-          <div className={classes.firstBlock}>
-            {/* Left side */}
-            <div className={classes.leftSide}>
-              <Typography
-                variant="subtitle1"
-                className={classes.orderPlaced}
-                style={{ fontWeight: "500" }}
-              >
-                ORDER PLACED
-              </Typography>
-              <Typography
-                variant="body2"
-                className={classes.orderDate}
-                color="#141414"
-              >
-                {createdAt(item)}
-              </Typography>
-              <Typography
-                variant="body2"
-                className={classes.orderId}
-                style={{ fontWeight: "500" }}
-              >
-                ORDER-ID: #{item._id}
-              </Typography>
-            </div>
-
-            {/* Right side */}
-            {!isSmallScreen && (
-              <div className={classes.rightSide}>
-                <Typography
-                  variant="subtitle1"
-                  className={classes.totalPrice}
-                  style={{ fontWeight: "500" }}
-                >
-                  Total:
-                </Typography>
-                <Typography variant="body2" color="141414">
-                  <strong> ₹</strong>
-                  {product.price * product.quantity}
-                </Typography>
-              </div>
-            )}
+    <Card className={classes.orderCard}>
+      {/* Header */}
+      <div className={classes.cardHeader}>
+        <div className={classes.headerInfo}>
+          <div className={classes.infoItem}>
+            <Typography className={classes.infoLabel}>Order Placed</Typography>
+            <Typography className={classes.infoValue}>{formatDate(createdAt)}</Typography>
           </div>
+          <div className={classes.infoItem}>
+            <Typography className={classes.infoLabel}>Total Amount</Typography>
+            <Typography className={classes.infoValue}>₹{totalPrice}</Typography>
+          </div>
+          <div className={classes.infoItem}>
+            <Typography className={classes.infoLabel}>Order ID</Typography>
+            <Typography className={classes.infoValue}>#{_id.substring(0, 12)}...</Typography>
+          </div>
+        </div>
+        <Chip
+          label={orderStatus}
+          className={classes.statusBadge}
+          sx={{
+            backgroundColor: statusStyle.bg,
+            color: statusStyle.text,
+          }}
+        />
+      </div>
 
-          {/* Second block */}
-          <div className={classes.secondBlock}>
-            {/* Left side */}
-            <div className={classes.secondBlock_left}>
-              <div className={classes.productDetailsContainer}>
-                <div style={{ width: "25%" }}>
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    style={{ width: "100%", height: "160px" }}
-                  />
-                </div>
-
-                <div>
-                  <Typography
-                    variant="subtitle1"
-                    className={classes.productName}
-                    style={{ fontWeight: "500" }}
-                  >
-                    {product.name}
-                  </Typography>
-                  <Typography variant="body2" className={classes.productQty}>
-                    <strong>QTY:</strong> {product.quantity}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    className={classes.deliveryStatus}
-                  >
-                    <strong>Delivery Status:</strong>{" "}
-                    <span
-                      style={{
-                        color:
-                          item.orderStatus === "Delivered" ? "green" : "red",
-                      }}
-                    >
-                      {item.orderStatus}
-                    </span>
-                  </Typography>
-                  <div className={classes.buttonsContainer}>
-                    <Button
-                      variant="outlined"
-                      className={classes.buyAgainButton}
-                      onClick={() => addToCartHandler(product.productId, 1)}
-                    >
-                      <ReplayIcon style={{ marginRight: "8px" }} />
-                      Buy Again
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      className={classes.button}
-                      onClick={() =>
-                        history.push(`/product/${product.productId}`)
-                      }
-                    >
-                      View item
-                    </Button>
-                  </div>
-                </div>
+      {/* Content */}
+      <div className={classes.cardContent}>
+        {orderItems.map((product) => (
+          <div key={product.productId} className={classes.productRow}>
+            <div className={classes.imageWrapper}>
+              <img
+                src={product.image}
+                alt={product.name}
+                className={classes.productImage}
+              />
+            </div>
+            <div className={classes.productInfo}>
+              <Typography className={classes.productName}>{product.name}</Typography>
+              <div className={classes.productMeta}>
+                <span>Quantity: {product.quantity}</span>
+                <span>Price: ₹{product.price}</span>
               </div>
-              <Divider className={classes.divider} />
-              <div style={{ padding: "1rem" }}>
+              <Box mt={2} display="flex" gap={1}>
                 <Button
-                  variant="outlined"
-                  className={classes.reviewButton}
-                  onClick={handleClickOpen}
+                  size="small"
+                  variant="text"
+                  startIcon={<ReplayIcon />}
+                  onClick={() => addToCartHandler(product.productId)}
+                  sx={{ color: "#666", fontSize: "0.8rem", textTransform: "none" }}
                 >
-                  <EditIcon style={{ marginRight: "8px" }} />
-                  Write A Product Review
+                  Buy Again
                 </Button>
-
-                <DialogBox
-                  open={open}
-                  handleClose={handleClose}
-                  id={product.productId}
-                  className={classes.dialog}
-                />
-              </div>
+                <Button
+                  size="small"
+                  variant="text"
+                  startIcon={<RateReviewIcon />}
+                  onClick={() => handleReviewOpen(product.productId)}
+                  sx={{ color: "#666", fontSize: "0.8rem", textTransform: "none" }}
+                >
+                  Write Review
+                </Button>
+              </Box>
             </div>
-
-            {/* Right side */}
-            {!isSmallScreen && (
-              <div className={classes.secondBlock_right}>
-                <div className={classes.addressBlock}>
-                  <Typography variant="h6">{user.name}</Typography>
-                  <Typography variant="subtitle1" style={{ fontWeight: 400 }}>
-                    Delivery Address :
-                  </Typography>
-                  <Typography variant="body2" className={classes.addressText}>
-                    {shippingInfo.address}
-                  </Typography>
-                  <Typography variant="body2" className={classes.addressText}>
-                    {shippingInfo.city}, {shippingInfo.state},{" "}
-                    {shippingInfo.country} - {shippingInfo.pinCode}
-                  </Typography>
-                  <Typography variant="body2" className={classes.addressText}>
-                    Phone: {shippingInfo.phoneNo}
-                  </Typography>
-                </div>
-              </div>
-            )}
           </div>
-        </Card>
-      ))}
-    </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div className={classes.footerSection}>
+        <div className={classes.shippingInfo}>
+          <Typography className={classes.infoLabel}>Shipping To</Typography>
+          <Typography className={classes.infoValue} style={{ fontSize: "0.85rem" }}>
+            {user.name}
+          </Typography>
+          <Typography className={classes.addressText}>
+            {shippingInfo.address}, {shippingInfo.city}, {shippingInfo.state} - {shippingInfo.pinCode}
+          </Typography>
+        </div>
+        <div className={classes.actionButtons}>
+          <Button
+            variant="outlined"
+            className={classes.btnSecondary}
+            startIcon={<VisibilityIcon />}
+            onClick={() => history.push(`/product/${orderItems[0].productId}`)}
+          >
+            View Details
+          </Button>
+          <Button
+            variant="contained"
+            className={classes.btnPrimary}
+            onClick={() => history.push("/products")}
+          >
+            Shop More
+          </Button>
+        </div>
+      </div>
+
+      <DialogBox
+        open={open}
+        handleClose={() => setOpen(false)}
+        id={selectedProductId}
+      />
+    </Card>
   );
 };
 

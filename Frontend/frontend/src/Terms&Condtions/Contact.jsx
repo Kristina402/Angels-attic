@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Typography,
   Box,
@@ -6,6 +6,7 @@ import {
   TextField,
   Grid,
   Container,
+  CircularProgress,
 } from "@mui/material";
 import { useAlert } from "react-alert";
 import { useHistory } from "react-router-dom";
@@ -17,6 +18,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import MusicNoteIcon from "@mui/icons-material/MusicNote"; // TikTok alternative if TikTokIcon is not available
+import axios from "axios";
 
 const useStyles = makeStyles((theme) => ({
   root_contactus: {
@@ -199,14 +201,46 @@ const ContactForm = () => {
   const alert = useAlert();
   const history = useHistory();
 
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleCall = () => {
     window.location.href = "tel:+9826125791";
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert.success("Your message has been sent successfully");
-    history.push("/");
+    setLoading(true);
+
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      const { data } = await axios.post(
+        "/api/v1/contact",
+        { name, email, subject, message },
+        config
+      );
+
+      if (data.success) {
+        alert.success(data.message);
+        setName("");
+        setEmail("");
+        setSubject("");
+        setMessage("");
+        history.push("/");
+      }
+    } catch (error) {
+      alert.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -310,6 +344,8 @@ const ContactForm = () => {
                   label="Full Name"
                   variant="outlined"
                   className={classes.textField}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   required
                 />
                 <TextField
@@ -318,6 +354,8 @@ const ContactForm = () => {
                   type="email"
                   variant="outlined"
                   className={classes.textField}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
                 <TextField
@@ -325,6 +363,8 @@ const ContactForm = () => {
                   label="Subject"
                   variant="outlined"
                   className={classes.textField}
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
                   required
                 />
                 <TextField
@@ -334,14 +374,17 @@ const ContactForm = () => {
                   rows={4}
                   variant="outlined"
                   className={classes.textField}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
                   required
                 />
                 <Button
                   type="submit"
                   variant="contained"
                   className={classes.submitButtons}
+                  disabled={loading}
                 >
-                  Send Message
+                  {loading ? <CircularProgress size={24} color="inherit" /> : "Send Message"}
                 </Button>
               </form>
             </Box>

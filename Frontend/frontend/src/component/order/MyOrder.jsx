@@ -10,24 +10,36 @@ import OrderCard from "./OrderCard";
 
 const useStyles = makeStyles((theme) => ({
   orderPageContainer: {
-    backgroundColor: "#fff",
-    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
-    padding: "2rem",
-    marginBottom: "1rem",
-   flexDirection: "column",
-   alignItems: "center",
-    justifyContent: "center",
-    display: "flex",
-    marginTop: "7rem",
-   
+    backgroundColor: "#F8F9FB",
+    minHeight: "100vh",
+    padding: "8rem 1rem 4rem",
+  },
+  contentWrapper: {
+    maxWidth: "1000px",
+    margin: "0 auto",
+  },
+  headerSection: {
+    marginBottom: "3rem",
+    textAlign: "center",
   },
   orderPageTitle: {
-    fontSize: "1.2rem",
-    fontWeight: "bold",
+    fontSize: "2.5rem !important",
+    fontWeight: "800 !important",
+    color: "#1a1a1a",
+    letterSpacing: "-1px",
+    marginBottom: "0.5rem !important",
   },
   orderPageText: {
-    color: "#6c757d",
-    marginTop: "1rem",
+    color: "#666",
+    fontSize: "1.1rem !important",
+  },
+  noOrders: {
+    textAlign: "center",
+    padding: "4rem",
+    backgroundColor: "#fff",
+    borderRadius: "20px",
+    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.05)",
+    marginTop: "2rem",
   },
 }));
 
@@ -56,22 +68,33 @@ const MyOrder = () => {
       {loading ? (
         <CricketBallLoader />
       ) : (
-        <div>
-          <MetaData title="My Orders" />
-          <div className={classes.orderPageContainer}>
-            <Typography variant="h6" className={classes.orderPageTitle}>
-              Your Order
-            </Typography>
-            <Typography variant="body1" className={classes.orderPageText}>
-              {orders && orders.length} order placed in {currentYear}
-            </Typography>
-          </div>
-
-          {orders && orders.map((item) => (
-            <div className={classes.orderCard} key={item._id}>
-              <OrderCard item={item} user={user} />
+        <div className={classes.orderPageContainer}>
+          <MetaData title="My Orders - Angels Attic" />
+          
+          <div className={classes.contentWrapper}>
+            <div className={classes.headerSection}>
+              <Typography variant="h2" className={classes.orderPageTitle}>
+                My Orders
+              </Typography>
+              <Typography variant="body1" className={classes.orderPageText}>
+                {orders && orders.length > 0 
+                  ? `${orders.length} order${orders.length > 1 ? 's' : ''} placed in ${currentYear}`
+                  : "You haven't placed any orders yet."}
+              </Typography>
             </div>
-          ))}
+
+            {orders && orders.length > 0 ? (
+              orders.map((item) => (
+                <OrderCard key={item._id} item={item} user={user} />
+              ))
+            ) : (
+              <div className={classes.noOrders}>
+                <Typography variant="h6" color="textSecondary">
+                  Your order history is empty.
+                </Typography>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </>
