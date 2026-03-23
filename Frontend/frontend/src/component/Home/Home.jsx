@@ -311,22 +311,8 @@ function Home() {
               </div>
             </motion.section>
 
-            <section className="sustainability_section">
-              <div className="sustainability_inner">
-                <div className="sustainability_content">
-                  <h2 className="sustainability_title">
-                    Shop Sustainably. Make a Difference.
-                  </h2>
-                  <p className="sustainability_text">
-                    Every purchase supports sustainable fashion and reduces environmental waste.
-                    By choosing pre-loved items, you contribute to a circular economy and
-                    responsible consumption.
-                  </p>
-                </div>
-              </div>
-            </section>
 
-            
+
 
             <section className="cta_section">
               <div className="cta_inner">

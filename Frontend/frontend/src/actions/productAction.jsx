@@ -36,21 +36,31 @@ export const getProduct = (
   currentPage = 1,
   price = [0, 100000],
   category,
-  ratings = 0
+  condition,
+  size,
+  sort
 ) => {
   return async (dispatch) => {
     try {
-      // initial state :
       dispatch({
         type: ALL_PRODUCT_REQUEST,
       });
 
-      let link = `/api/v1/product?keyword=${keyword}&page=${currentPage}&price[gte]=${price[0]}&price[lte]=${price[1]}&ratings[gte]=${ratings}`;
+      let link = `/api/v1/product?keyword=${keyword}&page=${currentPage}&price[gte]=${price[0]}&price[lte]=${price[1]}`;
 
-      // when category selected by user then using another link
       if (category) {
-        link = `/api/v1/product?keyword=${keyword}&page=${currentPage}&price[gte]=${price[0]}&price[lte]=${price[1]}&ratings[gte]=${ratings}&category=${category}`;
+        link += `&category=${category}`;
       }
+      if (condition) {
+        link += `&condition=${condition}`;
+      }
+      if (size) {
+        link += `&size=${size}`;
+      }
+      if (sort) {
+        link += `&sort=${sort}`;
+      }
+
       const { data } = await axios.get(link);
 
       dispatch({

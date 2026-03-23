@@ -11,7 +11,7 @@ const quickLinks = [
   { id: 3, label: "Wishlist", path: "/" },
   { id: 4, label: "Cart", path: "/cart" },
   { id: 5, label: "Account", path: "/account" },
-  { id: 6, label: "About Us", path: "/about_us" },
+  { id: 6, label: "About Us", path: "/about" },
 ];
 
 const supportLinks = [

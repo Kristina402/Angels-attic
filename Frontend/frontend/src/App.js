@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense } from "react";
-import { BrowserRouter as Router, Route, Switch, Redirect } from "react-router-dom";
+import { Route, Switch, Redirect } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { load_UserProfile } from "./actions/userAction";
 import axios from "axios";
@@ -32,7 +32,6 @@ import OrderSuccess from "./component/Cart/OrderSuccess";
 import MyOrder from "./component/order/MyOrder";
 import ContactForm from "./Terms&Condtions/Contact";
 import About from "./pages/About";
-import AboutUsPage from "./Terms&Condtions/Aboutus";
 import ReturnPolicyPage from "./Terms&Condtions/Return";
 import TermsUse from "./Terms&Condtions/TermsAndUse";
 import TermsAndConditions from "./Terms&Condtions/TermsCondtion";
@@ -132,17 +131,17 @@ function App() {
 
   return (
     <>
-      <SpeedInsights/>
+      <SpeedInsights />
+      <Suspense fallback={<CricketBallLoader />}>
         <Switch>
-       
           <PublicRoute
             exact
             path="/"
             render={() => (
               <>
-                {<Header />}
+                <Header />
                 <Home />
-                {<Footer />}
+                <Footer />
               </>
             )}
           />
@@ -339,18 +338,6 @@ function App() {
             )}
           />
 
-          <PublicRoute
-            exact
-            path="/about_us"
-            render={() => (
-              <>
-                {<Header />}
-                <AboutUsPage />
-
-                {<Footer />}
-              </>
-            )}
-          />
 
           <Route
             exact
@@ -586,13 +573,19 @@ function App() {
 
         {stripePromise && (
           <Elements stripe={stripePromise}>
-            <Route exact path="/process/payment">
-              {<Header />}
-              <PrivateRoute exact path="/process/payment" component={Payment} />
-            </Route>
+            <PrivateRoute
+              exact
+              path="/process/payment"
+              render={() => (
+                <>
+                  <Header />
+                  <Payment />
+                </>
+              )}
+            />
           </Elements>
         )}
-      
+      </Suspense>
     </>
   );
 }

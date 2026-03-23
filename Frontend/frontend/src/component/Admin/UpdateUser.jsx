@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useAlert } from "react-alert";
-import MailOutlineIcon from "@material-ui/icons/MailOutline";
-
 import { useSelector, useDispatch } from "react-redux";
 import MetaData from "../layouts/MataData/MataData";
 import AdminSidebar from "./AdminSidebar";
@@ -27,7 +25,8 @@ import {
   Box,
   Paper,
   FormControl,
-} from "@material-ui/core";
+} from "@mui/material";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
 
 const useStyles = makeStyles((theme) => ({
   dashboard: {

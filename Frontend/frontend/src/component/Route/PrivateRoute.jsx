@@ -4,7 +4,7 @@ import { Redirect, Route } from "react-router-dom";
 import { load_UserProfile } from "../../actions/userAction";
 import CricketBallLoader from "../layouts/loader/Loader";
 
-function PrivateRoute({ component: Component, ...rest }) {
+function PrivateRoute({ component: Component, render, ...rest }) {
   const { loading, isAuthenticated, user } = useSelector(
     (state) => state.userData
   );
@@ -28,10 +28,17 @@ function PrivateRoute({ component: Component, ...rest }) {
     return <Redirect to="/vendor/dashboard" />;
   }
 
-  return <Route {...rest} render={(props) => <Component {...props} />} />;
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        Component ? <Component {...props} /> : render(props)
+      }
+    />
+  );
 }
 
-export function AdminRoute({ component: Component, ...rest }) {
+export function AdminRoute({ component: Component, render, ...rest }) {
   const { loading, isAuthenticated, user } = useSelector(
     (state) => state.userData
   );
@@ -48,10 +55,17 @@ export function AdminRoute({ component: Component, ...rest }) {
     return <Redirect to="/" />;
   }
 
-  return <Route {...rest} render={(props) => <Component {...props} />} />;
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        Component ? <Component {...props} /> : render(props)
+      }
+    />
+  );
 }
 
-export function VendorRoute({ component: Component, ...rest }) {
+export function VendorRoute({ component: Component, render, ...rest }) {
   const { loading, isAuthenticated, user } = useSelector(
     (state) => state.userData
   );
@@ -72,7 +86,14 @@ export function VendorRoute({ component: Component, ...rest }) {
     return <Redirect to="/vendor/pending" />;
   }
 
-  return <Route {...rest} render={(props) => <Component {...props} />} />;
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        Component ? <Component {...props} /> : render(props)
+      }
+    />
+  );
 }
 
 export function PublicRoute({ component: Component, render, ...rest }) {

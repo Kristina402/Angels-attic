@@ -110,17 +110,19 @@ function OrderSuccess() {
       <MetaData title="Order Successful - Angels Attic" />
       
       {/* Background Content (Hidden by Dialog but present for structure) */}
-      <Box sx={{ display: open ? 'none' : 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <CheckCircleIcon className={classes.successIcon} />
-        <Typography variant="h4" className={classes.successText}>
-          Thank you for your order!
-        </Typography>
-        <Link to="/orders" className={classes.link}>
-          <Button variant="contained" className={classes.viewOrdersButton}>
-            View My Orders
-          </Button>
-        </Link>
-      </Box>
+      {!open && (
+        <Box display="flex" flexDirection="column" alignItems="center">
+          <CheckCircleIcon className={classes.successIcon} />
+          <Typography variant="h4" className={classes.successText}>
+            Thank you for your order!
+          </Typography>
+          <Link to="/orders" className={classes.link}>
+            <Button variant="contained" className={classes.viewOrdersButton}>
+              View My Orders
+            </Button>
+          </Link>
+        </Box>
+      )}
 
       {/* Confirmation Popup - Main UI */}
       <Dialog
@@ -173,12 +175,12 @@ function OrderSuccess() {
               <Typography style={{ color: "#888", fontSize: "0.85rem", fontWeight: 600 }}>TOTAL PAID</Typography>
               <Typography style={{ color: "#EC4899", fontSize: "0.85rem", fontWeight: 800 }}>Rs. {totalAmount}</Typography>
             </Box>
-            <Box display="flex" justifyContent="space-between">
+            <Box display="flex" justifyContent="space-between" alignItems="center">
               <Typography style={{ color: "#888", fontSize: "0.85rem", fontWeight: 600 }}>STATUS</Typography>
               <Chip 
                 label={status || "Paid"} 
                 size="small" 
-                sx={{ 
+                style={{ 
                   height: "20px", 
                   fontSize: "0.7rem", 
                   fontWeight: 700,

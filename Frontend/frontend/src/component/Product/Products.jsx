@@ -32,6 +32,9 @@ const categories = [
   "tops",
 ];
 
+const conditions = ["New", "Like New", "Pre-loved"];
+const sizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
+
 function Products() {
   const match = useRouteMatch();
   let keyword = match.params.keyword;
@@ -42,22 +45,21 @@ function Products() {
     productsCount,
     error,
     resultPerPage,
-    // filterdProductCount,
   } = useSelector((state) => state.products);
   const alert = useAlert();
 
-  const [currentPage, setCurrentPage] = React.useState();
-  const [price, setPrice] = React.useState([0, 100000]); // initial limit from min=0 to max=100000
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [price, setPrice] = React.useState([0, 100000]);
   const [category, setCategory] = React.useState("");
-  const [ratings, setRatings] = React.useState(0);
-  const [selectedCategory, setSelectedCategory] = React.useState("");
+  const [condition, setCondition] = React.useState("");
+  const [size, setSize] = React.useState("");
+  const [sort, setSort] = React.useState("price");
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const categoryParam = urlParams.get("category");
     if (categoryParam) {
       setCategory(categoryParam);
-      setSelectedCategory(categoryParam);
     }
   }, []);
 
@@ -66,35 +68,25 @@ function Products() {
       alert.error(error);
       dispatch(clearErrors());
     }
-    dispatch(getProduct(keyword, currentPage, price, category, ratings));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, keyword, currentPage, price, ratings, category]);
+    dispatch(getProduct(keyword, currentPage, price, category, condition, size, sort));
+  }, [dispatch, keyword, currentPage, price, category, condition, size, sort, error, alert]);
 
   const setCurrentPageNoHandler = (e) => {
-    setCurrentPage(e); // e is the clicked page value
+    setCurrentPage(e);
   };
 
   const priceHandler = (event, newPrice) => {
     setPrice(newPrice);
   };
-  const handleCategoryChange = (category) => {
-    setCategory(category);
-    setSelectedCategory(category);
-    // Perform any additional actions or filtering based on the selected category
+
+  const clearFiltersHandler = () => {
+    setPrice([0, 100000]);
+    setCategory("");
+    setCondition("");
+    setSize("");
+    setSort("price");
+    setCurrentPage(1);
   };
-
-
-
-const [selectedRating, setSelectedRating] = React.useState("all");
-
-const handleRatingChange = (event) => {
-  setRatings(event.target.value);
-  setSelectedRating(event.target.value);
-  // Trigger filtering with the selected rating value or perform any other action
-  
-};
-
- 
 
   return (
     <>
@@ -106,18 +98,51 @@ const handleRatingChange = (event) => {
           <div className="productPage">
             <div className="prodcutPageTop">
               <div className="filterBox">
-                {/* Price */}
-                <div className="priceFilter">
-                  <Typography
-                    style={{
-                      fontSize: "18px",
-                      padding: "5px",
-                      fontWeight: 700,
-                      color: "#414141",
+                <div className="filter_header">
+                  <Typography variant="h6" style={{ fontWeight: 700 }}>Filters</Typography>
+                  <Button 
+                    variant="text" 
+                    color="primary" 
+                    onClick={clearFiltersHandler}
+                    style={{ textTransform: "none", fontSize: "14px" }}
+                  >
+                    Clear All
+                  </Button>
+                </div>
+
+                <div className="filter_divider"></div>
+
+                {/* Sort By */}
+                <div className="filterSection">
+                  <Typography className="filterTitle">Sort By</Typography>
+                  <Select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                    className="filterSelect"
+                    IconComponent={ArrowDropDownIcon}
+                    fullWidth
+                    MenuProps={{
+                      classes: { paper: "filterSelectMenu" },
+                      anchorOrigin: {
+                        vertical: "bottom",
+                        horizontal: "left",
+                      },
+                      transformOrigin: {
+                        vertical: "top",
+                        horizontal: "left",
+                      },
                     }}
                   >
-                    Price
-                  </Typography>
+                    <MenuItem value="price">Price: Low to High</MenuItem>
+                    <MenuItem value="-price">Price: High to Low</MenuItem>
+                  </Select>
+                </div>
+
+                <div className="filter_divider"></div>
+
+                {/* Price */}
+                <div className="filterSection">
+                  <Typography className="filterTitle">Price Range</Typography>
                   <div className="priceSlider">
                     <Slider
                       value={price}
@@ -126,48 +151,24 @@ const handleRatingChange = (event) => {
                       max={100000}
                       step={100}
                       valueLabelDisplay="auto"
-                      aria-labelledby="range-slider"
                     />
                   </div>
-                  <div className="priceSelectors">
-                    <div className="priceSelector">
-                      <Select
-                        value={price[0]}
-                        onChange={(e) =>
-                          setPrice([+e.target.value, price[1]])
-                        }
-                        className="priceOption"
-                        IconComponent={ArrowDropDownIcon}
-                        renderValue={(selected) =>
-                          selected !== "" ? selected : "min"
-                        } // Display "min" as default label
-                      >
-                        <MenuItem value={5000} className="menu_item">
-                          5000
-                        </MenuItem>
-                        <MenuItem value={10000} className="menu_item">
-                          10000
-                        </MenuItem>
-                      </Select>
-                      <span className="toText">to</span>
-                      <Select
-                        value={price[1]}
-                        onChange={(e) =>
-                          setPrice([price[0], +e.target.value])
-                        }
-                        className="priceOption"
-                        IconComponent={ArrowDropDownIcon}
-                        renderValue={(selected) =>
-                          selected !== "" ? selected : "max"
-                        }
-                      >
-                        <MenuItem value={50000} className="menu_item">
-                          50000
-                        </MenuItem>
-                        <MenuItem value={20000} className="menu_item">
-                          20000
-                        </MenuItem>
-                      </Select>
+                  <div className="priceInputGroup">
+                    <div className="priceInput">
+                      <span>Min</span>
+                      <input 
+                        type="number" 
+                        value={price[0]} 
+                        onChange={(e) => setPrice([Number(e.target.value), price[1]])} 
+                      />
+                    </div>
+                    <div className="priceInput">
+                      <span>Max</span>
+                      <input 
+                        type="number" 
+                        value={price[1]} 
+                        onChange={(e) => setPrice([price[0], Number(e.target.value)])} 
+                      />
                     </div>
                   </div>
                 </div>
@@ -175,74 +176,64 @@ const handleRatingChange = (event) => {
                 <div className="filter_divider"></div>
 
                 {/* Categories */}
-                <div className="categoriesFilter">
-                  <Typography
-                    style={{
-                      fontSize: "18px",
-                      padding: "10px",
-                      fontWeight: 700,
-                      color: "#414141",
-                    }}
-                  >
-                    Categories
-                  </Typography>
-                  <ul className="categoryBox">
-                    {categories.map((category, index) => (
-                      <li className="category-link" key={index}>
-                        <label
-                          htmlFor={`category-${index}`}
-                          className="category-label"
-                        >
-                          <input
-                            type="checkbox"
-                            id={`category-${index}`}
-                            className="category-checkbox"
-                            value={category}
-                            checked={category === selectedCategory}
-                            onChange={() => handleCategoryChange(category)}
-                          />
-                          {category.charAt(0).toUpperCase() + category.slice(1)}
-                        </label>
+                <div className="filterSection">
+                  <Typography className="filterTitle">Categories</Typography>
+                  <ul className="filterList">
+                    {categories.map((c) => (
+                      <li key={c} className="filterListItem">
+                        <FormControlLabel
+                          control={
+                            <Radio
+                              checked={category === c}
+                              onChange={() => setCategory(category === c ? "" : c)}
+                              onClick={() => category === c && setCategory("")}
+                              size="small"
+                            />
+                          }
+                          label={c.charAt(0).toUpperCase() + c.slice(1)}
+                        />
                       </li>
                     ))}
                   </ul>
                 </div>
 
                 <div className="filter_divider"></div>
-                {/* Ratings */}
-                <div className="ratingsFilter">
-                  <Typography
-                    style={{
-                      fontSize: "18px",
-                      padding: "10px",
-                      fontWeight: 700,
-                      color: "#414141",
-                    }}
-                  >
-                    Ratings Above
-                  </Typography>
+
+                {/* Condition */}
+                <div className="filterSection">
+                  <Typography className="filterTitle">Condition</Typography>
                   <RadioGroup
-                    value={selectedRating}
-                    onChange={handleRatingChange}
-                    row
-                    className="ratingsBox"
+                    value={condition}
+                    onChange={(e) => setCondition(e.target.value)}
+                    className="filterList"
                   >
-                    <FormControlLabel
-                      value="4"
-                      control={<Radio />}
-                      label="4★ & above"
-                    />
-                    <FormControlLabel
-                      value="3"
-                      control={<Radio />}
-                      label="3★ & above"
-                    />
-                    <FormControlLabel
-                      value="2"
-                      control={<Radio />}
-                      label="2★ & above"
-                    />
+                    {conditions.map((cond) => (
+                      <FormControlLabel
+                        key={cond}
+                        value={cond}
+                        control={<Radio size="small" />}
+                        label={cond}
+                      />
+                    ))}
                   </RadioGroup>
+                </div>
+
+                <div className="filter_divider"></div>
+
+                {/* Size */}
+                <div className="filterSection">
+                  <Typography className="filterTitle">Size</Typography>
+                  <div className="sizeGrid">
+                    {sizes.map((s) => (
+                      <button
+                        key={s}
+                        className={`sizeButton ${size === s ? "active" : ""}`}
+                        onClick={() => setSize(size === s ? "" : s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -258,9 +249,9 @@ const handleRatingChange = (event) => {
                 ) : (
                   <div className="products">
                     {products &&
-                  products.map((product) => (
-                    <ProductCard key={product._id} product={product} />
-                  ))}
+                      products.map((product) => (
+                        <ProductCard key={product._id} product={product} />
+                      ))}
                   </div>
                 )}
               </div>
