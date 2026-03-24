@@ -42,6 +42,9 @@ import {
   REGISTER_VENDOR_REQUEST,
   REGISTER_VENDOR_SUCCESS,
   REGISTER_VENDOR_FAIL,
+  VERIFY_OTP_REQUEST,
+  VERIFY_OTP_SUCCESS,
+  VERIFY_OTP_FAIL,
 } from "../constants/userConstanat";
 
 
@@ -215,6 +218,7 @@ export const forgetPasswordReducer = (state = {}, action) => {
   switch (action.type) {
     case FORGOT_PASSWORD_REQUEST:
     case RESET_PASSWORD_REQUEST:
+    case VERIFY_OTP_REQUEST:
       return {
         ...state,
         loading: true,
@@ -226,6 +230,13 @@ export const forgetPasswordReducer = (state = {}, action) => {
         loading: false,
         message: action.payload,
       };
+    case VERIFY_OTP_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        otpVerified: true,
+        message: action.payload,
+      };
     case RESET_PASSWORD_SUCCESS:
       return {
         ...state,
@@ -235,6 +246,7 @@ export const forgetPasswordReducer = (state = {}, action) => {
 
     case FORGOT_PASSWORD_FAIL:
     case RESET_PASSWORD_FAIL:
+    case VERIFY_OTP_FAIL:
       return {
         ...state,
         loading: false,

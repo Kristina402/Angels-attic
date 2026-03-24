@@ -55,7 +55,7 @@ export default function Login() {
   };
   
 
-  const isSignInDisabled = !(email && password && isValidEmail);
+  const isLoginDisabled = !(email && password && isValidEmail);
 
   
     const redirect = loaction.search
@@ -86,7 +86,7 @@ export default function Login() {
               <LockOpenIcon />
             </Avatar>
             <Typography variant="h5" component="h1" className={classes.heading}>
-              Sign in to Your Account
+              Log in to Your Account
             </Typography>
             <TextField
               label="Email"
@@ -152,10 +152,10 @@ export default function Login() {
               variant="contained"
               className={classes.loginButton}
               fullWidth
-              disabled={isSignInDisabled}
+              disabled={isLoginDisabled}
               type="submit"
             >
-              Sign in
+              Log in
             </Button>
             <Typography
               variant="body1"

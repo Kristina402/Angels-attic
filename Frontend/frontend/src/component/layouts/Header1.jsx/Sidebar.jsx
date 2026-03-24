@@ -14,13 +14,20 @@ import ContactPageIcon from "@mui/icons-material/ContactPage";
 import LoginIcon from "@mui/icons-material/Login";
 import "./SideBar.css";
 
+import { useHistory } from "react-router-dom";
+
 const Sidebar = ({ handleSideBarMenu, isAuthenticated, user }) => {
   const dispatch = useDispatch();
   const alert = useAlert();
+  const history = useHistory();
 
-  const logOutHandler = () => {
-    dispatch(logout());
-    alert.success("Logout Successfully");
+  const logOutHandler = async () => {
+    handleSideBarMenu();
+    const success = await dispatch(logout());
+    if (success) {
+      alert.success("Logout Successfully");
+      history.push("/login");
+    }
   };
 
   return (

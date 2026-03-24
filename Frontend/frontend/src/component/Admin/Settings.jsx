@@ -262,15 +262,6 @@ const Settings = () => {
                     Only administrators will be able to access the store.
                   </Typography>
 
-                  <Divider sx={{ my: 2 }} />
-
-                  <Typography sx={{ fontWeight: 600, mb: 1 }}>Store Logo</Typography>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <Avatar variant="square" src={require("../../Image/logo.png")} sx={{ width: 60, height: 60, borderRadius: "10px" }} />
-                    <Button variant="outlined" startIcon={<CloudUploadIcon />} className={classes.uploadBtn}>
-                      Upload New Logo
-                    </Button>
-                  </Box>
                 </Box>
               </Paper>
             </Grid>

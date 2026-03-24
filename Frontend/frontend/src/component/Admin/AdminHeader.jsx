@@ -254,11 +254,13 @@ const AdminHeader = ({ title }) => {
     setAnchorElNotif(null);
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    alert.success("Logged out successfully");
-    handleClose();
-    history.push("/login");
+  const handleLogout = async () => {
+    const success = await dispatch(logout());
+    if (success) {
+      alert.success("Logged out successfully");
+      handleClose();
+      history.push("/login");
+    }
   };
 
   const handleAccount = () => {

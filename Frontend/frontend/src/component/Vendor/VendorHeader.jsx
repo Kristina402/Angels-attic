@@ -225,11 +225,13 @@ const VendorHeader = ({ title }) => {
     }
   };
 
-  const logoutHandler = () => {
-    dispatch(logout());
-    alert.success("Logged out successfully");
-    handleClose();
-    history.push("/login");
+  const logoutHandler = async () => {
+    const success = await dispatch(logout());
+    if (success) {
+      alert.success("Logged out successfully");
+      handleClose();
+      history.push("/login");
+    }
   };
 
   const getInitials = (name) => {

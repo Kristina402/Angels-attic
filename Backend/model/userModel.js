@@ -77,6 +77,8 @@ const userSchema = new mongoose.Schema({
   },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
+  resetPasswordOTP: String,
+  resetPasswordOTPExpire: Date,
 });
 
 //password hash>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -119,6 +121,23 @@ userSchema.methods.getResetPasswordToken = function () {
   this.resetPasswordExpire = Date.now() + 15 * 60 * 1000; //  resetPasswordExpire : it will make sure how much time this reset token will valid for reseting pass eg 5 min or 3min
 
   return resetPassToken;
+};
+
+// Generating OTP for Reset Password
+userSchema.methods.getResetPasswordOTP = function () {
+  // Generate a random 6-digit number
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  // Store hashed OTP in database
+  this.resetPasswordOTP = crypto
+    .createHash("sha256")
+    .update(otp)
+    .digest("hex");
+
+  // OTP valid for 10 minutes
+  this.resetPasswordOTPExpire = Date.now() + 10 * 60 * 1000;
+
+  return otp;
 };
 
 const userModel = mongoose.model("userModel", userSchema);

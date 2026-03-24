@@ -129,7 +129,7 @@ const About_UsPage = () => {
                 About Us
               </Typography>
               <Typography variant="body1" className={classes.introText_about}>
-                Angels Attic is a full-stack web-based thrift marketplace
+                Angels Attic is a web-based thrift marketplace
                 that connects buyers and sellers of quality pre-owned items
                 in a secure, user-friendly environment. The platform is
                 designed to promote sustainable shopping by extending the

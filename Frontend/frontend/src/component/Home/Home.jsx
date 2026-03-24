@@ -210,7 +210,7 @@ function Home() {
                 <div className="hero_left">
                   <h1 className="hero_title">Thrift Your Style Story</h1>
                   <p className="hero_subtext">
-                    Angels Attic is a full-stack thrift marketplace platform that allows users
+                    Angels Attic is a thrift marketplace platform that allows users
                     to buy and sell pre-loved products safely. Our mission is to promote
                     sustainable shopping by encouraging reuse and reducing waste. We connect
                     buyers and sellers in a secure, easy-to-use environment.
@@ -320,8 +320,7 @@ function Home() {
                   Ready to refresh your wardrobe sustainably?
                 </h2>
                 <p className="cta_text">
-                  Join Angels Attic today and start buying and selling pre-loved items in a
-                  secure, full-stack thrift marketplace.
+                  Join Angels Attic today and start buying and selling pre-loved items in a secure and reliable thrift marketplace.
                 </p>
                 <Link to="/signup" className="btn_primary cta_button">
                   Join Angels Attic Today

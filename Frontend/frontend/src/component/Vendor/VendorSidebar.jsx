@@ -14,6 +14,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../actions/userAction";
 import { useAlert } from "react-alert";
 
+import { useHistory } from "react-router-dom";
+
 const useStyles = makeStyles((theme) => ({
   sidebar: {
     width: "280px",
@@ -118,10 +120,14 @@ const VendorSidebar = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const alert = useAlert();
+  const history = useHistory();
 
-  const logoutHandler = () => {
-    dispatch(logout());
-    alert.success("Logged out successfully");
+  const logoutHandler = async () => {
+    const success = await dispatch(logout());
+    if (success) {
+      alert.success("Logged out successfully");
+      history.push("/login");
+    }
   };
 
   const menuItems = [

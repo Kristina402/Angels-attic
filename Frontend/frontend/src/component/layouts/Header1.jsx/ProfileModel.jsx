@@ -79,10 +79,13 @@ const ProfileModal = ({ user, isAuthenticated }) => {
     history.push("/orders");
   }
 
-  function logoutUserHandler() {
-     setIsOpen(false);
-     dispatch(logout());
-    alert.success("Logout Successfully");
+  async function logoutUserHandler() {
+    setIsOpen(false);
+    const success = await dispatch(logout());
+    if (success) {
+      alert.success("Logout Successfully");
+      history.push("/login");
+    }
   }
 
   function cartHandler() {

@@ -125,6 +125,7 @@ exports.logoutUser = asyncWrapper(async (req, res) => {
     // curr Token has null value
     expires: new Date(Date.now()), // expires curent
     httpOnly: true,
+    path: "/", // Ensure it's cleared for all paths
   });
 
   res.status(200).json({
@@ -136,38 +137,31 @@ exports.logoutUser = asyncWrapper(async (req, res) => {
 exports.forgotPassword = asyncWrapper(async (req, res, next) => {
   const user = await userModel.findOne({ email: req.body.email });
 
-  // when user with this email not found
   if (!user) {
     return next(new ErrorHandler("User not found", 404));
   }
 
-  // Get ResetPassword Token
-  const resetToken = user.getResetPasswordToken(); // we made this method into userModel for hash resetToken
-  //when we call this metod  getResetPasswordToken  . so in userModel resetPasswordToken has reset token added and resetPasswordExprie also exprie value added but not saved to data base
-  await user.save({ validateBeforeSave: false }); // now save
+  // Get Reset OTP
+  const otp = user.getResetPasswordOTP();
 
-  let resetPasswordUrl = "";
-  const baseUrl = process.env.FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
-  resetPasswordUrl = `${baseUrl}/password/reset/${resetToken}`;
+  await user.save({ validateBeforeSave: false });
 
-  const message = `Your password reset token is :- \n\n ${resetPasswordUrl} \n\nIf you have not requested this email then, please ignore it.`;
+  const message = `Your password reset verification code is :- \n\n ${otp} \n\nThis code is valid for 10 minutes. If you have not requested this email, please ignore it.`;
 
   try {
     await sendEmail({
-      // sendEmail is method writen by us in utils folder.
       email: user.email,
-      subject: `Ecommerce Password Recovery`,
+      subject: `Angels Attic Password Recovery`,
       message,
     });
 
     res.status(200).json({
       success: true,
-      message: `Email sent to ${user.email} successfully`,
+      message: `OTP sent to ${user.email} successfully`,
     });
   } catch (error) {
-    // if there any Error then  user.resetPasswordToken and user.resetPasswordExpire has value saved already then undefined both od them for fresh value if user want to try again
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
+    user.resetPasswordOTP = undefined;
+    user.resetPasswordOTPExpire = undefined;
 
     await user.save({ validateBeforeSave: false });
 
@@ -175,49 +169,74 @@ exports.forgotPassword = asyncWrapper(async (req, res, next) => {
   }
 });
 
-//>>>>>>>>>>>>>>> reset and update password :
-exports.resetPassword = asyncWrapper(async (req, res, next) => {
-  // creating token hash because we save resetPasswordToken  in hash form. and we send to user resetToken in hex bytes form in url . now converting that byte form to hex form for matching does user given reset token is same or not which one save in Database
-  // we will extract reset token from req.params.token because we sended that token inside nodemailer message url when user will click on that link he will redirect on that  url
+// Verify OTP Controller
+exports.verifyOTP = asyncWrapper(async (req, res, next) => {
+  const { email, otp } = req.body;
 
-  const resetPasswordToken = crypto
+  if (!email || !otp) {
+    return next(new ErrorHandler("Please enter email and OTP", 400));
+  }
+
+  const hashedOTP = crypto
     .createHash("sha256")
-    .update(req.params.token)
+    .update(otp)
     .digest("hex");
 
-  // now find that user with that hash token in db
   const user = await userModel.findOne({
-    resetPasswordToken,
-    resetPasswordExpire: { $gt: Date.now() }, // if resetPasswordExpire {gt : => greater than} currDate  cheking is token expires or not
+    email,
+    resetPasswordOTP: hashedOTP,
+    resetPasswordOTPExpire: { $gt: Date.now() },
   });
 
-  // if user not with that token or expire token
+  if (!user) {
+    return next(new ErrorHandler("Invalid or expired OTP", 400));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "OTP verified successfully",
+  });
+});
+
+//>>>>>>>>>>>>>>> reset and update password :
+exports.resetPassword = asyncWrapper(async (req, res, next) => {
+  const { email, otp, password, confirmPassword } = req.body;
+
+  if (!email || !otp || !password || !confirmPassword) {
+    return next(new ErrorHandler("Please provide all required fields", 400));
+  }
+
+  const hashedOTP = crypto
+    .createHash("sha256")
+    .update(otp)
+    .digest("hex");
+
+  const user = await userModel.findOne({
+    email,
+    resetPasswordOTP: hashedOTP,
+    resetPasswordOTPExpire: { $gt: Date.now() },
+  });
+
   if (!user) {
     return next(
       new ErrorHandler(
-        "Reset Password Token is invalid or has been expired",
+        "Invalid or expired OTP session",
         400
       )
     );
   }
 
-  // when new pass or confirm pass are not same
-
-  if (req.body.password !== req.body.confirmPassword) {
+  if (password !== confirmPassword) {
     return next(
-      new ErrorHandler("Password does not equal to confirmPassword", 400)
+      new ErrorHandler("Passwords do not match", 400)
     );
   }
 
-  // set that new password
-  user.password = req.body.password;
-  //once pass set then no need token in data base untll user not reset the pass
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpire = undefined;
+  user.password = password;
+  user.resetPasswordOTP = undefined;
+  user.resetPasswordOTPExpire = undefined;
 
-  // savw change to db
   await user.save();
-  // this will send new token to user  bcz user succesfully logged in with new pass
   sendJWtToken(user, 200, res);
 });
 

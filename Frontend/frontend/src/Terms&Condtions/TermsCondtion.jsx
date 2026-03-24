@@ -21,15 +21,9 @@ const TermsAndConditionsPage = () => {
           everything fully and carefully so you are informed about your rights
           and obligations.
         </p>
-        <h2>Acceptance of These Terms</h2>
+        <h2>General Use</h2>
         <p>
-          You (“Customer”) may place orders for products listed on Angels Attic
-          ("we," "our") via our website. By placing an order, you consent to
-          these Terms and Conditions of Sale (“Terms”) and acknowledge that we
-          will facilitate the transaction subject to these Terms. Any term or
-          condition in any order or correspondence that is inconsistent with
-          these Terms shall be inapplicable and of no force and effect
-          whatsoever, unless expressly agreed to in writing by Angels Attic.
+          Angels Attic is an online thrift store platform where users can browse and purchase pre-loved clothing items. By accessing this platform, users agree to use it responsibly and not engage in any harmful or illegal activities.
         </p>
         <h2>Orders</h2>
         <p>
@@ -63,21 +57,9 @@ const TermsAndConditionsPage = () => {
           discounts, limited edition products, or free shipping. These offers
           are subject to change or discontinuation at any time.
         </p>
-        <h2>Taxes</h2>
-        <p>
-          Applicable taxes, if any, may be included in or added to the price at
-          checkout in accordance with local regulations. The customer is
-          responsible for paying any taxes, except for those based on Angels
-          Attic’s income. If Angels Attic is required to collect and pay taxes
-          on the customer’s behalf, we may invoice the customer for those
-          amounts.
-        </p>
         <h2>Payment</h2>
         <p>
-          All orders must be paid in full before shipment. We accept payment
-          through MasterCard and Visa. Payment information is submitted upon
-          placing an order and is subject to verification and availability of
-          funds.
+          All orders must be confirmed before shipment at Angels Attic. The platform offers payment options including Cash on Delivery (COD) and eSewa. For eSewa payments, users are required to complete the payment during checkout, and the transaction is verified before the order is confirmed. In the case of Cash on Delivery, customers can pay in cash at the time of delivery. Customers are responsible for providing accurate payment and contact details when placing an order, and orders are processed only after successful payment confirmation or selection of COD.
         </p>
         <h2>Shipping</h2>
         <p>
@@ -90,66 +72,28 @@ const TermsAndConditionsPage = () => {
           passes to you upon taking physical possession, and title passes to you
           when the products are picked up by the shipping carrier.
         </p>
-        <h2>Returns</h2>
+        <h2>No Return and No Refund Policy</h2>
         <p>
-          Once an order has been placed and accepted, you may not cancel the
-          order without Angels Attic’s consent. You may return eligible products
-          for a refund of the purchase price (excluding initial shipping
-          charges) plus any applicable tax, in accordance with our return
-          policy. Return shipping expenses are typically the customer's
-          responsibility. Products must be returned within the timeframe stated
-          in the listing or in our return policy.
+          All products listed on the platform are pre-owned unless stated otherwise. While we try to provide accurate descriptions, slight variations in color, size, or condition may occur.
         </p>
-        <h2>Warranty</h2>
+        <h2>User Responsibilities</h2>
         <p>
-          For warranty information, please refer to the written warranty
-          included with the product or the warranty page on our website.
+          Users must provide accurate information such as name, address, and contact details while placing an order. Angels Attic is not responsible for delivery issues caused by incorrect information.
         </p>
-        <h2>Not for Resale</h2>
+        <h2>Vendor Responsibility</h2>
         <p>
-          Products sold on our website are for end-user customers only and not
-          for resale. We reserve the right to refuse or cancel any order if we
-          suspect products are being purchased for resale.
+          Vendors are responsible for providing accurate product descriptions and images. Any misleading or false information may result in removal from the platform.
         </p>
-        <h2>Governing Law / Jurisdiction</h2>
+        <h2>Account Security</h2>
         <p>
-          These Terms shall be governed and construed in accordance with the
-          laws of Singapore.
+          Users are responsible for maintaining the confidentiality of their account credentials. Any activity under the account will be considered the user’s responsibility.
         </p>
-        <h2>Dispute Resolution and Applicable Law</h2>
+        <h2>Contact Information</h2>
         <p>
-          Any disputes arising from or relating to these Terms shall be resolved
-          through arbitration in Singapore, administered by the Singapore
-          International Arbitration Centre (SIAC), in accordance with the
-          Arbitration Rules of the SIAC. The language of the arbitration shall
-          be English.
-        </p>
-        <h2>Indemnification</h2>
-        <p>
-          You agree to indemnify and hold Angels Attic harmless from any
-          claims, costs, proceedings, losses, or demands arising from your
-          breach of these Terms or anyone using your account.
-        </p>
-        <h2>Entire Agreement</h2>
-        <p>
-          These Terms constitute the entire agreement between Angels Attic and
-          the customer, superseding all prior or contemporaneous agreements,
-          representations, warranties, and understandings.
-        </p>
-        <h2>Severability</h2>
-        <p>
-          If any provision of these Terms is held to be invalid or
-          unenforceable, the remaining provisions shall remain in full force and
-          effect, and the invalid or unenforceable provision shall be
-          interpreted to give maximum effect to the intent of the parties.
-        </p>
-        <h2>Exclusivity</h2>
-        <p>
-          The rights, liabilities, responsibilities, and remedies with respect
-          to the Products are exclusively those expressed in these Terms. The
-          waivers, releases, limitations on liability, and remedies expressed in
-          these Terms apply even in the event of default, negligence, breach of
-          contract, strict liability, or other cause of action.
+          For any inquiries, users can contact:
+          atticangels777@gmail.com
+
+          9826125791.
         </p>
       </div>
     </div>

@@ -21,7 +21,8 @@ import Login from "./component/User/Login";
 import Profile from "./component/User/Profile";
 import UpdateProfile from "./component/User/UpdateProfile";
 import UpdatePassword from "./component/User/UpdatePassword";
-import ForgetPassword from "./component/User/ForgetPassword";
+import ForgotPassword from "./component/User/ForgetPassword";
+import VerifyOTP from "./component/User/VerifyOTP";
 import ResetPassword from "./component/User/ResetPassword";
 import Shipping from "./component/Cart/Shipping";
 import Cart from "./component/Cart/Cart";
@@ -223,7 +224,7 @@ function App() {
             render={() => (
               <>
                 {<Header />}
-                <ForgetPassword />
+                <ForgotPassword />
                 {<Footer />}
               </>
             )}
@@ -231,7 +232,19 @@ function App() {
 
           <PublicRoute
             exact
-            path="/password/reset/:token"
+            path="/password/verify-otp"
+            render={() => (
+              <>
+                {<Header />}
+                <VerifyOTP />
+                {<Footer />}
+              </>
+            )}
+          />
+
+          <PublicRoute
+            exact
+            path="/password/reset"
             render={() => (
               <>
                 {<Header />}

@@ -40,6 +40,9 @@ import {
   REGISTER_VENDOR_REQUEST,
   REGISTER_VENDOR_SUCCESS,
   REGISTER_VENDOR_FAIL,
+  VERIFY_OTP_REQUEST,
+  VERIFY_OTP_SUCCESS,
+  VERIFY_OTP_FAIL,
 } from "../constants/userConstanat";
 import { loadUserCart } from "./cartAction";
 import { EMPTY_CART } from "../constants/cartConstant";
@@ -190,6 +193,7 @@ export function logout() {
       dispatch({ type: EMPTY_CART });
       await axios.get(`/api/v1/logout`); // token will expired from cookies
       dispatch({ type: LOGOUT_SUCCESS });
+      return true;
 
     } catch (error) {
       sessionStorage.removeItem("user");
@@ -198,6 +202,7 @@ export function logout() {
         type: LOGOUT_FAIL,
         payload: error.response ? error.response.data.message : error.message,
       });
+      return false;
     }
   }
 }
@@ -301,17 +306,39 @@ export function forgetPassword(email) {
   };
 }
 
+// verify OTP action
+export const verifyOTP = (email, otp) => async (dispatch) => {
+  try {
+    dispatch({ type: VERIFY_OTP_REQUEST });
+
+    const config = { headers: { "Content-Type": "application/json" } };
+
+    const { data } = await axios.post(
+      `/api/v1/password/verify-otp`,
+      { email, otp },
+      config
+    );
+
+    dispatch({ type: VERIFY_OTP_SUCCESS, payload: data.message });
+  } catch (error) {
+    dispatch({
+      type: VERIFY_OTP_FAIL,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  }
+};
+
 
 // reset password action
-export const resetPassword = (token, passwords) => async (dispatch) => {
+export const resetPassword = (userData) => async (dispatch) => {
   try {
     dispatch({ type: RESET_PASSWORD_REQUEST });
 
     const config = { headers: { "Content-Type": "application/json" } };
 
     const { data } = await axios.put(
-      `/api/v1/password/reset/${token}`,
-      passwords,
+      `/api/v1/password/reset`,
+      userData,
       config
     );
 

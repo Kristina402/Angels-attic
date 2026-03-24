@@ -28,10 +28,12 @@ const ProfilePage = () => {
   const history = useHistory();
   const { user, isAuthenticated } = useSelector((state) => state.userData);
 
-  const logoutHandler = () => {
-    dispatch(logout());
-    alert.success("Logged out successfully");
-    history.push("/login");
+  const logoutHandler = async () => {
+    const success = await dispatch(logout());
+    if (success) {
+      alert.success("Logged out successfully");
+      history.push("/login");
+    }
   };
 
   useEffect(() => {

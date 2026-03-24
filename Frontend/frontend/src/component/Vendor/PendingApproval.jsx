@@ -7,6 +7,8 @@ import { useDispatch } from "react-redux";
 import { logout } from "../../actions/userAction";
 import { useAlert } from "react-alert";
 
+import { useHistory } from "react-router-dom";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     height: "100vh",
@@ -54,10 +56,14 @@ const PendingApproval = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const alert = useAlert();
+  const history = useHistory();
 
-  const handleLogout = () => {
-    dispatch(logout());
-    alert.success("Logged out successfully");
+  const handleLogout = async () => {
+    const success = await dispatch(logout());
+    if (success) {
+      alert.success("Logged out successfully");
+      history.push("/login");
+    }
   };
 
   return (

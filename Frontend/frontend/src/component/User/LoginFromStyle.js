@@ -5,19 +5,26 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     alignItems: "center",
     paddingTop: "7rem",
-    paddingBottom: "3rem",
-    height: "auto",
-
-    backgroundColor: "white",
+    paddingBottom: "5rem",
+    minHeight: "100vh",
+    backgroundColor: "#f8f9fa",
+    backgroundImage: "radial-gradient(circle at 2% 10%, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.05) 50%,rgba(72, 72, 72, 0.05) 50%, rgba(72, 72, 72, 0.05) 100%),radial-gradient(circle at 28% 97%, rgba(135, 135, 135, 0.05) 0%, rgba(135, 135, 135, 0.05) 50%,rgba(13, 13, 13, 0.05) 50%, rgba(13, 13, 13, 0.05) 100%),radial-gradient(circle at 67% 68%, rgba(206, 206, 206, 0.05) 0%, rgba(206, 206, 206, 0.05) 50%,rgba(127, 127, 127, 0.05) 50%, rgba(127, 127, 127, 0.05) 100%),linear-gradient(90deg, #fff,#fff)",
   },
   form: {
-    width: "400px",
+    width: "100%",
+    maxWidth: "450px",
     margin: "auto",
-    borderRadius: "15px",
-    padding: "2.5rem",
-    backgroundColor: "#fff",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.05)",
-    border: "1px solid #f0f0f0",
+    borderRadius: "24px",
+    padding: "3rem",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    backdropFilter: "blur(10px)",
+    boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
+    border: "1px solid rgba(255, 255, 255, 0.3)",
+    transition: "transform 0.3s ease, box-shadow 0.3s ease",
+    "&:hover": {
+      transform: "translateY(-5px)",
+      boxShadow: "0 30px 60px rgba(0,0,0,0.12)",
+    },
   },
 
   heading: {
@@ -206,10 +213,15 @@ const useStyles = makeStyles((theme) => ({
   // signUp
 
   avatar: {
-    margin: "0 auto 0.5rem",
-    backgroundColor: "#000",
-    width: "50px",
-    height: "50px",
+    margin: "0 auto 1.5rem",
+    backgroundColor: "#1a1a1a",
+    width: "64px",
+    height: "64px",
+    boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
+    transition: "transform 0.3s ease",
+    "&:hover": {
+      transform: "scale(1.1) rotate(5deg)",
+    },
   },
   gridcheckbox: {
     display: "flex",
