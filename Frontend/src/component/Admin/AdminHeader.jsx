@@ -105,11 +105,17 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "600 !important",
   },
   menuItem: {
-    padding: "10px 20px !important",
+    padding: "12px 20px !important",
     fontSize: "0.9rem !important",
-    fontWeight: "500 !important",
-    gap: "10px !important",
-    color: "#64748b !important",
+    fontWeight: "600 !important",
+    gap: "12px !important",
+    color: "#334155 !important",
+    transition: "all 0.2s ease !important",
+    "& .MuiSvgIcon-root": {
+      fontSize: "20px !important",
+      color: "#64748b !important",
+      transition: "all 0.2s ease !important",
+    },
     "&:hover": {
       backgroundColor: "#FDF2F8 !important",
       color: "#EC4899 !important",
@@ -430,7 +436,12 @@ const AdminHeader = ({ title }) => {
               mt: 1.5,
               borderRadius: "15px",
               boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
-              minWidth: "180px",
+              minWidth: "200px",
+              border: "1px solid #f1f5f9",
+              backgroundColor: "#ffffff",
+              "& .MuiList-root": {
+                padding: "8px 0",
+              }
             }
           }}
           transformOrigin={{ horizontal: "right", vertical: "top" }}

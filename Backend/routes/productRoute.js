@@ -11,7 +11,7 @@ const {
   getAdminProducts,
   getVendorProducts,
 } = require("../controller/productController");
-const { isAuthentictedUser, authorizeRoles } = require("../middleWare/auth");
+const { isAuthentictedUser, authorizeRoles } = require("../middleware/auth");
 
 const router = express.Router();
 

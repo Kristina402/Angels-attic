@@ -5,7 +5,7 @@ const {
   markAllAsRead,
   clearAll,
 } = require("../controller/notificationController");
-const { isAuthentictedUser } = require("../middleWare/auth");
+const { isAuthentictedUser } = require("../middleware/auth");
 
 const router = express.Router();
 

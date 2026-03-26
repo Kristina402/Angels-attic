@@ -1,5 +1,5 @@
 const Notification = require("../models/notificationModel");
-const asyncWrapper = require("../middleWare/asyncWrapper");
+const asyncWrapper = require("../middleware/asyncWrapper");
 const ErrorHandler = require("../utils/errorHandler");
 
 // Get all notifications for a user

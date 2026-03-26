@@ -1,0 +1,10 @@
+/* Redundant styles removed as they are now handled by styled-components in Searchbar.jsx */
+.search_form {
+    display: flex;
+    flex: 1;
+}
+
+.closeIcon:hover {
+  color: #be185d;
+  transition: all 0.2s ease;
+}

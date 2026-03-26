@@ -1,4 +1,4 @@
-const asyncWrapper = require("../middleWare/asyncWrapper");
+const asyncWrapper = require("../middleware/asyncWrapper");
 const ErrorHandler = require("../utils/errorHandler");
 const sendEmail = require("../utils/sendEmail");
 

@@ -1,8 +1,8 @@
-const Product = require("../model/productModel");
-const User = require("../model/userModel");
+const Product = require("../models/productModel");
+const User = require("../models/userModel");
 const Notification = require("../models/notificationModel");
 const ErrorHandler = require("../utils/errorHandler");
-const asyncWrapper = require("../middleWare/asyncWrapper");
+const asyncWrapper = require("../middleware/asyncWrapper");
 const ApiFeatures = require("../utils/apiFeatures");
 const cloudinary = require("cloudinary");
 

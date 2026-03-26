@@ -365,23 +365,67 @@ const VendorHeader = ({ title }) => {
             sx: {
               width: 200,
               mt: 1.5,
-              borderRadius: "12px",
-              boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+              borderRadius: "15px",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
               border: "1px solid #f1f5f9",
+              backgroundColor: "#ffffff",
+              "& .MuiList-root": {
+                padding: "8px 0",
+              }
             },
           }}
           transformOrigin={{ horizontal: "right", vertical: "top" }}
           anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         >
-          <MenuItem onClick={() => { handleClose(); history.push("/vendor/settings"); }}>
-            <PersonOutlineIcon sx={{ mr: 1.5, color: "#64748b" }} /> Profile
+          <MenuItem 
+            onClick={() => { handleClose(); history.push("/vendor/settings"); }}
+            sx={{
+              padding: "12px 20px",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              color: "#334155",
+              gap: "12px",
+              "&:hover": {
+                backgroundColor: "#FDF2F8",
+                color: "#EC4899",
+                "& .MuiSvgIcon-root": { color: "#EC4899" }
+              }
+            }}
+          >
+            <PersonOutlineIcon sx={{ fontSize: "20px", color: "#64748b" }} /> Profile
           </MenuItem>
-          <MenuItem onClick={() => { handleClose(); history.push("/vendor/settings"); }}>
-            <SettingsIcon sx={{ mr: 1.5, color: "#64748b" }} /> Settings
+          <MenuItem 
+            onClick={() => { handleClose(); history.push("/vendor/settings"); }}
+            sx={{
+              padding: "12px 20px",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              color: "#334155",
+              gap: "12px",
+              "&:hover": {
+                backgroundColor: "#FDF2F8",
+                color: "#EC4899",
+                "& .MuiSvgIcon-root": { color: "#EC4899" }
+              }
+            }}
+          >
+            <SettingsIcon sx={{ fontSize: "20px", color: "#64748b" }} /> Settings
           </MenuItem>
           <Divider sx={{ my: 1 }} />
-          <MenuItem onClick={logoutHandler} sx={{ color: "#ef4444" }}>
-            <ExitToAppIcon sx={{ mr: 1.5 }} /> Logout
+          <MenuItem 
+            onClick={logoutHandler} 
+            sx={{ 
+              padding: "12px 20px",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              color: "#ef4444",
+              gap: "12px",
+              "&:hover": {
+                backgroundColor: "#fef2f2",
+              }
+            }}
+          >
+            <ExitToAppIcon sx={{ fontSize: "20px" }} /> Logout
           </MenuItem>
         </Menu>
       </Box>

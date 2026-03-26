@@ -1,5 +1,5 @@
-const asyncWrapper = require("../middleWare/asyncWrapper");
-const userModel = require("../model/userModel");
+const asyncWrapper = require("../middleware/asyncWrapper");
+const userModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const ErrorHandler = require("../utils/errorHandler");
 

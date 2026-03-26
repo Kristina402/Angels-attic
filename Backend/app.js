@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
-const errorMiddleware = require("./middleWare/error");
-const requestLogger = require("./middleWare/requestLogger");
+const errorMiddleware = require("./middleware/error");
+const requestLogger = require("./middleware/requestLogger");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload"); // used for image and other files
@@ -17,13 +17,13 @@ require("dotenv").config({ path: "./config/config.env" });
 
 // routes
 
-const user = require("./route/userRoute");
-const product = require("./route/productRoute");
-const order = require("./route/orderRoute");
-const health = require("./route/healthRoute");
-const analytics = require("./route/analyticsRoute");
-const notification = require("./route/notificationRoute");
-const contact = require("./route/contactRoute");
+const user = require("./routes/userRoute");
+const product = require("./routes/productRoute");
+const order = require("./routes/orderRoute");
+const health = require("./routes/healthRoute");
+const analytics = require("./routes/analyticsRoute");
+const notification = require("./routes/notificationRoute");
+const contact = require("./routes/contactRoute");
 
 // Add request logging middleware
 app.use(requestLogger);

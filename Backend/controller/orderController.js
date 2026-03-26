@@ -1,9 +1,9 @@
-const Order = require("../model/orderModel");
-const Product = require("../model/productModel");
+const Order = require("../models/orderModel");
+const Product = require("../models/productModel");
 const Notification = require("../models/notificationModel");
-const User = require("../model/userModel");
+const User = require("../models/userModel");
 const ErrorHandler = require("../utils/errorHandler");
-const asyncWrapper = require("../middleWare/asyncWrapper");
+const asyncWrapper = require("../middleware/asyncWrapper");
 
 // Create new Order
 exports.newOrder = asyncWrapper(async (req, res, next) => {

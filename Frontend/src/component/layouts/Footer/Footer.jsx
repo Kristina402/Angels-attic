@@ -6,9 +6,9 @@ import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import "./Footer.css";
 
 const quickLinks = [
+  { id: 0, label: "Home", path: "/" },
   { id: 1, label: "Shop", path: "/products" },
-  { id: 2, label: "Categories", path: "/products" },
-  { id: 3, label: "Wishlist", path: "/" },
+  { id: 3, label: "Wishlist", path: "/wishlist" },
   { id: 4, label: "Cart", path: "/cart" },
   { id: 5, label: "Account", path: "/account" },
   { id: 6, label: "About Us", path: "/about" },

@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./Products.css";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "../layouts/loader/Loader";
 import { useAlert } from "react-alert";
-import { useRouteMatch } from "react-router-dom";
+import { Link, useRouteMatch, useLocation } from "react-router-dom";
 import MetaData from "../layouts/MataData/MataData";
 import { clearErrors, getProduct } from "../../actions/productAction";
 import ProductCard from "../Home/ProductCard";
@@ -37,6 +37,7 @@ const sizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
 
 function Products() {
   const match = useRouteMatch();
+  const location = useLocation();
   let keyword = match.params.keyword;
   const dispatch = useDispatch();
   const {
@@ -56,12 +57,12 @@ function Products() {
   const [sort, setSort] = React.useState("price");
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(location.search);
     const categoryParam = urlParams.get("category");
     if (categoryParam) {
       setCategory(categoryParam);
     }
-  }, []);
+  }, [location.search]);
 
   useEffect(() => {
     if (error) {

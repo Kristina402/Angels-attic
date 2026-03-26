@@ -1,6 +1,6 @@
-const Order = require("../model/orderModel");
-const Product = require("../model/productModel");
-const asyncWrapper = require("../middleWare/asyncWrapper");
+const Order = require("../models/orderModel");
+const Product = require("../models/productModel");
+const asyncWrapper = require("../middleware/asyncWrapper");
 
 // Get Vendor Sales Analytics
 exports.getVendorSalesAnalytics = asyncWrapper(async (req, res, next) => {

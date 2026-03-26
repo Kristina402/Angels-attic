@@ -13,6 +13,7 @@ import { Box, Tooltip, Chip } from "@mui/material";
 import Rating from "@material-ui/lab/Rating";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import { motion } from "framer-motion";
 import { Link, useHistory } from "react-router-dom";
 import { dispalyMoney, generateDiscountedPrice } from "../DisplayMoney/DisplayMoney";
@@ -139,6 +140,9 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     gap: "8px",
     marginTop: "auto",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "0 12px 16px",
   },
   btnDetails: {
     flex: 1,
@@ -155,18 +159,24 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   btnCart: {
-    flex: 1,
-    borderRadius: "14px !important",
-    textTransform: "none !important",
-    fontWeight: "700 !important",
-    fontSize: "0.85rem !important",
-    padding: "8px !important",
     backgroundColor: "#1a1a1a !important",
     color: "#fff !important",
+    padding: "10px !important",
+    borderRadius: "12px !important",
+    minWidth: "44px !important",
+    width: "44px !important",
+    height: "44px !important",
     "&:hover": {
       backgroundColor: "#000 !important",
       boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
     },
+    "&:disabled": {
+      backgroundColor: "#f5f5f7 !important",
+      color: "#aeaeb2 !important",
+    },
+  },
+  cartIcon: {
+    fontSize: "20px",
   },
 }));
 
@@ -312,14 +322,17 @@ const ProductCard = ({ product }) => {
                 <Button className={classes.btnDetails} variant="outlined">
                   View Details
                 </Button>
-                <Button 
-                  className={classes.btnCart} 
-                  variant="contained"
-                  onClick={addToCartHandler}
-                  disabled={isSold}
-                >
-                  {isSold ? "Sold Out" : "Add to Cart"}
-                </Button>
+                <Tooltip title={isSold ? "Sold Out" : "Add to Cart"}>
+                  <span>
+                    <IconButton 
+                      className={classes.btnCart}
+                      onClick={addToCartHandler}
+                      disabled={isSold}
+                    >
+                      <AddShoppingCartIcon className={classes.cartIcon} />
+                    </IconButton>
+                  </span>
+                </Tooltip>
               </div>
             </CardContent>
           </CardActionArea>
