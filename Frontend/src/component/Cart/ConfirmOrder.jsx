@@ -18,9 +18,11 @@ import {
 import { Link, useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import { dispalyMoney } from "../DisplayMoney/DisplayMoney";
-import Loader from "../layouts/loader/Loader";
 import { createOrder, clearErrors } from "../../actions/orderAction";
 import { useAlert } from "react-alert";
+
+import axios from "axios";
+import esewaLogo from "../../Image/payment-svg/esewa1.png";
 
 const useStyles = makeStyles((theme) => ({
   confirmOrderPage: {
@@ -120,11 +122,37 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   paymentMethodBox: {
-    marginTop: "1rem",
-    padding: "1rem",
-    borderRadius: "12px",
-    border: "1px solid #e0e0e0",
+    display: "flex",
+    alignItems: "center",
+    padding: "0.5rem 1rem",
+    borderRadius: "15px",
+    border: "2px solid #eee",
+    transition: "all 0.3s ease",
+    cursor: "pointer",
+    "&:hover": {
+      borderColor: "#EC4899",
+      backgroundColor: "#fffafa",
+    },
+  },
+  paymentIconBox: {
+    width: "60px",
+    height: "40px",
     backgroundColor: "#fff",
+    borderRadius: "8px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: "15px",
+    border: "1px solid #f0f0f0",
+  },
+  paymentLogo: {
+    width: "80px",
+    height: "auto",
+    marginRight: "15px",
+    display: "block",
+  },
+  radioSelected: {
+    color: "#EC4899 !important",
   },
 }));
 
@@ -148,7 +176,7 @@ function ConfirmOrder() {
     }
   }, [dispatch, error, alert, success, order, history]);
 
-  const [paymentMethod, setPaymentMethod] = useState("COD");
+  const [paymentMethod, setPaymentMethod] = useState("ESEWA");
 
   const subtotal = cartItems.reduce((acc, currItem) => {
     return acc + currItem.quantity * currItem.price;
@@ -160,31 +188,94 @@ function ConfirmOrder() {
   const address = `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.country}`;
 
   const processOrder = async () => {
-    const orderData = {
-      shippingInfo,
-      orderItems: cartItems,
-      itemsPrice: subtotal,
-      shippingPrice: shippingCharges,
-      totalPrice: totalPrice,
-      paymentInfo: {
-        id: paymentMethod === "COD" ? "Cash on Delivery" : "Online Payment",
-        status: paymentMethod === "COD" ? "Pending" : "Succeeded",
-      },
-    };
-
-    if (paymentMethod === "COD") {
-      dispatch(createOrder(orderData));
-    } else {
-      // For Online Payment, save order info and proceed to payment page
-      const data = {
-        subtotal,
-        shippingCharges,
-        totalPrice,
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
       };
-      sessionStorage.setItem("orderInfo", JSON.stringify(data));
-      history.push("/process/payment");
+
+      if (paymentMethod === "ESEWA") {
+        // Create pending order first for eSewa
+        const orderData = {
+          shippingInfo,
+          orderItems: cartItems,
+          itemsPrice: subtotal,
+          shippingPrice: shippingCharges,
+          totalPrice: totalPrice,
+          paymentInfo: {
+            id: "PENDING_ESEWA",
+            status: "pending",
+            type: "eSewa"
+          },
+        };
+
+        const { data: orderResponse } = await axios.post("/api/v1/order/new", orderData, config);
+        const orderId = orderResponse.order._id;
+
+        // Get eSewa signature
+        // eSewa v2 sometimes prefers integers if the value is a whole number
+        const formattedAmount = Math.floor(totalPrice).toString();
+        const esewaData = {
+          amount: formattedAmount,
+          tax_amount: "0",
+          total_amount: formattedAmount,
+          transaction_uuid: orderId.toString(),
+        };
+
+        const { data: esewaResponse } = await axios.post("/api/v1/payment/esewa/process", esewaData, config);
+
+        // Submit form to eSewa
+        const form = document.createElement("form");
+        form.setAttribute("method", "POST");
+        form.setAttribute("action", "https://rc-epay.esewa.com.np/api/epay/main/v2/form");
+
+        const fields = {
+          amount: esewaData.amount,
+          tax_amount: esewaData.tax_amount,
+          total_amount: esewaData.total_amount,
+          transaction_uuid: esewaData.transaction_uuid,
+          product_code: esewaResponse.product_code,
+          product_service_charge: "0",
+          product_delivery_charge: "0",
+          success_url: esewaResponse.success_url,
+          failure_url: esewaResponse.failure_url,
+          signed_field_names: "total_amount,transaction_uuid,product_code",
+          signature: esewaResponse.signature,
+        };
+
+        for (const key in fields) {
+          const input = document.createElement("input");
+          input.setAttribute("type", "hidden");
+          input.setAttribute("name", key);
+          input.setAttribute("value", fields[key]);
+          form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+      } else {
+        // Cash on Delivery
+        const orderData = {
+          shippingInfo,
+          orderItems: cartItems,
+          itemsPrice: subtotal,
+          shippingPrice: shippingCharges,
+          totalPrice: totalPrice,
+          paymentInfo: {
+            id: "Cash on Delivery",
+            status: "Not Paid",
+            type: "COD"
+          },
+        };
+
+        dispatch(createOrder(orderData));
+      }
+    } catch (error) {
+      alert.error(error.response ? error.response.data.message : error.message);
     }
   };
+
 
   return (
     <Box className={classes.confirmOrderPage}>
@@ -228,27 +319,69 @@ function ConfirmOrder() {
 
             {/* Payment Method Section */}
             <Paper className={classes.sectionPaper}>
-              <Typography className={classes.sectionTitle}>Payment Method</Typography>
-              <Box className={classes.paymentMethodBox}>
-                <FormControl component="fieldset">
-                  <RadioGroup 
-                    value={paymentMethod} 
-                    onChange={(e) => setPaymentMethod(e.target.value)}
+              <Typography className={classes.sectionTitle}>Select Payment Method</Typography>
+              <FormControl component="fieldset" style={{ width: '100%' }}>
+                <RadioGroup 
+                  aria-label="payment-method" 
+                  name="paymentMethod" 
+                  value={paymentMethod} 
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  <Box 
+                    className={classes.paymentMethodBox} 
+                    style={{ 
+                      borderColor: paymentMethod === 'ESEWA' ? '#EC4899' : '#e0e0e0',
+                      backgroundColor: paymentMethod === 'ESEWA' ? '#FFF5F7' : '#fff'
+                    }}
+                    onClick={() => setPaymentMethod('ESEWA')}
+                  >
+                    <FormControlLabel 
+                      value="ESEWA" 
+                      control={<Radio classes={{ checked: classes.radioSelected }} color="default" />} 
+                      label={
+                        <Box display="flex" alignItems="center">
+                          <img 
+                            src={esewaLogo} 
+                            alt="eSewa" 
+                            className={classes.paymentLogo} 
+                          />
+                          <Box>
+                            <Typography style={{ fontWeight: 600, color: "#000" }}>eSewa Wallet</Typography>
+                            <Typography variant="body2" color="textSecondary">Pay securely using eSewa</Typography>
+                          </Box>
+                        </Box>
+                      } 
+                      style={{ width: '100%', margin: 0 }}
+                    />
+                  </Box>
+
+                  <Box 
+                    className={classes.paymentMethodBox} 
+                    style={{ 
+                      marginTop: '1.2rem',
+                      borderColor: paymentMethod === 'COD' ? '#EC4899' : '#e0e0e0',
+                      backgroundColor: paymentMethod === 'COD' ? '#FFF5F7' : '#fff'
+                    }}
+                    onClick={() => setPaymentMethod('COD')}
                   >
                     <FormControlLabel 
                       value="COD" 
-                      control={<Radio color="default" />} 
-                      label="Cash on Delivery (COD)" 
+                      control={<Radio classes={{ checked: classes.radioSelected }} color="default" />} 
+                      label={
+                        <Box display="flex" alignItems="center" style={{ marginLeft: "5px" }}>
+                          <Box>
+                            <Typography style={{ fontWeight: 600, color: "#000" }}>Cash on Delivery (COD)</Typography>
+                            <Typography variant="body2" color="textSecondary">Pay when you receive the order</Typography>
+                          </Box>
+                        </Box>
+                      } 
+                      style={{ width: '100%', margin: 0 }}
                     />
-                    <FormControlLabel 
-                      value="Online" 
-                      control={<Radio color="default" />} 
-                      label="Online Payment (Card/UPI)" 
-                    />
-                  </RadioGroup>
-                </FormControl>
-              </Box>
+                  </Box>
+                </RadioGroup>
+              </FormControl>
             </Paper>
+
           </Grid>
 
           <Grid item xs={12} md={4}>
@@ -273,8 +406,9 @@ function ConfirmOrder() {
               <Button 
                 className={classes.placeOrderBtn}
                 onClick={processOrder}
+                disabled={loading}
               >
-                {paymentMethod === "COD" ? "Place Order" : "Proceed to Payment"}
+                {paymentMethod === "ESEWA" ? "Pay with eSewa" : "Place Order (COD)"}
               </Button>
             </Paper>
           </Grid>

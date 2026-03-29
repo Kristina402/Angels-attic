@@ -94,6 +94,12 @@ function UserList() {
     }
   };
 
+  const approveVendorHandler = (id, isApproved) => {
+    if (window.confirm(`Are you sure you want to ${isApproved ? "disapprove" : "approve"} this vendor?`)) {
+      dispatch(updateUser(id, { isApproved: !isApproved }));
+    }
+  };
+
   useEffect(() => {
     if (error) {
       alert.error(error);
@@ -204,20 +210,21 @@ function UserList() {
       renderCell: (params) => {
         const id = params.getValue(params.id, "id");
         const status = params.getValue(params.id, "status");
+        const role = params.getValue(params.id, "role");
+        const isApproved = params.getValue(params.id, "isApproved");
+
         return (
           <Box sx={{ display: "flex", gap: "0.5rem" }}>
-            <Tooltip title="Manage Status">
-              <IconButton size="small" component={Link} to={`/admin/user/${id}`}>
-                <EditIcon className={classes.actionIcon} />
-              </IconButton>
-            </Tooltip>
+            {role === "vendor" && (
+              <Tooltip title={isApproved ? "Disapprove Vendor" : "Approve Vendor"}>
+                <IconButton size="small" onClick={() => approveVendorHandler(id, isApproved)}>
+                  <CheckCircleOutlineIcon sx={{ color: isApproved ? "#10B981" : "#94a3b8" }} />
+                </IconButton>
+              </Tooltip>
+            )}
             <Tooltip title={status === "Active" ? "Block User" : "Unblock User"}>
               <IconButton size="small" onClick={() => blockUserHandler(id, status)}>
-                {status === "Active" ? (
-                  <BlockIcon sx={{ color: "#F59E0B" }} />
-                ) : (
-                  <CheckCircleOutlineIcon sx={{ color: "#10B981" }} />
-                )}
+                <BlockIcon sx={{ color: status === "Active" ? "#F59E0B" : "#10B981" }} />
               </IconButton>
             </Tooltip>
             <Tooltip title="Delete User">

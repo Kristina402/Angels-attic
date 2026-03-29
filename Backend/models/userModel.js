@@ -134,8 +134,8 @@ userSchema.methods.getResetPasswordOTP = function () {
     .update(otp)
     .digest("hex");
 
-  // OTP valid for 10 minutes
-  this.resetPasswordOTPExpire = Date.now() + 10 * 60 * 1000;
+  // OTP valid for 3 minutes
+  this.resetPasswordOTPExpire = Date.now() + 3 * 60 * 1000;
 
   return otp;
 };

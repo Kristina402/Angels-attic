@@ -74,14 +74,6 @@ const OrderDetailsSection = ({ item, totalDiscount, totalPrice }) => {
         <Typography variant="subtitle1" className={classes.productName}>
           {item.name}
         </Typography>
-        <Typography variant="body2" className={classes.quantity}>
-          <span
-            style={{ fontWeight: 400, marginRight: "10px", color: "#00000080" }}
-          >
-            Quantity:
-          </span>{" "}
-          {item.quantity}
-        </Typography>
         <div className={classes.priceContainer}>
           <Typography variant="body2" className={classes.finalPrice}>
             {totalPrice}

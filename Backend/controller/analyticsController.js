@@ -137,9 +137,12 @@ exports.getAdminReports = asyncWrapper(async (req, res, next) => {
   
   let dateFilter = { orderStatus: "Delivered" };
   if (startDate && endDate) {
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+    
     dateFilter.createdAt = {
       $gte: new Date(startDate),
-      $lte: new Date(endDate),
+      $lte: end,
     };
   }
 

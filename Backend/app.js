@@ -24,6 +24,8 @@ const health = require("./routes/healthRoute");
 const analytics = require("./routes/analyticsRoute");
 const notification = require("./routes/notificationRoute");
 const contact = require("./routes/contactRoute");
+const payment = require("./routes/paymentRoute");
+
 
 // Add request logging middleware
 app.use(requestLogger);
@@ -43,6 +45,8 @@ app.use("/api/v1", health);
 app.use("/api/v1", analytics);
 app.use("/api/v1", notification);
 app.use("/api/v1", contact);
+app.use("/api/v1", payment);
+
 
 // Error middleware must come after all routes
 app.use(errorMiddleware);

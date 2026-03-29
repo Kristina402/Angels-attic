@@ -3,70 +3,119 @@ import { useDispatch, useSelector } from "react-redux";
 import { useAlert } from "react-alert";
 import MetaData from "../layouts/MataData/MataData";
 import Loader from "../layouts/loader/Loader";
-import Sidebar from "./Siderbar";
+import AdminSidebar from "./AdminSidebar";
+import AdminHeader from "./AdminHeader";
 import { createProduct, clearErrors } from "../../actions/productAction";
 import { useHistory } from "react-router-dom";
 import { NEW_PRODUCT_RESET } from "../../constants/productsConstatns";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import Box from "@material-ui/core/Box";
-import DescriptionIcon from "@material-ui/icons/Description";
-import StorageIcon from "@material-ui/icons/Storage";
-import CloudUploadIcon from "@material-ui/icons/CloudUpload";
-import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
-import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
-import CollectionsIcon from "@mui/icons-material/Collections";
-import ShoppingCartOutlinedIcon from "@material-ui/icons/ShoppingCartOutlined";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import InfoIcon from "@mui/icons-material/Info";
-
-import Navbar from "./Navbar";
-
-import useStyles from "../User/LoginFromStyle";
 import {
   Avatar,
   TextField,
   Typography,
-  FormControl,
   Button,
-} from "@material-ui/core";
+  FormControl,
+  Paper,
+  Select,
+  MenuItem,
+  InputAdornment,
+  Box,
+} from "@mui/material";
+import { makeStyles } from "@mui/styles";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
+import CollectionsIcon from "@mui/icons-material/Collections";
+import InfoIcon from "@mui/icons-material/Info";
+import DescriptionIcon from "@mui/icons-material/Description";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+
+const useStyles = makeStyles((theme) => ({
+  dashboard: {
+    display: "flex",
+    backgroundColor: "#F8F9FB",
+    minHeight: "100vh",
+  },
+  mainContent: {
+    flexGrow: 1,
+    marginLeft: "280px",
+    marginTop: "80px",
+    padding: "2rem",
+  },
+  sectionPaper: {
+    padding: "2rem",
+    borderRadius: "16px !important",
+    border: "none !important",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01) !important",
+    maxWidth: "800px",
+    margin: "0 auto",
+  },
+  sectionTitle: {
+    fontSize: "1.5rem !important",
+    fontWeight: "800 !important",
+    color: "#1a1a1a",
+    marginBottom: "2rem !important",
+    textAlign: "center",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1.5rem",
+  },
+  submitBtn: {
+    backgroundColor: "#EC4899 !important",
+    color: "#fff !important",
+    padding: "1rem !important",
+    borderRadius: "12px !important",
+    fontWeight: "700 !important",
+    textTransform: "none !important",
+    fontSize: "1rem !important",
+    marginTop: "1rem !important",
+    "&:hover": {
+      backgroundColor: "#DB2777 !important",
+    },
+  },
+  imagePreviewBox: {
+    display: "flex",
+    overflowX: "auto",
+    gap: "1rem",
+    padding: "1rem 0",
+    "& img": {
+      width: "100px",
+      height: "100px",
+      objectFit: "cover",
+      borderRadius: "10px",
+      border: "2px solid #f1f5f9",
+    },
+  },
+  uploadBtn: {
+    py: 1.5,
+    borderRadius: "12px",
+    textTransform: "none",
+    border: "1px dashed #cbd5e1",
+    "&:hover": {
+      backgroundColor: "#f8fafc",
+      border: "1px dashed #94a3b8",
+    },
+  },
+}));
 
 function NewProduct() {
   const dispatch = useDispatch();
   const history = useHistory();
   const alert = useAlert();
+  const classes = useStyles();
 
-  const { loading, error, success } = useSelector(
-    (state) => state.addNewProduct
-  );
+  const { loading, error, success } = useSelector((state) => state.addNewProduct);
+  
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [size, setSize] = useState("");
   const [condition, setCondition] = useState("Pre-loved");
-  const [info , setInfo] = useState("")
+  const [info, setInfo] = useState("");
   const [images, setImages] = useState([]);
   const [imagesPreview, setImagesPreview] = useState([]);
-  const [isCategory, setIsCategory] = useState(false);
   const fileInputRef = useRef();
-  const [toggle, setToggle] = useState(false);
 
-  const classes = useStyles();
-  // togle handler =>
-  const toggleHandler = () => {
-    console.log("toggle");
-    setToggle(!toggle);
-  };
-
-  const handleCategoryChange = (e) => {
-    setCategory(e.target.value);
-    setIsCategory(true);
-  };
-
-  const handleImageUpload = () => {
-    fileInputRef.current.click();
-  };
   const categories = ["bags", "bottoms", "footwares", "jackets", "skirts", "tops"];
   const sizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
   const conditions = ["New", "Like New", "Pre-loved"];
@@ -79,7 +128,7 @@ function NewProduct() {
 
     if (success) {
       alert.success("Product Created Successfully");
-      history.push("/admin-dashboard");
+      history.push("/admin/products");
       dispatch({ type: NEW_PRODUCT_RESET });
     }
   }, [dispatch, alert, error, history, success]);
@@ -119,281 +168,173 @@ function NewProduct() {
   };
 
   return (
-    <>
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
-          <MetaData title={"New Product"} />
-          <div className={classes.updateProduct}>
-            <div
-              className={
-                !toggle ? `${classes.firstBox1}` : `${classes.toggleBox1}`
-              }
-            >
-              <Sidebar />
-            </div>
+    <Box className={classes.dashboard}>
+      <MetaData title="New Product - Admin" />
+      <AdminSidebar />
+      <Box className={classes.mainContent}>
+        <AdminHeader title="Create Product" />
 
-            <div className={classes.secondBox1}>
-              <div className={classes.navBar1}>
-                <Navbar toggleHandler={toggleHandler} />
-              </div>
+        {loading ? (
+          <Loader />
+        ) : (
+          <Paper className={classes.sectionPaper}>
+            <Typography className={classes.sectionTitle}>Add New Thrift Item</Typography>
 
-              <div
-                className={`${classes.formContainer} ${classes.formContainer2}`}
-              >
-                <form
-                  className={`${classes.form} ${classes.form2}`}
-                  encType="multipart/form-data"
-                  onSubmit={createProductSubmitHandler}
-                >
-                  <Avatar className={classes.avatar}>
-                    <AddCircleOutlineIcon />
-                  </Avatar>
-                  <Typography
-                    variant="h5"
-                    component="h1"
-                    className={classes.heading}
-                  >
-                    Create Product
-                  </Typography>
-                  <TextField
-                    variant="outlined"
-                    fullWidth
-                    className={`${classes.nameInput} ${classes.textField}`}
-                    label="Product Name"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <ShoppingCartOutlinedIcon
-                            style={{
-                              fontSize: 20,
-                              color: "#414141",
-                            }}
-                          />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
+            <form className={classes.form} onSubmit={createProductSubmitHandler}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Product Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <ShoppingCartOutlinedIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
 
-                  <TextField
-                    variant="outlined"
-                    label="Price"
-                    value={price}
-                    required
-                    fullWidth
-                    className={`${classes.passwordInput} ${classes.textField}`}
-                    onChange={(e) => setPrice(e.target.value)}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment
-                          position="end"
-                          style={{
-                            fontSize: 14,
-                            color: "#414141",
-                            fontWeight: 600
-                          }}
-                        >
-                          Rs.
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  <TextField
-                    variant="outlined"
-                    label="Product info"
-                    value={info}
-                    required
-                    className={`${classes.passwordInput} ${classes.textField}`}
-                    onChange={(e) => setInfo(e.target.value)}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment
-                          position="end"
-                          style={{
-                            fontSize: 20,
-                            color: "#414141",
-                          }}
-                        >
-                          <InfoIcon />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-
-                  <div className={classes.selectOption}>
-                    <Typography variant="body2" className={classes.labelText}>
-                      Choose Size
-                    </Typography>
-                    <FormControl className={classes.formControl}>
-                      <Select
-                        variant="outlined"
-                        fullWidth
-                        value={size}
-                        onChange={(e) => setSize(e.target.value)}
-                        className={classes.select}
-                      >
-                        {sizes.map((s) => (
-                          <MenuItem key={s} value={s}>{s}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </div>
-
-                  <div className={classes.selectOption}>
-                    <Typography variant="body2" className={classes.labelText}>
-                      Choose Condition
-                    </Typography>
-                    <FormControl className={classes.formControl}>
-                      <Select
-                        variant="outlined"
-                        fullWidth
-                        value={condition}
-                        onChange={(e) => setCondition(e.target.value)}
-                        className={classes.select}
-                      >
-                        {conditions.map((c) => (
-                          <MenuItem key={c} value={c}>{c}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </div>
-
-                  <div className={classes.selectOption}>
-                    {!isCategory && (
-                      <Typography variant="body2" className={classes.labelText}>
-                        Choose Category
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Price"
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Typography variant="body1" sx={{ color: "text.secondary", fontWeight: 600 }}>
+                        Rs.
                       </Typography>
-                    )}
-                    <FormControl className={classes.formControl}>
-                      <Select
-                        variant="outlined"
-                        fullWidth
-                        value={category}
-                        onChange={handleCategoryChange}
-                        className={classes.select}
-                        inputProps={{
-                          name: "category",
-                          id: "category-select",
-                        }}
-                        MenuProps={{
-                          classes: {
-                            paper: classes.menu,
-                          },
-                          anchorOrigin: {
-                            vertical: "bottom",
-                            horizontal: "left",
-                          },
-                          transformOrigin: {
-                            vertical: "top",
-                            horizontal: "left",
-                          },
-                          getContentAnchorEl: null,
-                        }}
-                      >
-                        {!category && (
-                          <MenuItem value="">
-                            <em>Choose Category</em>
-                          </MenuItem>
-                        )}
-                        {categories.map((cate) => (
-                          <MenuItem key={cate} value={cate}>
-                            {cate}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </div>
-                  <TextField
-                    variant="outlined"
-                    fullWidth
-                    className={classes.descriptionInput}
-                    label="Product Description"
-                    multiline
-                    rows={1}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <DescriptionIcon
-                            className={classes.descriptionIcon}
-                          />
-                        </InputAdornment>
-                      ),
-                    }}
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <FormControl fullWidth variant="outlined">
+                <Select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  displayEmpty
+                  required
+                >
+                  <MenuItem value="" disabled>Choose Category</MenuItem>
+                  {categories.map((cate) => (
+                    <MenuItem key={cate} value={cate}>
+                      {cate.charAt(0).toUpperCase() + cate.slice(1)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth variant="outlined">
+                <Select
+                  value={size}
+                  onChange={(e) => setSize(e.target.value)}
+                  displayEmpty
+                  required
+                >
+                  <MenuItem value="" disabled>Choose Size</MenuItem>
+                  {sizes.map((s) => (
+                    <MenuItem key={s} value={s}>{s}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth variant="outlined">
+                <Select
+                  value={condition}
+                  onChange={(e) => setCondition(e.target.value)}
+                  displayEmpty
+                  required
+                >
+                  <MenuItem value="" disabled>Choose Condition</MenuItem>
+                  {conditions.map((c) => (
+                    <MenuItem key={c} value={c}>{c}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Additional Info"
+                value={info}
+                onChange={(e) => setInfo(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <InfoIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Product Description"
+                multiline
+                rows={4}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <DescriptionIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <Box>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  fullWidth
+                  startIcon={<CollectionsIcon />}
+                  className={classes.uploadBtn}
+                  sx={{ py: 1.5, borderRadius: "12px", textTransform: "none" }}
+                >
+                  Upload Product Images
+                  <input
+                    type="file"
+                    hidden
+                    multiple
+                    accept="image/*"
+                    onChange={createProductImagesChange}
+                    ref={fileInputRef}
                   />
+                </Button>
+              </Box>
 
-                  <div className={classes.root}>
-                    <div className={classes.imgIcon}>
-                      <CollectionsIcon
-                        fontSize="large"
-                        style={{ fontSize: 40 }}
-                      />
-                    </div>
+              <Box className={classes.imagePreviewBox}>
+                {imagesPreview.map((img, index) => (
+                  <img key={index} src={img} alt="Product Preview" />
+                ))}
+              </Box>
 
-                    <input
-                      type="file"
-                      name="avatar"
-                      className={classes.input}
-                      accept="image/*"
-                      onChange={createProductImagesChange}
-                      multiple
-                      style={{ display: "none" }}
-                      ref={fileInputRef}
-                    />
-                    <label htmlFor="avatar-input">
-                      <Button
-                        variant="contained"
-                        color="default"
-                        className={classes.uploadAvatarButton}
-                        startIcon={
-                          <CloudUploadIcon
-                            style={{
-                              color: "#FFFFFF",
-                            }}
-                          />
-                        }
-                        onClick={handleImageUpload}
-                      >
-                        <p className={classes.uploadAvatarText}>
-                          Upload Images
-                        </p>
-                      </Button>
-                    </label>
-                  </div>
-
-                  <Box className={classes.imageArea}>
-                    {imagesPreview &&
-                      imagesPreview.map((image, index) => (
-                        <img
-                          key={index}
-                          src={image}
-                          alt="Product Preview"
-                          className={classes.image}
-                        />
-                      ))}
-                  </Box>
-
-                  <Button
-                    variant="contained"
-                    className={classes.loginButton}
-                    fullWidth
-                    type="submit"
-                    disabled={loading ? true : false}
-                  >
-                    Create
-                  </Button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-    </>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                className={classes.submitBtn}
+                disabled={loading}
+              >
+                Create Product
+              </Button>
+            </form>
+          </Paper>
+        )}
+      </Box>
+    </Box>
   );
 }
+
 export default NewProduct;

@@ -181,19 +181,6 @@ const useStyles = makeStyles((theme) => ({
       boxShadow: "0 8px 15px rgba(0,0,0,0.1)",
     },
   },
-  mapSection: {
-    marginTop: "80px",
-    borderRadius: "24px",
-    overflow: "hidden",
-    boxShadow: "0 10px 40px rgba(0,0,0,0.08)",
-    border: "1px solid #f0f0f0",
-  },
-  mapFrame_contact: {
-    border: 0,
-    width: "100%",
-    height: "550px",
-    display: "block",
-  },
 }));
 
 const ContactForm = () => {
@@ -262,17 +249,6 @@ const ContactForm = () => {
           {/* Info Section */}
           <Grid item xs={12} md={5}>
             <Box className={classes.infoSidebar}>
-              <Box className={classes.infoCard_contact}>
-                <Box className={classes.iconWrapper}>
-                  <LocationOnIcon fontSize="large" />
-                </Box>
-                <Box>
-                  <Typography className={classes.infoLabel_contact}>Address</Typography>
-                  <Typography className={classes.infoValue_contact}>
-                    Pokhara, Nepal
-                  </Typography>
-                </Box>
-              </Box>
 
               <Box className={classes.infoCard_contact}>
                 <Box className={classes.iconWrapper}>
@@ -391,17 +367,6 @@ const ContactForm = () => {
           </Grid>
         </Grid>
 
-        {/* Map Section */}
-        <Box className={classes.mapSection}>
-          <iframe
-            title="Angels Attic - Pokhara, Nepal"
-            className={classes.mapFrame_contact}
-            loading="lazy"
-            allowFullScreen
-            referrerPolicy="no-referrer-when-downgrade"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3520.548622005869!2d83.98559341506507!3d28.209583682598487!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3995937d2b3f1b9f%3A0x9c0d2d3f2d3a0f3!2sPokhara%2C%20Nepal!5e0!3m2!1sen!2snp!4v1700000000000"
-          />
-        </Box>
       </Container>
     </Box>
   );

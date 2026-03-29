@@ -126,6 +126,10 @@ const Reports = () => {
   }, [dispatch, alert, error]);
 
   const handleFilter = () => {
+    if (!startDate || !endDate) {
+      alert.error("Please select both Start and End dates");
+      return;
+    }
     dispatch(getAdminReports(startDate, endDate));
   };
 
@@ -167,9 +171,25 @@ const Reports = () => {
               onChange={(e) => setEndDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
             />
-            <Button className={classes.filterBtn} onClick={handleFilter}>
+            <Button 
+              className={classes.filterBtn} 
+              onClick={handleFilter}
+              disabled={loading}
+            >
               Generate Report
             </Button>
+            {(startDate || endDate) && (
+              <Button 
+                sx={{ color: "#64748b", fontWeight: 600, textTransform: "none" }}
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                  dispatch(getAdminReports());
+                }}
+              >
+                Reset
+              </Button>
+            )}
           </Box>
 
           {loading ? (
@@ -249,7 +269,6 @@ const Reports = () => {
                           <TableCell>Total Orders</TableCell>
                           <TableCell>Total Revenue</TableCell>
                           <TableCell>Status</TableCell>
-                          <TableCell>Actions</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -270,14 +289,6 @@ const Reports = () => {
                                   fontSize: "0.7rem",
                                 }}
                               />
-                            </TableCell>
-                            <TableCell>
-                              <Button 
-                                size="small" 
-                                sx={{ color: "#EC4899", fontWeight: 600, textTransform: "none" }}
-                              >
-                                View Details
-                              </Button>
                             </TableCell>
                           </TableRow>
                         ))}

@@ -12,10 +12,7 @@ import {
   Grid,
   Paper,
   Box,
-  IconButton,
 } from "@material-ui/core";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import useStyles from "./LoginFromStyle";
 
@@ -39,9 +36,6 @@ const VendorRegistration = () => {
     confirmPassword: "",
   });
 
-  const [kycDocument, setKycDocument] = useState("");
-  const [kycName, setKycName] = useState("");
-
   const [isValidPassword, setIsValidPassword] = useState(true);
 
   const { name, email, phone, storeName, address, password, confirmPassword } = user;
@@ -55,19 +49,7 @@ const VendorRegistration = () => {
     }
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setKycName(file.name);
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.readyState === 2) {
-          setKycDocument(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -90,14 +72,8 @@ const VendorRegistration = () => {
       return;
     }
 
-    if (!kycDocument) {
-      alert.error("Please upload a KYC document for verification");
-      return;
-    }
-
     const vendorData = {
       ...user,
-      kycDocument,
     };
 
     dispatch(registerVendor(vendorData));
@@ -110,8 +86,8 @@ const VendorRegistration = () => {
     }
 
     if (success) {
-      alert.success("Vendor registration successful. Your account is pending approval.");
-      history.push("/vendor/pending");
+      alert.success("Vendor registration successful! Welcome to Angels Attic.");
+      history.push("/vendor/dashboard");
     }
   }, [dispatch, error, alert, success, message, history]);
 
@@ -225,42 +201,7 @@ const VendorRegistration = () => {
                     />
                   </Grid>
 
-                  {/* KYC Upload */}
-                  <Grid item xs={12}>
-                    <Box 
-                      mt={2} 
-                      p={2} 
-                      style={{ 
-                        border: "2px dashed #ddd", 
-                        borderRadius: "12px", 
-                        textAlign: "center",
-                        backgroundColor: "#fafafa"
-                      }}
-                    >
-                      <input
-                        accept="image/*,.pdf"
-                        style={{ display: "none" }}
-                        id="kyc-file"
-                        type="file"
-                        onChange={handleFileChange}
-                      />
-                      <label htmlFor="kyc-file">
-                        <IconButton component="span">
-                          {kycName ? (
-                            <CheckCircleOutlineIcon style={{ color: "#4caf50", fontSize: "40px" }} />
-                          ) : (
-                            <CloudUploadIcon style={{ color: "#757575", fontSize: "40px" }} />
-                          )}
-                        </IconButton>
-                        <Typography variant="body2" color="textSecondary">
-                          {kycName ? `Selected: ${kycName}` : "Upload ID / KYC Verification Document"}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary" display="block">
-                          (Citizenship, License, or Passport)
-                        </Typography>
-                      </label>
-                    </Box>
-                  </Grid>
+
 
                   <Grid item xs={12}>
                     <Button
@@ -288,7 +229,7 @@ const VendorRegistration = () => {
 
               <Box mt={4} textAlign="center">
                 <Typography variant="body2" color="textSecondary" style={{ fontStyle: "italic" }}>
-                  Note: Your application will be reviewed by the Angels Attic admin team. You will receive an email once your store is approved.
+                  Note: By registering as a vendor, you agree to our terms and conditions for sustainable selling.
                 </Typography>
               </Box>
             </Paper>

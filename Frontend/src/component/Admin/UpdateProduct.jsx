@@ -3,43 +3,112 @@ import { useDispatch, useSelector } from "react-redux";
 import { useAlert } from "react-alert";
 import MetaData from "../layouts/MataData/MataData";
 import Loader from "../layouts/loader/Loader";
-import DescriptionIcon from "@material-ui/icons/Description";
-import StorageIcon from "@material-ui/icons/Storage";
-import {
-  Avatar,
-  Button,
-  TextField,
-  Typography,
-  FormControl,
-} from "@material-ui/core";
-import Sidebar from "./Siderbar";
+import AdminSidebar from "./AdminSidebar";
+import AdminHeader from "./AdminHeader";
 import {
   updateProduct,
   clearErrors,
   getProductDetails,
 } from "../../actions/productAction";
-import { useHistory } from "react-router-dom";
+import { useHistory, useRouteMatch } from "react-router-dom";
 import { UPDATE_PRODUCT_RESET } from "../../constants/productsConstatns";
-import { useRouteMatch } from "react-router-dom";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import Box from "@material-ui/core/Box";
-import ShoppingCartOutlinedIcon from "@material-ui/icons/ShoppingCartOutlined";
-import CloudUploadIcon from "@material-ui/icons/CloudUpload";
-import AttachMoneyIcon from "@material-ui/icons/AttachMoney";
-import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
+import {
+  Avatar,
+  TextField,
+  Typography,
+  Button,
+  FormControl,
+  Paper,
+  Select,
+  MenuItem,
+  InputAdornment,
+  Box,
+} from "@mui/material";
+import { makeStyles } from "@mui/styles";
+import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import CollectionsIcon from "@mui/icons-material/Collections";
-import Select from "@material-ui/core/Select";
 import InfoIcon from "@mui/icons-material/Info";
-import MenuItem from "@material-ui/core/MenuItem";
-import Navbar from "./Navbar";
-import useStyles from "../User/LoginFromStyle";
+import DescriptionIcon from "@mui/icons-material/Description";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+
+const useStyles = makeStyles((theme) => ({
+  dashboard: {
+    display: "flex",
+    backgroundColor: "#F8F9FB",
+    minHeight: "100vh",
+  },
+  mainContent: {
+    flexGrow: 1,
+    marginLeft: "280px",
+    marginTop: "80px",
+    padding: "2rem",
+  },
+  sectionPaper: {
+    padding: "2rem",
+    borderRadius: "16px !important",
+    border: "none !important",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01) !important",
+    maxWidth: "800px",
+    margin: "0 auto",
+  },
+  sectionTitle: {
+    fontSize: "1.5rem !important",
+    fontWeight: "800 !important",
+    color: "#1a1a1a",
+    marginBottom: "2rem !important",
+    textAlign: "center",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1.5rem",
+  },
+  submitBtn: {
+    backgroundColor: "#EC4899 !important",
+    color: "#fff !important",
+    padding: "1rem !important",
+    borderRadius: "12px !important",
+    fontWeight: "700 !important",
+    textTransform: "none !important",
+    fontSize: "1rem !important",
+    marginTop: "1rem !important",
+    "&:hover": {
+      backgroundColor: "#DB2777 !important",
+    },
+  },
+  imagePreviewBox: {
+    display: "flex",
+    overflowX: "auto",
+    gap: "1rem",
+    padding: "1rem 0",
+    "& img": {
+      width: "100px",
+      height: "100px",
+      objectFit: "cover",
+      borderRadius: "10px",
+      border: "2px solid #f1f5f9",
+    },
+  },
+  uploadBtn: {
+    py: 1.5,
+    borderRadius: "12px",
+    textTransform: "none",
+    border: "1px dashed #cbd5e1",
+    "&:hover": {
+      backgroundColor: "#f8fafc",
+      border: "1px dashed #94a3b8",
+    },
+  },
+}));
+
 function UpdateProduct() {
   const dispatch = useDispatch();
   const history = useHistory();
   const alert = useAlert();
-
   const classes = useStyles();
-  const productId = useRouteMatch().params.id;
+  const match = useRouteMatch();
+  const productId = match.params.id;
+
   const { error, product } = useSelector((state) => state.productDetails);
 
   const { loading, error: updateError, isUpdated } = useSelector(
@@ -53,34 +122,26 @@ function UpdateProduct() {
   const [size, setSize] = useState("");
   const [condition, setCondition] = useState("Pre-loved");
   const [availabilityStatus, setAvailabilityStatus] = useState("Available");
-  const [isCategory, setIsCategory] = useState(false);
   const [images, setImages] = useState([]);
-  const [info , setInfo] = useState('');
+  const [info, setInfo] = useState("");
   const [imagesPreview, setImagesPreview] = useState([]);
   const [oldImages, setOldImages] = useState([]);
   const fileInputRef = useRef();
-  const [toggle, setToggle] = useState(false);
-  
+
   const categories = ["bags", "bottoms", "footwares", "jackets", "skirts", "tops"];
   const sizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
   const conditions = ["New", "Like New", "Pre-loved"];
   const statuses = ["Available", "Sold"];
 
-  const handleCategoryChange = (e) => {
-    setCategory(e.target.value);
-    setIsCategory(true);
-  };
-
   useEffect(() => {
     if (product && product._id !== productId) {
       dispatch(getProductDetails(productId));
-    } else {
+    } else if (product) {
       setName(product.name);
       setDescription(product.description);
       setPrice(product.price);
       setCategory(product.category);
-      setIsCategory(true);
-      setInfo(product.info);  
+      setInfo(product.info || "");
       setSize(product.size || "");
       setCondition(product.condition || "Pre-loved");
       setAvailabilityStatus(product.availabilityStatus || "Available");
@@ -113,7 +174,7 @@ function UpdateProduct() {
     updateError,
   ]);
 
-  const createProductSubmitHandler = (e) => {
+  const updateProductSubmitHandler = (e) => {
     e.preventDefault();
     const myForm = new FormData();
     myForm.set("name", name);
@@ -129,11 +190,6 @@ function UpdateProduct() {
     });
 
     dispatch(updateProduct(productId, myForm));
-  };
-
-
-  const handleImageUpload = () => {
-    fileInputRef.current.click();
   };
 
   const updateProductImagesChange = (e) => {
@@ -152,326 +208,195 @@ function UpdateProduct() {
       reader.readAsDataURL(file);
     });
   };
-  // togle handler =>
-  const toggleHandler = () => {
-    console.log("toggle");
-    setToggle(!toggle);
-  };
 
   return (
-    <>
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
-          <>
-            <MetaData title="Create Product" />
-            <div className={classes.updateProduct}>
-              <div
-                className={
-                  !toggle ? `${classes.firstBox1}` : `${classes.toggleBox1}`
-                }
-              >
-                <Sidebar />
-              </div>
-              <div className={classes.secondBox1}>
-                <div className={classes.navBar1}>
-                  <Navbar toggleHandler={toggleHandler} />
-                </div>
+    <Box className={classes.dashboard}>
+      <MetaData title="Update Product - Admin" />
+      <AdminSidebar />
+      <Box className={classes.mainContent}>
+        <AdminHeader title="Update Product" />
 
-                <div
-                  className={`${classes.formContainer} ${classes.formContainer2}`}
+        {loading ? (
+          <Loader />
+        ) : (
+          <Paper className={classes.sectionPaper}>
+            <Typography className={classes.sectionTitle}>Edit Product Details</Typography>
+
+            <form className={classes.form} onSubmit={updateProductSubmitHandler}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Product Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <ShoppingCartOutlinedIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Price"
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Typography variant="body1" sx={{ color: "text.secondary", fontWeight: 600 }}>
+                        Rs.
+                      </Typography>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+              <FormControl fullWidth variant="outlined">
+                <Select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  displayEmpty
+                  required
                 >
-                  <form
-                    className={`${classes.form} ${classes.form2}`}
-                    encType="multipart/form-data"
-                  >
-                    <Avatar className={classes.avatar}>
-                      <AddCircleOutlineIcon />
-                    </Avatar>
-                    <Typography
-                      variant="h5"
-                      component="h1"
-                      className={classes.heading}
-                    >
-                      Create Product
-                    </Typography>
-                    {/* SpellcheckIcon */}
-                    <TextField
-                      variant="outlined"
-                      fullWidth
-                      className={`${classes.nameInput} ${classes.textField}`}
-                      label="Product Name"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <ShoppingCartOutlinedIcon
-                              style={{
-                                fontSize: 20,
-                                color: "#414141",
-                              }}
-                            />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    <TextField
-                      variant="outlined"
-                      label="Price"
-                      value={price}
-                      required
-                      fullWidth
-                      className={`${classes.passwordInput} ${classes.textField}`}
-                      onChange={(e) => setPrice(e.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment
-                            position="end"
-                            style={{
-                              fontSize: 14,
-                              color: "#414141",
-                              fontWeight: 600
-                            }}
-                          >
-                            Rs.
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
+                  <MenuItem value="" disabled>Choose Category</MenuItem>
+                  {categories.map((cate) => (
+                    <MenuItem key={cate} value={cate}>
+                      {cate.charAt(0).toUpperCase() + cate.slice(1)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-                    <TextField
-                      variant="outlined"
-                      label="Product Info"
-                      value={info}
-                      required
-                      className={`${classes.passwordInput} ${classes.textField}`}
-                      onChange={(e) => setInfo(e.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment
-                            position="end"
-                            style={{
-                              fontSize: 20,
-                              color: "#414141",
-                            }}
-                          >
-                            <InfoIcon />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
+              <FormControl fullWidth variant="outlined">
+                <Select
+                  value={size}
+                  onChange={(e) => setSize(e.target.value)}
+                  displayEmpty
+                  required
+                >
+                  <MenuItem value="" disabled>Choose Size</MenuItem>
+                  {sizes.map((s) => (
+                    <MenuItem key={s} value={s}>{s}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-                    <div className={classes.selectOption}>
-                      <Typography variant="body2" className={classes.labelText}>
-                        Availability Status
-                      </Typography>
-                      <FormControl className={classes.formControl}>
-                        <Select
-                          variant="outlined"
-                          fullWidth
-                          value={availabilityStatus}
-                          onChange={(e) => setAvailabilityStatus(e.target.value)}
-                          className={classes.select}
-                        >
-                          {statuses.map((s) => (
-                            <MenuItem key={s} value={s}>{s}</MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </div>
+              <FormControl fullWidth variant="outlined">
+                <Select
+                  value={condition}
+                  onChange={(e) => setCondition(e.target.value)}
+                  displayEmpty
+                  required
+                >
+                  <MenuItem value="" disabled>Choose Condition</MenuItem>
+                  {conditions.map((c) => (
+                    <MenuItem key={c} value={c}>{c}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-                    <div className={classes.selectOption}>
-                      <Typography variant="body2" className={classes.labelText}>
-                        Size
-                      </Typography>
-                      <FormControl className={classes.formControl}>
-                        <Select
-                          variant="outlined"
-                          fullWidth
-                          value={size}
-                          onChange={(e) => setSize(e.target.value)}
-                          className={classes.select}
-                        >
-                          {sizes.map((s) => (
-                            <MenuItem key={s} value={s}>{s}</MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </div>
+              <FormControl fullWidth variant="outlined">
+                <Select
+                  value={availabilityStatus}
+                  onChange={(e) => setAvailabilityStatus(e.target.value)}
+                  displayEmpty
+                  required
+                >
+                  <MenuItem value="" disabled>Availability Status</MenuItem>
+                  {statuses.map((s) => (
+                    <MenuItem key={s} value={s}>{s}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-                    <div className={classes.selectOption}>
-                      <Typography variant="body2" className={classes.labelText}>
-                        Condition
-                      </Typography>
-                      <FormControl className={classes.formControl}>
-                        <Select
-                          variant="outlined"
-                          fullWidth
-                          value={condition}
-                          onChange={(e) => setCondition(e.target.value)}
-                          className={classes.select}
-                        >
-                          {conditions.map((c) => (
-                            <MenuItem key={c} value={c}>{c}</MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </div>
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Additional Info"
+                value={info}
+                onChange={(e) => setInfo(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <InfoIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
 
-                    <div className={classes.selectOption}>
-                      {!isCategory && (
-                        <Typography
-                          variant="body2"
-                          className={classes.labelText}
-                        >
-                          Choose Category
-                        </Typography>
-                      )}
-                      <FormControl className={classes.formControl}>
-                        <Select
-                          variant="outlined"
-                          fullWidth
-                          value={category}
-                          onChange={handleCategoryChange}
-                          className={classes.select}
-                          inputProps={{
-                            name: "category",
-                            id: "category-select",
-                          }}
-                          MenuProps={{
-                            classes: {
-                              paper: classes.menu,
-                            },
-                            anchorOrigin: {
-                              vertical: "bottom",
-                              horizontal: "left",
-                            },
-                            transformOrigin: {
-                              vertical: "top",
-                              horizontal: "left",
-                            },
-                            getContentAnchorEl: null,
-                          }}
-                        >
-                          {!category && (
-                            <MenuItem value="">
-                              <em>Choose Category</em>
-                            </MenuItem>
-                          )}
-                          {categories.map((cate) => (
-                            <MenuItem key={cate} value={cate}>
-                              {cate}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    </div>
+              <TextField
+                fullWidth
+                variant="outlined"
+                label="Product Description"
+                multiline
+                rows={4}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <DescriptionIcon color="action" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
 
-                    <TextField
-                      variant="outlined"
-                      fullWidth
-                      className={classes.descriptionInput}
-                      label="Product Description"
-                      multiline
-                      rows={1}
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <DescriptionIcon
-                              className={classes.descriptionIcon}
-                            />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
+              <Box>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  fullWidth
+                  startIcon={<CollectionsIcon />}
+                  className={classes.uploadBtn}
+                  sx={{ py: 1.5, borderRadius: "12px", textTransform: "none" }}
+                >
+                  Update Product Images
+                  <input
+                    type="file"
+                    hidden
+                    multiple
+                    accept="image/*"
+                    onChange={updateProductImagesChange}
+                    ref={fileInputRef}
+                  />
+                </Button>
+              </Box>
 
-                    <div className={classes.root}>
-                      <div className={classes.imgIcon}>
-                        <CollectionsIcon
-                          fontSize="large"
-                          style={{ fontSize: 40 }}
-                        />
-                      </div>
+              <Box className={classes.imagePreviewBox}>
+                {oldImages && oldImages.map((img, index) => (
+                  <img key={index} src={img.url} alt="Old Product Preview" />
+                ))}
+              </Box>
 
-                      <input
-                        type="file"
-                        name="avatar"
-                        className={classes.input}
-                        accept="image/*"
-                        onChange={updateProductImagesChange}
-                        multiple
-                        style={{ display: "none" }}
-                        ref={fileInputRef}
-                      />
-                      <label htmlFor="avatar-input">
-                        <Button
-                          variant="contained"
-                          color="default"
-                          className={classes.uploadAvatarButton}
-                          startIcon={
-                            <CloudUploadIcon
-                              style={{
-                                color: "#FFFFFF",
-                              }}
-                            />
-                          }
-                          onClick={handleImageUpload}
-                        >
-                          <p className={classes.uploadAvatarText}>
-                            Upload Images
-                          </p>
-                        </Button>
-                      </label>
-                    </div>
+              <Box className={classes.imagePreviewBox}>
+                {imagesPreview.map((img, index) => (
+                  <img key={index} src={img} alt="Product Preview" />
+                ))}
+              </Box>
 
-                    {imagesPreview.length > 0 ? (
-                      <Box className={classes.imageArea}>
-                        {imagesPreview &&
-                          imagesPreview.map((image, index) => (
-                            <img
-                              key={index}
-                              src={image}
-                              alt="Product Preview"
-                              className={classes.image}
-                            />
-                          ))}
-                      </Box>
-                    ) : (
-                      <Box className={classes.imageArea}>
-                        {oldImages &&
-                          oldImages.map((image, index) => (
-                            <img
-                              key={index}
-                              src={image.url}
-                              alt="Old Product Preview"
-                              className={classes.image}
-                            />
-                          ))}
-                      </Box>
-                    )}
-
-                    <Button
-                      variant="contained"
-                      className={classes.loginButton}
-                      fullWidth
-                      onClick={createProductSubmitHandler}
-                      disabled={loading ? true : false}
-                    >
-                      Create
-                    </Button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </>
-        </>
-      )}
-    </>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                className={classes.submitBtn}
+                disabled={loading}
+              >
+                Update Product
+              </Button>
+            </form>
+          </Paper>
+        )}
+      </Box>
+    </Box>
   );
 }
+
 export default UpdateProduct;

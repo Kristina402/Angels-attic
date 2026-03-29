@@ -349,6 +349,8 @@ const PaymentComponent = () => {
   const [isValid, setIsValid] = useState(true);
   const [showDummyCard, setShowDummyCard] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("card");
+
 
 
   const subTotal = cartItems.reduce((acc, currItem) => {
@@ -375,6 +377,11 @@ const PaymentComponent = () => {
   const handleRadioChange = () => {
     setShowDummyCard(!showDummyCard);
   };
+
+  const handlePaymentMethodChange = (event) => {
+    setPaymentMethod(event.target.value);
+  };
+
 
   const handleCloseDummyCard = () => {
     setShowDummyCard(false);
@@ -404,22 +411,25 @@ const PaymentComponent = () => {
     if (isProcessing) return;
 
     // Validate form inputs
-    if (nameOnCard.trim() === "") {
-      alert.error("Please enter name on card");
-      return;
+    if (paymentMethod === "card") {
+      if (nameOnCard.trim() === "") {
+        alert.error("Please enter name on card");
+        return;
+      }
+
+      if (!stripe || !elements) {
+        alert.error("Stripe has not loaded yet. Please try again.");
+        return;
+      }
+
+      // Validate card elements
+      const cardNumberElement = elements.getElement(CardNumberElement);
+      if (!cardNumberElement) {
+        alert.error("Please enter valid card details");
+        return;
+      }
     }
 
-    if (!stripe || !elements) {
-      alert.error("Stripe has not loaded yet. Please try again.");
-      return;
-    }
-
-    // Validate card elements
-    const cardNumberElement = elements.getElement(CardNumberElement);
-    if (!cardNumberElement) {
-      alert.error("Please enter valid card details");
-      return;
-    }
 
     // Validate amount
     if (!paymentData.amount || paymentData.amount <= 0) {
@@ -434,11 +444,75 @@ const PaymentComponent = () => {
           "Content-Type": "application/json",
         },
       };
+
+      if (paymentMethod === "esewa") {
+        // Create order first to get the Order ID
+        const orderData = {
+          ...order,
+          paymentInfo: {
+            id: "PENDING_ESEWA",
+            status: "pending",
+          },
+        };
+
+        const { data: orderResponse } = await axios.post("/api/v1/order/new", orderData, config);
+        const orderId = orderResponse.order._id;
+
+        // Calculate final amount numerically
+        const numericTotalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+        const numericDiscountedPrice = generateDiscountedPrice(numericTotalPrice);
+        const numericFinal = numericDiscountedPrice;
+
+        // Get eSewa signature
+        const esewaData = {
+          amount: numericFinal,
+          tax_amount: 0,
+          total_amount: numericFinal,
+          transaction_uuid: orderId,
+          product_code: "EPAYTEST",
+        };
+
+
+        const { data: esewaResponse } = await axios.post("/api/v1/payment/esewa/process", esewaData, config);
+
+        // Submit form to eSewa
+        const form = document.createElement("form");
+        form.setAttribute("method", "POST");
+        form.setAttribute("action", "https://rc-epay.esewa.com.np/api/epay/main/v2/form");
+
+        const fields = {
+          amount: esewaData.amount,
+          tax_amount: esewaData.tax_amount,
+          total_amount: esewaData.total_amount,
+          transaction_uuid: esewaData.transaction_uuid,
+          product_code: esewaResponse.product_code,
+          product_service_charge: 0,
+          product_delivery_charge: 0,
+          success_url: esewaResponse.success_url,
+          failure_url: esewaResponse.failure_url,
+          signed_field_names: "total_amount,transaction_uuid,product_code",
+          signature: esewaResponse.signature,
+        };
+
+        for (const key in fields) {
+          const input = document.createElement("input");
+          input.setAttribute("type", "hidden");
+          input.setAttribute("name", key);
+          input.setAttribute("value", fields[key]);
+          form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        return;
+      }
+
       const { data } = await axios.post(
         "/api/v1/payment/process",
         paymentData,
         config
       );
+
 
       // client_secret is key from STRIPE  while making payement post req at backend
       const client_secret = data.client_secret;
@@ -556,81 +630,117 @@ const PaymentComponent = () => {
               details stay safe.
             </Typography>
 
-            <div className={classes.cardContainer}>
-              <Typography variant="h6" className={classes.subHeading}>
-                Credit Card <CreditCard fontSize="medium" />
-              </Typography>
-              <Grid container spacing={2} className={classes.cardDetails}>
-                <Grid item xs={12}>
-                  <Typography
-                    variant="subtitle2"
-                    className={classes.labelText}
-                  >
-                    Card number
-                  </Typography>
-                  <div className={classes.cardNumberInput}>
-                    <CardMembership className={classes.inputIcon} />
-                    <CardNumberElement className={classes.paymentInput} />
-                  </div>
+            {paymentMethod === "card" && (
+              <div className={classes.cardContainer}>
+                <Typography variant="h6" className={classes.subHeading}>
+                  Credit Card <CreditCard fontSize="medium" />
+                </Typography>
+                <Grid container spacing={2} className={classes.cardDetails}>
+                  <Grid item xs={12}>
+                    <Typography
+                      variant="subtitle2"
+                      className={classes.labelText}
+                    >
+                      Card number
+                    </Typography>
+                    <div className={classes.cardNumberInput}>
+                      <CardMembership className={classes.inputIcon} />
+                      <CardNumberElement className={classes.paymentInput} />
+                    </div>
+                  </Grid>
+                  <Grid item xs={12} container justifyContent="space-between" />
+                  <Grid item xs={6}>
+                    <Typography
+                      variant="subtitle2"
+                      className={classes.labelText}
+                    >
+                      EXPIRY DATE
+                    </Typography>
+                    <div className={classes.expiryInput}>
+                      <Payment className={classes.inputIcon} />
+                      <CardExpiryElement className={classes.paymentInput2} />
+                    </div>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography
+                      variant="subtitle2"
+                      className={classes.labelText}
+                    >
+                      CVV/CVV
+                    </Typography>
+                    <div className={classes.cvvInput}>
+                      <Lock className={classes.inputIcon} />
+                      <CardCvcElement className={classes.paymentInput2} />
+                    </div>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography
+                      variant="subtitle2"
+                      className={classes.labelText}
+                    >
+                      NAME ON CARD
+                    </Typography>
+                    <TextField
+                      placeholder="John Doe"
+                      variant="outlined"
+                      fullWidth
+                      className={classes.outlinedInput}
+                      value={nameOnCard}
+                      required
+                      onChange={handleNameOnCardChange}
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} container justifyContent="space-between" />
-                <Grid item xs={6}>
-                  <Typography
-                    variant="subtitle2"
-                    className={classes.labelText}
-                  >
-                    EXPIRY DATE
-                  </Typography>
-                  <div className={classes.expiryInput}>
-                    <Payment className={classes.inputIcon} />
-                    <CardExpiryElement className={classes.paymentInput2} />
-                  </div>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography
-                    variant="subtitle2"
-                    className={classes.labelText}
-                  >
-                    CVV/CVV
-                  </Typography>
-                  <div className={classes.cvvInput}>
-                    <Lock className={classes.inputIcon} />
-                    <CardCvcElement className={classes.paymentInput2} />
-                  </div>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography
-                    variant="subtitle2"
-                    className={classes.labelText}
-                  >
-                    NAME ON CARD
-                  </Typography>
-                  <TextField
-                    placeholder="John Doe"
-                    variant="outlined"
-                    fullWidth
-                    className={classes.outlinedInput}
-                    value={nameOnCard}
-                    required
-                    onChange={handleNameOnCardChange}
-                  />
-                </Grid>
-              </Grid>
-            </div>
+              </div>
+            )}
+
 
             <div className={classes.cardSelection}>
               <Radio
-                value="dummyCard"
+                value="card"
                 className={classes.radio}
-                checked={showDummyCard}
-                onChange={handleRadioChange}
+                checked={paymentMethod === "card"}
+                onChange={handlePaymentMethodChange}
               />
               <Typography variant="subtitle2" className={classes.radioText}>
-                Use dummy card
+                Credit Card
               </Typography>
               <CreditCard fontSize="medium" />
-              {showDummyCard && <DummyCard onClose={handleCloseDummyCard} />}
             </div>
+
+            {paymentMethod === "card" && (
+              <div className={classes.cardSelection}>
+                <Radio
+                  value="dummyCard"
+                  className={classes.radio}
+                  checked={showDummyCard}
+                  onChange={handleRadioChange}
+                />
+                <Typography variant="subtitle2" className={classes.radioText}>
+                  Use dummy card
+                </Typography>
+                <CreditCard fontSize="medium" />
+                {showDummyCard && <DummyCard onClose={handleCloseDummyCard} />}
+              </div>
+            )}
+
+            <div className={classes.cardSelection}>
+              <Radio
+                value="esewa"
+                className={classes.radio}
+                checked={paymentMethod === "esewa"}
+                onChange={handlePaymentMethodChange}
+              />
+              <Typography variant="subtitle2" className={classes.radioText}>
+                eSewa Payment
+              </Typography>
+              <img 
+                src="https://esewa.com.np/common/images/esewa_logo.png" 
+                alt="eSewa" 
+                style={{ width: "60px", marginLeft: "10px" }} 
+              />
+            </div>
+
             <Typography
               variant="body2"
               className={classes.termsAndConditionsText}

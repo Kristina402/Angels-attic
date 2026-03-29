@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid } from "@material-ui/data-grid";
 import { useSelector, useDispatch } from "react-redux";
-import { clearErrors } from "../../actions/orderAction";
+import { clearErrors, deleteOrder, updateOrder } from "../../actions/orderAction";
 import { Link, useHistory } from "react-router-dom";
 import { useAlert } from "react-alert";
-import { Button, Typography, Box, Paper, IconButton, Chip, Tooltip } from "@mui/material";
+import { Button, Typography, Box, Paper, IconButton, Chip, Tooltip, FormControl, Select, MenuItem } from "@mui/material";
 import MetaData from "../layouts/MataData/MataData";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import VendorSidebar from "./VendorSidebar";
 import VendorHeader from "./VendorHeader";
 import { makeStyles } from "@mui/styles";
 import axios from "axios";
 import Loader from "../layouts/loader/Loader";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import { DELETE_ORDER_RESET, UPDATE_ORDER_RESET } from "../../constants/orderConstant";
 
 const useStyles = makeStyles((theme) => ({
   dashboard: {
@@ -68,6 +70,9 @@ const OrderList = () => {
   const history = useHistory();
 
   const { error } = useSelector((state) => state.allOrders || {});
+  const { error: deleteError, isDeleted, isUpdated, loading: updateLoading } = useSelector(
+    (state) => state.deleteUpdateOrder || {}
+  );
   
   const [vendorOrders, setVendorOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -88,9 +93,21 @@ const OrderList = () => {
       alert.error(error);
       dispatch(clearErrors());
     }
+    if (deleteError) {
+      alert.error(deleteError);
+      dispatch(clearErrors());
+    }
+    if (isDeleted) {
+      alert.success("Order Deleted Successfully");
+      dispatch({ type: DELETE_ORDER_RESET });
+    }
+    if (isUpdated) {
+      alert.success("Order Status Updated Successfully");
+      dispatch({ type: UPDATE_ORDER_RESET });
+    }
 
     fetchVendorOrders();
-  }, [dispatch, alert, error]);
+  }, [dispatch, alert, error, deleteError, isDeleted, isUpdated]);
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -108,30 +125,78 @@ const OrderList = () => {
     {
       field: "status",
       headerName: "Status",
-      minWidth: 150,
-      flex: 0.3,
+      minWidth: 180,
+      flex: 0.4,
       renderCell: (params) => {
-        const status = params.value;
-        const style = getStatusColor(status);
+        const orderId = params.getValue(params.id, "id");
+        const currentStatus = params.value;
+        const style = getStatusColor(currentStatus);
+        
         return (
-          <Chip 
-            label={status} 
-            size="small"
-            sx={{ 
-              backgroundColor: style.bgColor,
-              color: style.color,
-              fontWeight: "700"
-            }}
-          />
+          <FormControl 
+            fullWidth 
+            size="small" 
+            variant="outlined"
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Select
+              value={currentStatus}
+              onChange={(e) => updateStatusHandler(orderId, e.target.value)}
+              disabled={updateLoading}
+              MenuProps={{
+                disablePortal: false,
+                PaperProps: {
+                  sx: {
+                    bgcolor: "white !important",
+                    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1) !important",
+                    borderRadius: "12px !important",
+                    zIndex: 2000,
+                    "& .MuiList-root": {
+                      padding: "8px !important",
+                      display: "flex !important",
+                      flexDirection: "column !important",
+                      gap: "4px !important",
+                    },
+                    "& .MuiMenuItem-root": {
+                      fontSize: "0.85rem !important",
+                      fontWeight: "600 !important",
+                      padding: "10px 16px !important",
+                      borderRadius: "8px !important",
+                      color: "#475569 !important",
+                      whiteSpace: "nowrap !important",
+                      "&.Mui-selected": {
+                        bgcolor: "#F1F5F9 !important",
+                        color: "#EC4899 !important",
+                      },
+                      "&:hover": {
+                        bgcolor: "#FDF2F8 !important",
+                        color: "#EC4899 !important",
+                      },
+                    },
+                  },
+                },
+              }}
+              sx={{
+                height: "35px",
+                fontSize: "0.85rem",
+                fontWeight: "700",
+                backgroundColor: style.bgColor,
+                color: style.color,
+                borderRadius: "8px",
+                "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                "& .MuiSelect-select": { paddingRight: "30px !important" },
+              }}
+            >
+              <MenuItem value="Pending">Pending</MenuItem>
+              <MenuItem value="Confirmed">Confirmed</MenuItem>
+              <MenuItem value="Processing">Processing</MenuItem>
+              <MenuItem value="Shipped">Shipped</MenuItem>
+              <MenuItem value="Delivered">Delivered</MenuItem>
+            </Select>
+          </FormControl>
         );
       }
-    },
-    {
-      field: "itemsQty",
-      headerName: "Items Qty",
-      type: "number",
-      minWidth: 150,
-      flex: 0.3,
     },
     {
       field: "amount",
@@ -148,23 +213,43 @@ const OrderList = () => {
       type: "number",
       sortable: false,
       renderCell: (params) => {
+        const id = params.getValue(params.id, "id");
         return (
-          <Tooltip title="View Details">
-            <IconButton size="small" component={Link} to={`/vendor/order/${params.getValue(params.id, "id")}`}>
-              <TrendingUpIcon className={classes.actionIcon} />
-            </IconButton>
-          </Tooltip>
+          <Box sx={{ display: "flex", gap: "0.5rem" }}>
+            <Tooltip title="View Details">
+              <IconButton size="small" component={Link} to={`/vendor/order/${id}`}>
+                <TrendingUpIcon className={classes.actionIcon} />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete Order">
+              <IconButton size="small" onClick={() => deleteOrderHandler(id)}>
+                <DeleteIcon className={classes.deleteIcon} sx={{ color: "#64748b", "&:hover": { color: "#EF4444" } }} />
+              </IconButton>
+            </Tooltip>
+          </Box>
         );
       },
     },
   ];
+
+  const updateStatusHandler = (id, status) => {
+    const myData = {
+      status: status,
+    };
+    dispatch(updateOrder(id, myData));
+  };
+
+  const deleteOrderHandler = (id) => {
+    if (window.confirm("Are you sure you want to delete this order?")) {
+      dispatch(deleteOrder(id));
+    }
+  };
 
   const rows = [];
   vendorOrders &&
     vendorOrders.forEach((item) => {
       rows.push({
         id: item._id,
-        itemsQty: item.orderItems.length,
         amount: item.totalPrice,
         status: item.orderStatus,
       });

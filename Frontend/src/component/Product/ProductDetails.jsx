@@ -216,20 +216,6 @@ const ProductDetails = () => {
                 </Box>
               </Box>
 
-              <Box className="trust_badges">
-                <Box className="badge_item">
-                  <VerifiedUserOutlinedIcon />
-                  <Typography variant="caption">100% Authentic</Typography>
-                </Box>
-                <Box className="badge_item">
-                  <LocalShippingOutlinedIcon />
-                  <Typography variant="caption">Fast Shipping</Typography>
-                </Box>
-                <Box className="badge_item">
-                  <ReplayOutlinedIcon />
-                  <Typography variant="caption">Easy Returns</Typography>
-                </Box>
-              </Box>
             </Box>
           </Grid>
         </Grid>

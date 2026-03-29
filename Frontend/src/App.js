@@ -3,15 +3,13 @@ import { Route, Switch, Redirect } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { load_UserProfile } from "./actions/userAction";
 import axios from "axios";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
 import CricketBallLoader from "./component/layouts/loader/Loader";
 import PrivateRoute, { AdminRoute, VendorRoute, PublicRoute } from "./component/Route/PrivateRoute";
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import "./App.css";
 
 import Header from "./component/layouts/Header1.jsx/Header";
-import Payment from "./component/Cart/Payment";
+
 import Home from "./component/Home/Home";
 import Footer from "./component/layouts/Footer/Footer";
 import ProductDetails from "./component/Product/ProductDetails";
@@ -82,51 +80,14 @@ const LazySettings = React.lazy(() =>
 );
 
 function App() {
-  const [stripeApiKey, setStripeApiKey] = useState("");
-  const [stripePromise, setStripePromise] = useState(null);
-
   const dispatch = useDispatch();
-
-  // get STRIPE_API_KEY for payment from backend for connection to stripe payment gateway
-  async function getStripeApiKey() {
-    try {
-      const { data } = await axios.get("/api/v1/stripeapikey");
-      if (
-        data &&
-        data.stripeApiKey !== undefined &&
-        data.stripeApiKey !== null &&
-        data.stripeApiKey !== ""
-      ) {
-        sessionStorage.setItem(
-          "stripeApiKey",
-          JSON.stringify(data.stripeApiKey)
-        );
-        setStripeApiKey(data.stripeApiKey);
-        setStripePromise(loadStripe(data.stripeApiKey));
-      }
-    } catch (error) {
-      // Handle error if the API call fails
-      console.error("Error fetching Stripe API key:", error);
-    }
-  }
-
-  useEffect(() => {
-    const savedApiKey = sessionStorage.getItem("stripeApiKey");
-    if (savedApiKey) {
-      const key = JSON.parse(savedApiKey);
-      setStripeApiKey(key);
-      setStripePromise(loadStripe(key));
-    } else {
-      getStripeApiKey();
-    }
-    // eslint-disable-next-line
-  }, []);
 
   useEffect(() => {
     dispatch(load_UserProfile());
 
     // eslint-disable-next-line
   }, []);
+
 
   const { user, isAuthenticated } = useSelector((state) => state.userData);
 
@@ -512,11 +473,6 @@ function App() {
             />
             <AdminRoute
               exact
-              path="/admin/order/:id"
-              component={LazyProcessOrder}
-            />
-            <AdminRoute
-              exact
               path="/admin/new/product"
               component={LazyNewProduct}
             />
@@ -529,11 +485,6 @@ function App() {
               exact
               path="/admin/vendors"
               component={LazyVendorList}
-            />
-            <AdminRoute
-              exact
-              path="/admin/user/:id"
-              component={LazyUpdateUser}
             />
           </Switch>
         </Suspense>
@@ -583,22 +534,9 @@ function App() {
             />
           </Switch>
         </Suspense>
-
-        {stripePromise && (
-          <Elements stripe={stripePromise}>
-            <PrivateRoute
-              exact
-              path="/process/payment"
-              render={() => (
-                <>
-                  <Header />
-                  <Payment />
-                </>
-              )}
-            />
-          </Elements>
-        )}
       </Suspense>
+
+
     </>
   );
 }

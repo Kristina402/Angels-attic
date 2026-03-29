@@ -32,25 +32,13 @@ exports.registerUser = asyncWrapper(async (req, res) => {
 
 // Vendor Registration Controller
 exports.registerVendor = asyncWrapper(async (req, res, next) => {
-  const { name, email, password, phone, storeName, address, kycDocument } = req.body;
+  const { name, email, password, phone, storeName, address } = req.body;
 
   // Set default avatar for vendor
   const avatarData = {
     public_id: "Avatar/default_avatar",
     url: "https://res.cloudinary.com/dtzzoaiyt/image/upload/v1/Avatar/default_avatar",
   };
-
-  // Upload KYC Document if provided
-  let kycData = {};
-  if (kycDocument) {
-    const kycCloud = await cloudinary.v2.uploader.upload(kycDocument, {
-      folder: "KYC",
-    });
-    kycData = {
-      public_id: kycCloud.public_id,
-      url: kycCloud.secure_url,
-    };
-  }
 
   const user = await userModel.create({
     name,
@@ -59,9 +47,8 @@ exports.registerVendor = asyncWrapper(async (req, res, next) => {
     phone,
     storeName,
     address,
-    kycDocument: kycData,
     role: "vendor",
-    isApproved: false, // Vendors need admin approval
+    isApproved: true, // Vendors are now auto-approved with basic verification
     avatar: {
       public_id: avatarData.public_id,
       url: avatarData.url,
@@ -73,19 +60,10 @@ exports.registerVendor = asyncWrapper(async (req, res, next) => {
   for (const admin of admins) {
     await Notification.create({
       recipient: admin._id,
-      message: `New vendor registration: ${storeName}`,
+      message: `New vendor registered: ${storeName}`,
       type: "new_vendor",
       link: `/admin/user/${user._id}`,
     });
-
-    if (kycDocument) {
-      await Notification.create({
-        recipient: admin._id,
-        message: `New KYC verification request from: ${storeName}`,
-        type: "kyc_request",
-        link: `/admin/user/${user._id}`,
-      });
-    }
   }
 
   sendJWtToken(user, 201, res);
@@ -146,7 +124,7 @@ exports.forgotPassword = asyncWrapper(async (req, res, next) => {
 
   await user.save({ validateBeforeSave: false });
 
-  const message = `Your password reset verification code is :- \n\n ${otp} \n\nThis code is valid for 10 minutes. If you have not requested this email, please ignore it.`;
+  const message = `Your password reset verification code is :- \n\n ${otp} \n\nThis code is valid for 3 minutes. If you have not requested this email, please ignore it.`;
 
   try {
     await sendEmail({
@@ -185,11 +163,14 @@ exports.verifyOTP = asyncWrapper(async (req, res, next) => {
   const user = await userModel.findOne({
     email,
     resetPasswordOTP: hashedOTP,
-    resetPasswordOTPExpire: { $gt: Date.now() },
   });
 
   if (!user) {
-    return next(new ErrorHandler("Invalid or expired OTP", 400));
+    return next(new ErrorHandler("Invalid OTP", 400));
+  }
+
+  if (user.resetPasswordOTPExpire < Date.now()) {
+    return next(new ErrorHandler("OTP has expired", 400));
   }
 
   res.status(200).json({
@@ -214,16 +195,14 @@ exports.resetPassword = asyncWrapper(async (req, res, next) => {
   const user = await userModel.findOne({
     email,
     resetPasswordOTP: hashedOTP,
-    resetPasswordOTPExpire: { $gt: Date.now() },
   });
 
   if (!user) {
-    return next(
-      new ErrorHandler(
-        "Invalid or expired OTP session",
-        400
-      )
-    );
+    return next(new ErrorHandler("Invalid OTP", 400));
+  }
+
+  if (user.resetPasswordOTPExpire < Date.now()) {
+    return next(new ErrorHandler("OTP has expired", 400));
   }
 
   if (password !== confirmPassword) {

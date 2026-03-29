@@ -17,7 +17,7 @@ process.on("uncaughtException", (err) => {
 
 
 //config =>
-dotenv.config({path : "backend/config/config.env"})
+dotenv.config({path : "./config/config.env"})
 
 // Validate essential environment variables
 const requiredEnvVars = ['JWT_SECRET'];
@@ -65,7 +65,7 @@ cloudinary.config({
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server is running on PORT ${process.env.PORT || PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Server started at: ${new Date().toISOString()}`);

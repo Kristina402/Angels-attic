@@ -8,7 +8,13 @@ import {
 } from "../../actions/orderAction";
 import { Link, useHistory } from "react-router-dom";
 import { useAlert } from "react-alert";
-import { Button, Typography, Box, Paper, IconButton, Chip, Tooltip } from "@mui/material";
+import { Button, Typography, Box, Paper, IconButton, Chip, Tooltip, Drawer, Divider, Grid } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import OrderDetailsSection from "../Cart/OrderDetails";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
+import { useState } from "react";
 import MetaData from "../layouts/MataData/MataData";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -53,9 +59,17 @@ const useStyles = makeStyles((theme) => ({
       textTransform: "uppercase",
       letterSpacing: "0.5px",
     },
+    "& .MuiDataGrid-row": {
+      "&:hover": {
+        backgroundColor: "#f1f5f9 !important",
+      },
+    },
     "& .MuiDataGrid-cell": {
       fontSize: "0.9rem",
-      color: "#4a5568",
+      color: "#334155",
+      padding: "12px !important",
+      display: "flex",
+      alignItems: "center",
     },
   },
   actionIcon: {
@@ -70,6 +84,41 @@ const useStyles = makeStyles((theme) => ({
       color: "#EF4444",
     },
   },
+  drawerPaper: {
+    padding: "2rem",
+    width: "500px",
+    backgroundColor: "#F8F9FB !important",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+    },
+  },
+  detailCard: {
+    padding: "1.5rem",
+    borderRadius: "16px !important",
+    marginBottom: "1.5rem",
+    backgroundColor: "#fff !important",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.02) !important",
+  },
+  detailTitle: {
+    fontSize: "1rem !important",
+    fontWeight: "800 !important",
+    color: "#1a1a1a",
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+    marginBottom: "1.2rem !important",
+  },
+  detailLabel: {
+    fontSize: "0.85rem !important",
+    color: "#64748b",
+    fontWeight: "600 !important",
+  },
+  detailValue: {
+    fontSize: "0.95rem !important",
+    color: "#1e293b",
+    fontWeight: "700 !important",
+    marginTop: "0.2rem",
+  },
 }));
 
 function OrderList() {
@@ -82,6 +131,9 @@ function OrderList() {
   const { error: deleteError, isDeleted } = useSelector(
     (state) => state.deleteUpdateOrder
   );
+
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     if (error) {
@@ -101,7 +153,15 @@ function OrderList() {
   }, [dispatch, error, alert, isDeleted, deleteError, history]);
 
   const deleteOrderHandler = (id) => {
-    dispatch(deleteOrder(id));
+    if (window.confirm("Are you sure you want to delete this order?")) {
+      dispatch(deleteOrder(id));
+    }
+  };
+
+  const viewOrderHandler = (id) => {
+    const order = orders.find((o) => o._id === id);
+    setSelectedOrder(order);
+    setOpenDrawer(true);
   };
 
   const getStatusColor = (status) => {
@@ -156,16 +216,26 @@ function OrderList() {
     },
     {
       field: "vendorName",
-      headerName: "Vendor Name",
-      minWidth: 150,
-      flex: 0.5,
-    },
-    {
-      field: "itemsQty",
-      headerName: "Items Qty",
-      type: "number",
-      minWidth: 150,
-      flex: 0.3,
+      headerName: "Vendor(s)",
+      minWidth: 180,
+      flex: 0.6,
+      renderCell: (params) => (
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+          {params.value.split(", ").map((v, i) => (
+            <Chip 
+              key={i} 
+              label={v} 
+              size="small" 
+              sx={{ 
+                bgcolor: "#F1F5F9", 
+                color: "#475569", 
+                fontWeight: 700,
+                fontSize: "0.75rem"
+              }} 
+            />
+          ))}
+        </Box>
+      )
     },
     {
       field: "amount",
@@ -187,19 +257,9 @@ function OrderList() {
             <Tooltip title="View Order">
               <IconButton
                 size="small"
-                component={Link}
-                to={`/admin/order/${params.getValue(params.id, "id")}`}
+                onClick={() => viewOrderHandler(params.getValue(params.id, "id"))}
               >
                 <VisibilityIcon className={classes.actionIcon} />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Update Status">
-              <IconButton
-                size="small"
-                component={Link}
-                to={`/admin/order/${params.getValue(params.id, "id")}`}
-              >
-                <EditIcon className={classes.actionIcon} />
               </IconButton>
             </Tooltip>
             <Tooltip title="Delete Order">
@@ -223,12 +283,11 @@ function OrderList() {
     orders.forEach((item) => {
       rows.push({
         id: item._id,
-        itemsQty: item.orderItems.length,
         amount: item.totalPrice,
         status: item.orderStatus,
         customerName: item.shippingInfo.firstName + " " + item.shippingInfo.lastName,
-        productName: item.orderItems[0].name,
-        vendorName: item.orderItems[0].vendorName || "N/A",
+        productName: item.orderItems.map(i => i.name).join(", "),
+        vendorName: [...new Set(item.orderItems.map(i => i.vendorName || "N/A"))].join(", "),
       });
     });
 
@@ -255,6 +314,102 @@ function OrderList() {
           </div>
         </Paper>
       </Box>
+
+      {/* Order Detail Drawer */}
+      <Drawer
+        anchor="right"
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+        classes={{ paper: classes.drawerPaper }}
+      >
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 4 }}>
+          <Typography variant="h5" sx={{ fontWeight: 900, color: "#1a1a1a" }}>
+            Order Details
+          </Typography>
+          <IconButton onClick={() => setOpenDrawer(false)} size="small">
+            <CloseIcon />
+          </IconButton>
+        </Box>
+
+        {selectedOrder && (
+          <Box>
+            <Paper className={classes.detailCard}>
+              <Typography className={classes.detailTitle}>
+                <LocalShippingIcon sx={{ color: "#EC4899" }} /> Shipping Information
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Typography className={classes.detailLabel}>Full Name</Typography>
+                  <Typography className={classes.detailValue}>{selectedOrder.shippingInfo.fullName}</Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography className={classes.detailLabel}>Phone No</Typography>
+                  <Typography className={classes.detailValue}>{selectedOrder.shippingInfo.phoneNo}</Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography className={classes.detailLabel}>Address</Typography>
+                  <Typography className={classes.detailValue}>
+                    {`${selectedOrder.shippingInfo.address}, ${selectedOrder.shippingInfo.city}, ${selectedOrder.shippingInfo.state}, ${selectedOrder.shippingInfo.country}`}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Paper>
+
+            <Paper className={classes.detailCard}>
+              <Typography className={classes.detailTitle}>
+                <AccountBalanceWalletIcon sx={{ color: "#EC4899" }} /> Payment & Summary
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Typography className={classes.detailLabel}>Status</Typography>
+                  <Typography 
+                    className={classes.detailValue} 
+                    style={{ color: selectedOrder.paymentInfo.status === "succeeded" ? "#10B981" : "#EF4444" }}
+                  >
+                    {selectedOrder.paymentInfo.status === "succeeded" ? "PAID" : "UNPAID"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography className={classes.detailLabel}>Total Amount</Typography>
+                  <Typography className={classes.detailValue} sx={{ color: "#EC4899" }}>
+                    Rs. {selectedOrder.totalPrice}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Divider sx={{ my: 1.5, borderStyle: "dashed" }} />
+                  <Typography className={classes.detailLabel}>Order Status</Typography>
+                  <Chip 
+                    label={selectedOrder.orderStatus} 
+                    size="small"
+                    sx={{ 
+                      mt: 1,
+                      fontWeight: 800,
+                      backgroundColor: getStatusColor(selectedOrder.orderStatus).bgColor,
+                      color: getStatusColor(selectedOrder.orderStatus).color,
+                    }}
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+
+            <Paper className={classes.detailCard}>
+              <Typography className={classes.detailTitle}>
+                <ShoppingBagIcon sx={{ color: "#EC4899" }} /> Ordered Items
+              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                {selectedOrder.orderItems.map((item, index) => (
+                  <Box key={index} sx={{ "&:not(:last-child)": { pb: 2, borderBottom: "1px solid #f1f5f9" } }}>
+                    <OrderDetailsSection 
+                      item={item} 
+                      totalPrice={`Rs. ${item.price}`} 
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </Paper>
+          </Box>
+        )}
+      </Drawer>
     </Box>
   );
 }

@@ -49,12 +49,19 @@ class ApiFeatures {
     const queryCopy = { ...this.queryString }; // making the new object of queryString
     //  Removing some fields for category
 
-    const removeFields = ["keyword", "page", "limit"]; // here we are filtering data based on other query like category , price so we are removing other query => "keyword", "page", "limit"
+    const removeFields = ["keyword", "page", "limit", "sort"]; // Add 'sort' to removed fields
+    
+    removeFields.forEach((key) => delete queryCopy[key]); 
 
-    removeFields.forEach((key) => delete queryCopy[key]); // remove unwanted query
+    // Remove empty values from queryCopy
+    Object.keys(queryCopy).forEach((key) => {
+      if (queryCopy[key] === "" || queryCopy[key] === undefined || queryCopy[key] === "undefined") {
+        delete queryCopy[key];
+      }
+    });
 
     // Filter For Price and Rating
-    let queryStr = JSON.stringify(queryCopy); // converting to string because we using regex for filter data for price
+    let queryStr = JSON.stringify(queryCopy); 
     // regex => \b => start and end value  || for price : gt --> gretaer then || gte --> gretaer then equal to || lt --> less then || lte --> less then equal to , for finding in range of product.
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (key) => `$${key}`);
     

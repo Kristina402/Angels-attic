@@ -154,6 +154,19 @@ exports.updateOrder = asyncWrapper(async (req, res, next) => {
     return next(new ErrorHandler("Order not found with this Id", 404));
   }
 
+  // Check if vendor is authorized to update this order
+  if (req.user.role === "vendor") {
+    const productIds = order.orderItems.map(item => item.productId);
+    const vendorProducts = await Product.find({
+      _id: { $in: productIds },
+      user: req.user._id
+    });
+
+    if (vendorProducts.length === 0) {
+      return next(new ErrorHandler("You are not authorized to update this order", 403));
+    }
+  }
+
   if (order.orderStatus === "Delivered") {
     return next(new ErrorHandler("You have already delivered this order", 400));
   }
@@ -169,15 +182,24 @@ exports.updateOrder = asyncWrapper(async (req, res, next) => {
 
   // Create notification for user/admin on status update
   if (oldStatus !== req.body.status) {
+    // Notify Admin
     const admins = await User.find({ role: "admin" });
     for (const admin of admins) {
       await Notification.create({
         recipient: admin._id,
         message: `Order #${order._id} status updated to: ${req.body.status}`,
-        type: "payment_update", // Using payment_update for general status updates as requested
+        type: "payment_update",
         link: `/admin/order/${order._id}`,
       });
     }
+
+    // Notify Customer
+    await Notification.create({
+      recipient: order.user,
+      message: `Your order #${order._id} status has been updated to: ${req.body.status}`,
+      type: "payment_update",
+      link: `/orders`,
+    });
   }
 
   res.status(200).json({
@@ -194,12 +216,25 @@ async function updateAvailabilityStatus(id) {
   }
 }
 
-// delete Order -- Admin
+// delete Order -- Admin/Vendor
 exports.deleteOrder = asyncWrapper(async (req, res, next) => {
   const order = await Order.findById(req.params.id);
 
   if (!order) {
     return next(new ErrorHandler("Order not found with this Id", 404));
+  }
+
+  // Check if vendor is authorized to delete this order
+  if (req.user.role === "vendor") {
+    const productIds = order.orderItems.map(item => item.productId);
+    const vendorProducts = await Product.find({
+      _id: { $in: productIds },
+      user: req.user._id
+    });
+
+    if (vendorProducts.length === 0) {
+      return next(new ErrorHandler("You are not authorized to delete this order", 403));
+    }
   }
 
   await order.remove();

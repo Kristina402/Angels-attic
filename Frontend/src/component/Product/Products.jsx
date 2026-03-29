@@ -54,7 +54,7 @@ function Products() {
   const [category, setCategory] = React.useState("");
   const [condition, setCondition] = React.useState("");
   const [size, setSize] = React.useState("");
-  const [sort, setSort] = React.useState("price");
+  const [sort, setSort] = React.useState("-createdAt");
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
@@ -85,7 +85,7 @@ function Products() {
     setCategory("");
     setCondition("");
     setSize("");
-    setSort("price");
+    setSort("-createdAt");
     setCurrentPage(1);
   };
 
@@ -134,6 +134,7 @@ function Products() {
                       },
                     }}
                   >
+                    <MenuItem value="-createdAt">Newest Arrivals</MenuItem>
                     <MenuItem value="price">Price: Low to High</MenuItem>
                     <MenuItem value="-price">Price: High to Low</MenuItem>
                   </Select>
