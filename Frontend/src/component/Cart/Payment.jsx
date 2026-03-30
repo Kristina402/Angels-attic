@@ -551,11 +551,26 @@ const PaymentComponent = () => {
             id: result.paymentIntent.id,
             status: result.paymentIntent.status,
           };
-          alert.success("Payment Successful");
+          
+          alert.success("Payment Processing...");
 
-          dispatch(createOrder(order));
-
-          history.push("/success");
+          try {
+            // Create the order and get the response
+            const data = await dispatch(createOrder(order));
+            
+            if (data && data.order) {
+              alert.success("Payment Successful");
+              // Redirect to success page with parameters
+              history.push(`/success?id=${data.order._id}&total=${order.totalPrice}&status=Paid`);
+            } else {
+               // Fallback if data is missing
+               history.push("/success");
+            }
+          } catch (orderError) {
+            setIsProcessing(false);
+            console.error('Order Creation Error:', orderError);
+            alert.error("Payment was successful but order creation failed. Please contact support.");
+          }
         } else {
           setIsProcessing(false);
           alert.error("There's some issue while processing payment");

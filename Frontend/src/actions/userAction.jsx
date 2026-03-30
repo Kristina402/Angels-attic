@@ -189,6 +189,9 @@ export function logout() {
   return async function (dispatch) {
     try {
       sessionStorage.removeItem("user");
+      // Clear all user-specific data from localStorage
+      localStorage.removeItem("shippingInfo");
+      
       // Clear the in-memory cart so it doesn't leak to the next user
       dispatch({ type: EMPTY_CART });
       await axios.get(`/api/v1/logout`); // token will expired from cookies
@@ -197,6 +200,7 @@ export function logout() {
 
     } catch (error) {
       sessionStorage.removeItem("user");
+      localStorage.removeItem("shippingInfo");
       dispatch({ type: EMPTY_CART }); // still clear cart even on error
       dispatch({
         type: LOGOUT_FAIL,

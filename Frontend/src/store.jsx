@@ -32,6 +32,8 @@ import {
 } from "./reducers/orderReducer";
 import { analyticsReducer } from "./reducers/analyticsReducer";
 import { notificationReducer } from "./reducers/notificationReducer";
+import { paymentReducer } from "./reducers/paymentReducer";
+
 
 const rootReducer = combineReducers({
   products: productsReducer,
@@ -56,6 +58,7 @@ const rootReducer = combineReducers({
   vendor: vendorReducer,
   analytics: analyticsReducer,
   notifications: notificationReducer,
+  payment: paymentReducer,
 });
 
 // Cart is now user-specific and loaded dynamically after login via loadUserCart()

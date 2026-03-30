@@ -79,6 +79,14 @@ const LazySettings = React.lazy(() =>
   import("./component/Admin/Settings")
 );
 
+const MainLayout = ({ children }) => (
+  <>
+    <Header />
+    <main className="main-content">{children}</main>
+    <Footer />
+  </>
+);
+
 function App() {
   const dispatch = useDispatch();
 
@@ -92,7 +100,7 @@ function App() {
   const { user, isAuthenticated } = useSelector((state) => state.userData);
 
   return (
-    <>
+    <div className="app-container">
       <SpeedInsights />
       <Suspense fallback={<CricketBallLoader />}>
         <Switch>
@@ -100,11 +108,9 @@ function App() {
             exact
             path="/"
             render={() => (
-              <>
-                <Header />
+              <MainLayout>
                 <Home />
-                <Footer />
-              </>
+              </MainLayout>
             )}
           />
 
@@ -112,11 +118,9 @@ function App() {
             exact
             path="/product/:id"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <ProductDetails />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -124,22 +128,18 @@ function App() {
             exact
             path="/products"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <Products />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
           <PublicRoute
             path="/products/:keyword"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <Products />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -147,11 +147,9 @@ function App() {
             exact
             path="/signup"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <Signup />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -159,11 +157,9 @@ function App() {
             exact
             path="/vendor/register"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <VendorRegistration />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -171,11 +167,9 @@ function App() {
             exact
             path="/login"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <Login />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -183,11 +177,9 @@ function App() {
             exact
             path="/password/forgot"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <ForgotPassword />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -195,11 +187,9 @@ function App() {
             exact
             path="/password/verify-otp"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <VerifyOTP />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -207,11 +197,9 @@ function App() {
             exact
             path="/password/reset"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <ResetPassword />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -219,11 +207,9 @@ function App() {
             exact
             path="/cart"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <Cart />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -231,11 +217,9 @@ function App() {
             exact
             path="/wishlist"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <Wishlist />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -243,11 +227,9 @@ function App() {
             exact
             path="/policy/return"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <ReturnPolicyPage />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -255,11 +237,9 @@ function App() {
             exact
             path="/policy/Terms"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <TermsUse />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -267,11 +247,9 @@ function App() {
             exact
             path="/policy/privacy"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <PrivacyPolicy />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -279,11 +257,9 @@ function App() {
             exact
             path="/terms/conditions"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <TermsAndConditions />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -291,12 +267,9 @@ function App() {
             exact
             path="/contact"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <ContactForm />
-
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -304,11 +277,9 @@ function App() {
             exact
             path="/about"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <About />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -323,11 +294,9 @@ function App() {
             exact
             path="/account"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <PrivateRoute exact path="/account" component={Profile} />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -335,15 +304,13 @@ function App() {
             exact
             path="/profile/update"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <PrivateRoute
                   exact
                   path="/profile/update"
                   component={UpdateProfile}
                 />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -351,15 +318,13 @@ function App() {
             exact
             path="/password/update"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <PrivateRoute
                   exact
                   path="/password/update"
                   component={UpdatePassword}
                 />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -367,11 +332,9 @@ function App() {
             exact
             path="/orders"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <PrivateRoute exact path="/orders" component={MyOrder} />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -379,11 +342,9 @@ function App() {
             exact
             path="/checkout"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <PrivateRoute exact path="/checkout" component={Checkout} />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -391,11 +352,9 @@ function App() {
             exact
             path="/shipping"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <PrivateRoute exact path="/shipping" component={Shipping} />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -403,15 +362,13 @@ function App() {
             exact
             path="/order/confirm"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <PrivateRoute
                   exact
                   path="/order/confirm"
                   component={ConfirmOrder}
                 />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
 
@@ -419,14 +376,13 @@ function App() {
             exact
             path="/success"
             render={() => (
-              <>
-                {<Header />}
+              <MainLayout>
                 <PrivateRoute exact path="/success" component={OrderSuccess} />
-                {<Footer />}
-              </>
+              </MainLayout>
             )}
           />
         </Switch>
+
 
         {/* Admin routes */}
         <Suspense fallback={<CricketBallLoader />}>
@@ -535,9 +491,7 @@ function App() {
           </Switch>
         </Suspense>
       </Suspense>
-
-
-    </>
+    </div>
   );
 }
 

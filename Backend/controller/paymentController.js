@@ -2,6 +2,8 @@ const CryptoJS = require("crypto-js");
 const axios = require("axios");
 const asyncWrapper = require("../middleware/asyncWrapper");
 const Order = require("../models/orderModel");
+const Payment = require("../models/paymentModel");
+const Product = require("../models/productModel");
 
 // Generate eSewa Signature
 exports.processEsewaPayment = asyncWrapper(async (req, res, next) => {
@@ -80,6 +82,17 @@ exports.esewaSuccess = asyncWrapper(async (req, res, next) => {
           order.orderStatus = "Processing"; // Update to processing upon payment
           await order.save();
           
+          // Save payment details to database
+          await Payment.create({
+            payment_id: decodedData.transaction_code,
+            order_id: order._id,
+            user_id: order.user,
+            amount: order.totalPrice,
+            payment_method: "eSewa",
+            transaction_id: decodedData.transaction_code,
+            payment_status: "success",
+          });
+
           // Redirect to frontend success page
           return res.redirect(`${process.env.FRONTEND_URL}/#/success?id=${order._id}&total=${order.totalPrice}&status=${order.orderStatus}`);
         }
@@ -97,4 +110,54 @@ exports.esewaSuccess = asyncWrapper(async (req, res, next) => {
 exports.esewaFailure = asyncWrapper(async (req, res, next) => {
   res.redirect(`${process.env.FRONTEND_URL}/#/cart?payment=failed`);
 });
+
+// Get all payments -- Admin
+exports.getAllPayments = asyncWrapper(async (req, res, next) => {
+  const payments = await Payment.find().sort({ createdAt: -1 });
+
+  let totalRevenue = 0;
+  payments.forEach(payment => {
+    if (payment.payment_status === "success") {
+      totalRevenue += payment.amount;
+    }
+  });
+
+  res.status(200).json({
+    success: true,
+    payments,
+    totalRevenue,
+  });
+});
+
+// Get vendor-specific payments -- Vendor
+exports.getVendorPayments = asyncWrapper(async (req, res, next) => {
+  // Find all products by this vendor
+  const vendorProducts = await Product.find({ user: req.user._id });
+  const productIds = vendorProducts.map(p => p._id);
+
+  // Find all orders that contain at least one of these products
+  const orders = await Order.find({
+    "orderItems.productId": { $in: productIds }
+  });
+  const orderIds = orders.map(o => o._id);
+
+  // Find payments related to these orders
+  const payments = await Payment.find({
+    order_id: { $in: orderIds }
+  }).sort({ createdAt: -1 });
+
+  let vendorRevenue = 0;
+  payments.forEach(payment => {
+    if (payment.payment_status === "success") {
+      vendorRevenue += payment.amount;
+    }
+  });
+
+  res.status(200).json({
+    success: true,
+    payments,
+    vendorRevenue,
+  });
+});
+
 

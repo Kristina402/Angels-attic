@@ -19,7 +19,11 @@ import {
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import HomeIcon from "@mui/icons-material/Home";
+import StorefrontIcon from "@mui/icons-material/Storefront";
 import { dispalyMoney } from "../DisplayMoney/DisplayMoney";
+import { Radio, RadioGroup } from "@material-ui/core";
+
 
 const useStyles = makeStyles((theme) => ({
   shippingPage: {
@@ -103,7 +107,23 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 800,
     fontSize: "1.1rem",
   },
+  deliveryOption: {
+    padding: "1rem",
+    borderRadius: "12px",
+    border: "1px solid #eee",
+    marginBottom: "1rem",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    "&:hover": {
+      borderColor: "#000",
+    },
+  },
+  selectedDelivery: {
+    borderColor: "#000",
+    backgroundColor: "#f9f9f9",
+  },
 }));
+
 
 const Shipping = () => {
   const alert = useAlert();
@@ -112,15 +132,34 @@ const Shipping = () => {
   const { shippingInfo, cartItems } = useSelector((state) => state.cart);
 
   const classes = useStyles();
-  const [address, setAddress] = React.useState(shippingInfo.address || "");
-  const [fullName, setFullName] = React.useState(shippingInfo.fullName || "");
+  const { user } = useSelector((state) => state.userData);
+
+  const [address, setAddress] = React.useState(shippingInfo.address || (user && user.address) || "");
+  const [fullName, setFullName] = React.useState(shippingInfo.fullName || (user && user.name) || "");
   const [city, setCity] = React.useState(shippingInfo.city || "");
-  const [phoneNo, setPhone] = React.useState(shippingInfo.phoneNo || "");
-  const [email, setEmail] = React.useState(shippingInfo.email || "");
+  const [phoneNo, setPhone] = React.useState(shippingInfo.phoneNo || (user && user.phone) || "");
+  const [email, setEmail] = React.useState(shippingInfo.email || (user && user.email) || "");
+  const [deliveryType, setDeliveryType] = React.useState(shippingInfo.deliveryType || "home");
+
+  // Update fields if user data becomes available (e.g., after loading)
+  React.useEffect(() => {
+    if (user && !shippingInfo.address) {
+      if (!fullName) setFullName(user.name || "");
+      if (!email) setEmail(user.email || "");
+      if (!address) setAddress(user.address || "");
+      if (!phoneNo) setPhone(user.phone || "");
+    }
+  }, [user, shippingInfo.address, fullName, email, address, phoneNo]);
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const deliveryFee = subtotal > 5000 ? 0 : 200;
+
+  const deliveryFeeArray = {
+    home: 170,
+    pickup: 120
+  };
+  const deliveryFee = deliveryFeeArray[deliveryType];
   const totalPrice = subtotal + deliveryFee;
+
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -145,11 +184,14 @@ const Shipping = () => {
         phoneNo,
         email,
         fullName,
+        deliveryType,
+        deliveryFee,
         country: "India" // Default
       })
     );
     history.push("/order/confirm");
   };
+
 
   return (
     <Box className={classes.shippingPage}>
@@ -227,6 +269,46 @@ const Shipping = () => {
                   </Grid>
 
                   <Grid item xs={12}>
+                    <Typography variant="h6" style={{ fontWeight: 800, marginTop: "1rem", marginBottom: "1rem" }}>
+                      Delivery Options
+                    </Typography>
+                    
+                    <RadioGroup value={deliveryType} onChange={(e) => setDeliveryType(e.target.value)}>
+                      <Box 
+                        className={`${classes.deliveryOption} ${deliveryType === "home" ? classes.selectedDelivery : ""}`}
+                        onClick={() => setDeliveryType("home")}
+                      >
+                        <FormControlLabel 
+                          value="home" 
+                          control={<Radio color="default" />} 
+                          label={
+                            <Box ml={1}>
+                              <Typography style={{ fontWeight: 700 }}>Home Delivery</Typography>
+                              <Typography variant="body2" color="textSecondary">Rs 170 • Delivered to your doorstep</Typography>
+                            </Box>
+                          } 
+                        />
+                      </Box>
+                      <Box 
+                        className={`${classes.deliveryOption} ${deliveryType === "pickup" ? classes.selectedDelivery : ""}`}
+                        onClick={() => setDeliveryType("pickup")}
+                      >
+                        <FormControlLabel 
+                          value="pickup" 
+                          control={<Radio color="default" />} 
+                          label={
+                            <Box ml={1}>
+                              <Typography style={{ fontWeight: 700 }}>Courier Pickup</Typography>
+                              <Typography variant="body2" color="textSecondary">Rs 120 • Pick up from the nearest branch</Typography>
+                            </Box>
+                          } 
+                        />
+                      </Box>
+                    </RadioGroup>
+                  </Grid>
+
+                  <Grid item xs={12}>
+
                     <Box display="flex" justifyContent="space-between" alignItems="center" mt={4} flexWrap="wrap" gap={2}>
                       <Button
                         className={classes.btnSecondary}
@@ -260,9 +342,12 @@ const Shipping = () => {
                 <Typography style={{ fontWeight: 600 }}>{dispalyMoney(subtotal)}</Typography>
               </Box>
               <Box className={classes.summaryItem}>
-                <Typography color="textSecondary">Delivery fee</Typography>
-                <Typography style={{ fontWeight: 600 }}>{deliveryFee === 0 ? "FREE" : dispalyMoney(deliveryFee)}</Typography>
+                <Typography color="textSecondary">
+                  Delivery Fee ({deliveryType === "home" ? "Home Delivery" : "Courier Pickup"})
+                </Typography>
+                <Typography style={{ fontWeight: 600 }}>{dispalyMoney(deliveryFee)}</Typography>
               </Box>
+
               
               <Divider style={{ margin: "1.5rem 0" }} />
               

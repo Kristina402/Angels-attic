@@ -2,6 +2,7 @@ const Order = require("../models/orderModel");
 const Product = require("../models/productModel");
 const Notification = require("../models/notificationModel");
 const User = require("../models/userModel");
+const Payment = require("../models/paymentModel");
 const ErrorHandler = require("../utils/errorHandler");
 const asyncWrapper = require("../middleware/asyncWrapper");
 
@@ -66,6 +67,17 @@ exports.newOrder = asyncWrapper(async (req, res, next) => {
   for (const item of orderItems) {
     await updateAvailabilityStatus(item.productId);
   }
+
+  // Save Payment Details
+  await Payment.create({
+    payment_id: paymentInfo.id,
+    order_id: order._id,
+    user_id: req.user._id,
+    amount: totalPrice,
+    payment_method: paymentInfo.status === "succeeded" ? "Stripe" : "Manual",
+    transaction_id: paymentInfo.id,
+    payment_status: paymentInfo.status === "succeeded" ? "success" : "failed",
+  });
 
   res.status(201).json({
     success: true,

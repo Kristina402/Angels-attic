@@ -107,22 +107,45 @@ function OrderSuccess() {
 
   return (
     <div className={classes.orderSuccess}>
-      <MetaData title="Order Successful - Angels Attic" />
+      <MetaData title="Payment Successful - Angels Attic" />
       
-      {/* Background Content (Hidden by Dialog but present for structure) */}
-      {!open && (
-        <Box display="flex" flexDirection="column" alignItems="center">
+      {/* Background Content (Fallback UI) */}
+      <Box display="flex" flexDirection="column" alignItems="center">
+        <motion.div
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ duration: 0.5 }}
+        >
           <CheckCircleIcon className={classes.successIcon} />
           <Typography variant="h4" className={classes.successText}>
-            Thank you for your order!
+            Payment Successful!
           </Typography>
-          <Link to="/orders" className={classes.link}>
-            <Button variant="contained" className={classes.viewOrdersButton}>
-              View My Orders
-            </Button>
-          </Link>
-        </Box>
-      )}
+          <Typography variant="body1" style={{ color: "#666", marginBottom: "3rem", maxWidth: "500px" }}>
+            Thank you for your purchase. Your order has been placed successfully and is being processed.
+          </Typography>
+          
+          <Box display="flex" gap="1.5rem" justifyContent="center">
+            <Link to="/orders" className={classes.link}>
+              <Button variant="contained" className={classes.viewOrdersButton}>
+                View My Orders
+              </Button>
+            </Link>
+            <Link to="/products" className={classes.link}>
+              <Button 
+                variant="outlined" 
+                className={classes.viewOrdersButton}
+                style={{ 
+                  backgroundColor: "transparent", 
+                  color: "#1a1a1a", 
+                  border: "2px solid #1a1a1a"
+                }}
+              >
+                Continue Shopping
+              </Button>
+            </Link>
+          </Box>
+        </motion.div>
+      </Box>
 
       {/* Confirmation Popup - Main UI */}
       <Dialog
@@ -151,7 +174,7 @@ function OrderSuccess() {
           </Box>
           
           <Typography variant="h5" style={{ fontWeight: 800, color: "#1a1a1a", marginBottom: "0.5rem" }}>
-            Order Placed!
+            Payment Successful!
           </Typography>
           
           <Typography variant="body1" style={{ color: "#666", marginBottom: "2rem" }}>
@@ -171,10 +194,12 @@ function OrderSuccess() {
               <Typography style={{ color: "#888", fontSize: "0.85rem", fontWeight: 600 }}>ORDER ID</Typography>
               <Typography style={{ color: "#1a1a1a", fontSize: "0.85rem", fontWeight: 700 }}>#{orderId?.substring(0, 12)}...</Typography>
             </Box>
-            <Box display="flex" justifyContent="space-between" mb={1.5}>
-              <Typography style={{ color: "#888", fontSize: "0.85rem", fontWeight: 600 }}>TOTAL PAID</Typography>
-              <Typography style={{ color: "#EC4899", fontSize: "0.85rem", fontWeight: 800 }}>Rs. {totalAmount}</Typography>
-            </Box>
+            {totalAmount && (
+              <Box display="flex" justifyContent="space-between" mb={1.5}>
+                <Typography style={{ color: "#888", fontSize: "0.85rem", fontWeight: 600 }}>TOTAL PAID</Typography>
+                <Typography style={{ color: "#EC4899", fontSize: "0.85rem", fontWeight: 800 }}>Rs. {totalAmount}</Typography>
+              </Box>
+            )}
             <Box display="flex" justifyContent="space-between" alignItems="center">
               <Typography style={{ color: "#888", fontSize: "0.85rem", fontWeight: 600 }}>STATUS</Typography>
               <Chip 
@@ -193,22 +218,23 @@ function OrderSuccess() {
         </DialogContent>
         
         <DialogActions style={{ padding: "0 1rem 1.5rem", flexDirection: "column", gap: "0.8rem" }}>
-          <Button 
-            fullWidth
-            onClick={handleClose} 
-            variant="contained" 
-            style={{ 
-              backgroundColor: "#1a1a1a", 
-              color: "#fff", 
-              borderRadius: "12px",
-              padding: "0.8rem",
-              textTransform: "none",
-              fontWeight: 700,
-              fontSize: "1rem"
-            }}
-          >
-            Great, Thanks!
-          </Button>
+          <Link to="/products" style={{ textDecoration: 'none', width: '100%' }}>
+            <Button 
+              fullWidth
+              variant="contained" 
+              style={{ 
+                backgroundColor: "#1a1a1a", 
+                color: "#fff", 
+                borderRadius: "12px",
+                padding: "0.8rem",
+                textTransform: "none",
+                fontWeight: 700,
+                fontSize: "1rem"
+              }}
+            >
+              Continue Shopping
+            </Button>
+          </Link>
           <Link to="/orders" style={{ textDecoration: 'none', width: '100%' }}>
             <Button 
               fullWidth

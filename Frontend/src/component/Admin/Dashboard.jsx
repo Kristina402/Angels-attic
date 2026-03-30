@@ -5,6 +5,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { getAdminProducts, clearErrors } from "../../actions/productAction";
 import { getAllOrders } from "../../actions/orderAction";
 import { getAllUsers } from "../../actions/userAction";
+import { getAllPayments } from "../../actions/paymentAction";
+
 import MetaData from "../layouts/MataData/MataData";
 import Loader from "../layouts/loader/Loader";
 import { useAlert } from "react-alert";
@@ -122,6 +124,8 @@ const Dashboard = () => {
   const { products, loading: productsLoading, error: productsError } = useSelector((state) => state.products);
   const { orders, loading: ordersLoading, error: ordersError } = useSelector((state) => state.allOrders);
   const { users, loading: usersLoading, error: usersError } = useSelector((state) => state.allUsers);
+  const { totalRevenue, loading: paymentsLoading, error: paymentsError } = useSelector((state) => state.payment);
+
 
   useEffect(() => {
     if (productsError) {
@@ -137,10 +141,17 @@ const Dashboard = () => {
       dispatch(clearErrors());
     }
 
+    if (paymentsError) {
+      alert.error(paymentsError);
+      dispatch(clearErrors());
+    }
+
     dispatch(getAdminProducts());
     dispatch(getAllOrders());
     dispatch(getAllUsers());
-  }, [dispatch, alert, productsError, ordersError, usersError]);
+    dispatch(getAllPayments());
+  }, [dispatch, alert, productsError, ordersError, usersError, paymentsError]);
+
 
   const vendorsCount = users ? users.filter(user => user.role === 'vendor').length : 0;
   const customersCount = users ? users.filter(user => user.role === 'user' || user.role === 'customer').length : 0;
@@ -149,7 +160,7 @@ const Dashboard = () => {
     { label: "Total Customers", value: customersCount, icon: <PeopleAltIcon />, color: "#3B82F6", bgColor: "#EFF6FF" },
     { label: "Total Vendors", value: vendorsCount, icon: <StoreIcon />, color: "#EC4899", bgColor: "#FDF2F8" },
     { label: "Total Products", value: products ? products.length : 0, icon: <InventoryIcon />, color: "#F59E0B", bgColor: "#FFFBEB" },
-    { label: "Total Orders", value: orders ? orders.length : 0, icon: <ShoppingBagIcon />, color: "#10B981", bgColor: "#ECFDF5" },
+    { label: "Total Revenue", value: dispalyMoney(totalRevenue || 0), icon: <TrendingUpIcon />, color: "#10B981", bgColor: "#ECFDF5" },
   ];
 
   const getStatusColor = (status) => {
@@ -162,7 +173,7 @@ const Dashboard = () => {
     }
   };
 
-  if (productsLoading || ordersLoading || usersLoading) {
+  if (productsLoading || ordersLoading || usersLoading || paymentsLoading) {
     return <Loader />;
   }
 

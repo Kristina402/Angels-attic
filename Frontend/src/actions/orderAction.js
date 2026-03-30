@@ -35,9 +35,15 @@ export const createOrder = (order) => async (dispatch) => {
     // Clear cart after successful order
     dispatch({ type: EMPTY_CART });
     localStorage.removeItem("cartItems");
+
+    return data;
     
   } catch (error) {
-    dispatch({ type: CREATE_ORDER_FAIL, payload: error.message });
+    const message = error.response && error.response.data.message
+      ? error.response.data.message
+      : error.message;
+    dispatch({ type: CREATE_ORDER_FAIL, payload: message });
+    throw new Error(message);
   }
 };
 

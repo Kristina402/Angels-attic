@@ -49,7 +49,7 @@ import {
 
 
 const initialState = {
-  loading: false,
+  loading: true,
   isAuthenticated: false,
   user: {},
   error: null,

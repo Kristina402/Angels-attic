@@ -20,6 +20,7 @@ import { makeStyles } from "@mui/styles";
 import { useSelector, useDispatch } from "react-redux";
 import { getAdminProducts, clearErrors } from "../../actions/productAction";
 import { myOrders } from "../../actions/orderAction";
+import { getVendorPayments } from "../../actions/paymentAction";
 import MetaData from "../layouts/MataData/MataData";
 import Loader from "../layouts/loader/Loader";
 import { useAlert } from "react-alert";
@@ -175,6 +176,8 @@ const Dashboard = () => {
   const { products, loading: productsLoading, error: productsError } = useSelector((state) => state.products);
   const { orders, loading: ordersLoading, error: ordersError } = useSelector((state) => state.myOrder);
   const { user } = useSelector((state) => state.userData);
+  const { vendorRevenue, loading: paymentsLoading, error: paymentsError } = useSelector((state) => state.payment);
+
 
   useEffect(() => {
     if (productsError) {
@@ -186,9 +189,16 @@ const Dashboard = () => {
       dispatch(clearErrors());
     }
 
+    if (paymentsError) {
+      alert.error(paymentsError);
+      dispatch(clearErrors());
+    }
+
     dispatch(getAdminProducts());
     dispatch(myOrders());
-  }, [dispatch, alert, productsError, ordersError]);
+    dispatch(getVendorPayments());
+  }, [dispatch, alert, productsError, ordersError, paymentsError]);
+
 
   const vendorProducts = products ? products.filter(p => (p.user && (p.user._id || p.user).toString() === user._id.toString())) : [];
   
@@ -204,7 +214,7 @@ const Dashboard = () => {
   const stats = [
     { label: "My Products", value: vendorProducts.length, icon: <InventoryIcon />, color: "#3B82F6", bgColor: "#EFF6FF" },
     { label: "Orders Received", value: orders ? orders.length : 0, icon: <ListAltIcon />, color: "#EC4899", bgColor: "#FDF2F8" },
-    { label: "Total Revenue", value: dispalyMoney(totalSales), icon: <MonetizationOnIcon />, color: "#10B981", bgColor: "#ECFDF5" },
+    { label: "Total Revenue", value: dispalyMoney(vendorRevenue || 0), icon: <MonetizationOnIcon />, color: "#10B981", bgColor: "#ECFDF5" },
   ];
 
   const getStatusColor = (status) => {
@@ -217,7 +227,7 @@ const Dashboard = () => {
     }
   };
 
-  if (productsLoading || ordersLoading) {
+  if (productsLoading || ordersLoading || paymentsLoading) {
     return <Loader />;
   }
 
