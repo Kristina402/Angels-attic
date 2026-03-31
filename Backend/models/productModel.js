@@ -69,6 +69,11 @@ const productSchema = new mongoose.Schema({
         ref: "userModel",
         required: true,
       },
+      order: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Order",
+        required: true,
+      },
       name: {
         type: String,
         required: true,
@@ -79,6 +84,11 @@ const productSchema = new mongoose.Schema({
       },
       comment: {
         type: String,
+        required: true,
+      },
+      vendor: {
+        type: mongoose.Schema.ObjectId,
+        ref: "userModel",
         required: true,
       },
     },

@@ -9,12 +9,15 @@ import { Link } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { useSelector } from "react-redux";
+import Badge from "@mui/material/Badge";
 
 import ProfileModal from "./ProfileModel";
 
 function Header() {
   const history = useHistory();
   const { isAuthenticated, user } = useSelector((state) => state.userData);
+  const { wishlistItems } = useSelector((state) => state.wishlist);
+  const { cartItems } = useSelector((state) => state.cart);
 
   const [searchBarActive, setSearchBarActive] = useState(true);
   const [sideMenu, setSideMenu] = useState(false);
@@ -127,14 +130,44 @@ function Header() {
               className="icon_button"
               style={{ color: "inherit", textDecoration: "none" }}
             >
-              <FavoriteIcon style={{ fontSize: "32px" }} />
+              <Badge
+                badgeContent={wishlistItems.length}
+                color="secondary"
+                overlap="circular"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  "& .MuiBadge-badge": {
+                    backgroundColor: "#EC4899",
+                    color: "white",
+                  },
+                }}
+              >
+                <FavoriteIcon style={{ fontSize: "28px" }} />
+              </Badge>
             </Link>
             <Link
               to="/cart"
               className="icon_button"
               style={{ color: "inherit", textDecoration: "none" }}
             >
-              <CartIcon />
+              <Badge
+                badgeContent={cartItems.length}
+                color="secondary"
+                overlap="circular"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  "& .MuiBadge-badge": {
+                    backgroundColor: "#EC4899",
+                    color: "white",
+                  },
+                }}
+              >
+                <CartIcon />
+              </Badge>
             </Link>
             <ProfileModal user={user} isAuthenticated={isAuthenticated} />
           </div>

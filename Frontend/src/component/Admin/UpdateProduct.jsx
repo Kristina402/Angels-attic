@@ -176,20 +176,19 @@ function UpdateProduct() {
 
   const updateProductSubmitHandler = (e) => {
     e.preventDefault();
-    const myForm = new FormData();
-    myForm.set("name", name);
-    myForm.set("price", price);
-    myForm.set("description", description);
-    myForm.set("category", category);
-    myForm.set("size", size);
-    myForm.set("condition", condition);
-    myForm.set("availabilityStatus", availabilityStatus);
-    myForm.set("info", info);
-    images.forEach((currImg) => {
-      myForm.append("images", currImg);
-    });
+    const productData = {
+      name,
+      price,
+      description,
+      category,
+      size,
+      condition,
+      availabilityStatus,
+      info,
+      images,
+    };
 
-    dispatch(updateProduct(productId, myForm));
+    dispatch(updateProduct(productId, productData));
   };
 
   const updateProductImagesChange = (e) => {

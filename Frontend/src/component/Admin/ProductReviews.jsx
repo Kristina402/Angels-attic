@@ -1,177 +1,136 @@
 import React, { useEffect, useState } from "react";
-import "./ProductList.css";
 import { DataGrid } from "@material-ui/data-grid";
 import { useSelector, useDispatch } from "react-redux";
 import { useAlert } from "react-alert";
 import {
   getAllReviews,
+  getVendorReviewsAction,
   clearErrors,
   deleteReview,
 } from "../../actions/productAction";
-import {useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import MetaData from "../layouts/MataData/MataData";
 import Loader from "../layouts/loader/Loader";
-import DeleteIcon from "@material-ui/icons/Delete";
-import Star from "@material-ui/icons/Star";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Star from "@mui/icons-material/Star";
 import {
   Avatar,
   Button,
   TextField,
   Typography,
   InputAdornment,
-} from "@material-ui/core";
-import Navbar from "./Navbar";
-import Sidebar from "./Siderbar";
-import { DELETE_REVIEW_RESET } from "../../constants/productsConstatns";
-import { makeStyles } from "@material-ui/core/styles";
+  Box,
+  Paper,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
 import StarRateIcon from "@mui/icons-material/StarRate";
+import { makeStyles } from "@mui/styles";
+import AdminSidebar from "./AdminSidebar";
+import AdminHeader from "./AdminHeader";
+import VendorSidebar from "../Vendor/VendorSidebar";
+import VendorHeader from "../Vendor/VendorHeader";
+import { DELETE_REVIEW_RESET } from "../../constants/productsConstatns";
 
 const useStyles = makeStyles((theme) => ({
-  updateUser1: {
+  dashboard: {
     display: "flex",
-    alignItems: "flex-start",
-    backgroundColor: "#f1f1f1",
-    justifyContent: "center",
-    width: "100%",
-    gap: "1rem",
-    overflow: "hidden",
-    margin: "-1.1rem 0 0 0",
-    padding: 0,
+    backgroundColor: "#F8F9FB",
+    minHeight: "100vh",
   },
-  firstBox_01: {
-    width: "20%",
-    margin: "0rem",
-    height: "fit-content",
-    backgroundColor: "white",
-    borderRadius: "5px",
-    boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.5)",
-    display: "block",
-    [theme.breakpoints.down("999")]: {
-      display: "none",
-    },
-  },
-
-  toggleBox_01: {
-    width: "16rem",
-    margin: "0rem",
-    height: "fit-content",
-    backgroundColor: "white",
-    borderRadius: "5px",
-    boxShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.5)",
-    display: "block",
-    zIndex: "100",
-    position: "absolute",
-    top: "58px",
-    left: "17px",
-  },
-  secondBox_01: {
-    width: "75%",
-
-    height: "fit-content",
-    display: "flex",
-    flexDirection: "column",
-    margin: "-0.5rem 0 0 0",
-    gap: "10px",
-    justifyContent: "center",
-    [theme.breakpoints.down("999")]: {
-      width: "100%",
-    },
-  },
-  navBar_01: {
-    margin: "0rem",
-  },
-  formSection: {
-    width: "100%",
-    margin: "auto",
-    borderRadius: "5px",
-    height: "100vh",
-    backgroundColor: "white",
-    padding: "1rem 2rem",
-  },
-  form: {
-    width: "350px",
-    margin: "-1rem auto 0 auto",
-    borderRadius: "5px",
+  mainContent: {
+    flexGrow: 1,
+    marginLeft: "280px",
+    marginTop: "80px",
     padding: "2rem",
+    [theme.breakpoints.down("999")]: {
+      marginLeft: 0,
+      padding: "1rem",
+    },
   },
-
+  sectionPaper: {
+    padding: "1.5rem",
+    borderRadius: "16px !important",
+    border: "none !important",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01) !important",
+  },
+  sectionTitle: {
+    fontSize: "1.25rem !important",
+    fontWeight: "800 !important",
+    color: "#1a1a1a",
+    marginBottom: "1.5rem !important",
+  },
+  dataGrid: {
+    border: "none !important",
+    "& .MuiDataGrid-columnHeader": {
+      backgroundColor: "#F8F9FB",
+      color: "#64748b",
+      fontWeight: "700",
+      fontSize: "0.8rem",
+      textTransform: "uppercase",
+      letterSpacing: "0.5px",
+    },
+    "& .MuiDataGrid-cell": {
+      fontSize: "0.9rem",
+      color: "#4a5568",
+      whiteSpace: "normal !important",
+      wordWrap: "break-word !important",
+      lineHeight: "1.2 !important",
+      display: "flex !important",
+      alignItems: "center !important",
+      padding: "8px !important",
+    },
+    "& .MuiDataGrid-row": {
+      maxHeight: "none !important",
+    },
+    "& .MuiDataGrid-viewport": {
+      overflowX: "auto !important",
+    },
+  },
+  searchForm: {
+    maxWidth: "400px",
+    margin: "0 auto 2rem auto",
+    padding: "2rem",
+    textAlign: "center",
+  },
   avatar: {
-    margin: " 8px auto",
-    backgroundColor: "black",
+    margin: "0 auto 1rem auto",
+    backgroundColor: "#FDF2F8 !important",
+    color: "#EC4899 !important",
   },
   textField: {
-    marginBottom: theme.spacing(2), 
-    "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-input": {
-      color: "black",
-      padding: "12px 14px",
-    },
-    "& .MuiInputLabel-root": {
-      color: "black",
-      fontSize: "14px",
-      textAlign: "center",
-    },
-    "& .MuiInputLabel-root.Mui-focused": {
-      color: "black",
-      fontSize: "14px",
-      textAlign: "center",
-    },
+    marginBottom: "1.5rem !important",
     "& .MuiOutlinedInput-root": {
-      "&:hover fieldset": {
-        borderColor: "black",
-        color: "black",
-      },
-      "& .MuiOutlinedInput-input": {
-        padding: "13px 8px",
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "black",
-        color: "black",
-        outline: "none",
-      },
+      borderRadius: "12px",
     },
   },
-
-  heading: {
-    textAlign: "center",
-    marginBottom: theme.spacing(3),
-    color: "#414141",
-    fontWeight: "bold",
-  },
-  heading_02: {
-    textAlign: "center",
-    textShadow: "0px 0px 10px 0px rgba(0, 0, 0, 0.5)",
-    color: "#414141",
-    fontWeight: "900",
-  },
-
-  nameInput: {
-    position: "relative",
-    "& > label": {
-      left: ".2rem",
-    },
-    padding: "4px 0px",
-    fontSize: "1rem",
-    width: "100%",
-    marginBottom: theme.spacing(5.5),
-    height: ".7rem",
-  },
-
-  loginButton: {
-    color: "#fff",
-    backgroundColor: "#000",
-    border: "2px solid #000",
-    margin: `${theme.spacing(3)}px 0`,
-    marginTop: "1rem",
-    "&:disabled": {
-      backgroundColor: "#444444", // faded black
-      color: "#FFFFFF",
-      borderColor: "#444444",
-    },
+  searchBtn: {
+    backgroundColor: "#000 !important",
+    color: "#fff !important",
+    padding: "0.8rem !important",
+    borderRadius: "12px !important",
+    textTransform: "none !important",
+    fontWeight: "600 !important",
     "&:hover": {
-      backgroundColor: "#ed1c24",
-      color: "#fff",
-      borderColor: "#ed1c24",
+      backgroundColor: "#222 !important",
     },
+    "&:disabled": {
+      backgroundColor: "#ccc !important",
+    },
+  },
+  actionIcon: {
+    color: "#64748b",
+    "&:hover": {
+      color: "#EF4444",
+    },
+  },
+  greenColor: {
+    color: "#10B981 !important",
+    fontWeight: "700",
+  },
+  redColor: {
+    color: "#EF4444 !important",
+    fontWeight: "700",
   },
 }));
 
@@ -180,7 +139,7 @@ function ProductReviews() {
   const dispatch = useDispatch();
   const history = useHistory();
   const alert = useAlert();
-  const [toggle, setToggle] = useState(false);
+  const { user } = useSelector((state) => state.userData);
   const { error, reviews, loading } = useSelector(
     (state) => state.getAllReview
   );
@@ -190,15 +149,15 @@ function ProductReviews() {
 
   const [productId, setProductId] = useState("");
 
-  // togle handler =>
-  const toggleHandler = () => {
-    console.log("toggle");
-    setToggle(!toggle);
-  };
+  useEffect(() => {
+    if (user && user.role === "vendor") {
+      dispatch(getVendorReviewsAction());
+    }
+  }, [dispatch, user]);
 
   useEffect(() => {
-    if (productId.length === 24) {
-      dispatch(getAllReviews(productId)); // when in input box string lenght goes ===24 then automatically search occures
+    if (productId.length === 24 && user && user.role === "admin") {
+      dispatch(getAllReviews(productId));
     }
 
     if (error) {
@@ -211,215 +170,197 @@ function ProductReviews() {
     }
     if (isDeleted) {
       alert.success("Review Deleted Successfully");
-      history.push("/admin/reviews");
+      history.push(user.role === "admin" ? "/admin/reviews" : "/vendor/reviews");
       dispatch({ type: DELETE_REVIEW_RESET });
-    }
-  }, [dispatch, error, alert, deleteError, isDeleted, productId, history]);
-
-  // to close the sidebar when the screen size is greater than 1000px
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth > 999 && toggle) {
-        setToggle(false);
+      if (user.role === "vendor") {
+        dispatch(getVendorReviewsAction());
+      } else if (productId) {
+        dispatch(getAllReviews(productId));
       }
-    };
+    }
+  }, [dispatch, error, alert, deleteError, isDeleted, productId, history, user]);
 
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [toggle]);
-
-  // delet review from given prodcuts reviews =>
-  const deleteReviewHandler = (reviewId) => {
- 
-    dispatch(deleteReview(reviewId, productId));
+  const deleteReviewHandler = (reviewId, pId) => {
+    if (window.confirm("Are you sure you want to delete this review?")) {
+      dispatch(deleteReview(reviewId, pId || productId));
+    }
   };
 
   const productReviewsSubmitHandler = (e) => {
     e.preventDefault();
-    dispatch(getAllReviews(productId)); // get this product reviews
+    dispatch(getAllReviews(productId));
   };
+
   const columns = [
     {
       field: "id",
       headerName: "Review ID",
-      minWidth: 230,
+      minWidth: 100,
+      flex: 0.3,
+      renderCell: (params) => (
+        <span style={{ fontSize: "0.8rem", color: "#64748b" }}>
+          {params.row.id.substring(0, 8)}...
+        </span>
+      ),
+    },
+    {
+      field: "product",
+      headerName: "Product",
+      minWidth: 150,
       flex: 0.5,
-      headerClassName: "column-header",
+      hide: user && user.role === "admin" && !productId,
     },
     {
       field: "user",
       headerName: "User",
-      flex: 0.8,
-      magin: "0 auto",
-      headerClassName: "column-header hide-on-mobile",
+      minWidth: 120,
+      flex: 0.4,
     },
-
     {
       field: "comment",
       headerName: "Comment",
       minWidth: 350,
-      flex: 0.8,
+      flex: 1.5,
+      renderCell: (params) => (
+        <div style={{ 
+          whiteSpace: "normal", 
+          wordWrap: "break-word", 
+          lineHeight: "1.4", 
+          padding: "12px 0",
+          fontSize: "0.9rem",
+          color: "#334155"
+        }}>
+          {params.row.comment}
+        </div>
+      ),
     },
-    {
-      field: "recommend",
-      headerName: "Recommend",
-      minWidth: 100,
-      flex: 1,
-      headerClassName: "column-header hide-on-mobile",
-      cellClassName: (params) => {
-        return params.getValue(params.id, "recommend") === true
-          ? "greenColor"
-          : "redColor"; // if rating of review greater then class green else red
-      },
-    },
-
     {
       field: "rating",
       headerName: "Rating",
       type: "number",
-      minWidth: 200,
-      flex: 0.5,
-      headerClassName: "column-header hide-on-mobile",
-      cellClassName: (params) => {
-        return params.getValue(params.id, "rating") >= 3
-          ? "greenColor"
-          : "redColor"; // if rating of review greater then class green else red
-      },
+      minWidth: 120,
+      flex: 0.3,
+      cellClassName: (params) => 
+        params.row.rating >= 3 ? classes.greenColor : classes.redColor,
+      renderCell: (params) => (
+        <Box sx={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          {params.row.rating}
+          <Star style={{ fontSize: "16px" }} />
+        </Box>
+      ),
     },
-
     {
       field: "actions",
-      flex: 1,
       headerName: "Actions",
-      minWidth: 230,
-      headerClassName: "column-header1",
+      minWidth: 100,
+      flex: 0.3,
       sortable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <div 
-              onClick={() =>
-                deleteReviewHandler(params.getValue(params.id, "id"))
-              }
-            >
-              <DeleteIcon className="iconbtn" style={{ marginLeft: "1rem" }} />
-            </div>
-          </>
-        );
-      },
+      renderCell: (params) => (
+        <Tooltip title="Delete Review">
+          <IconButton
+            size="small"
+            onClick={() => deleteReviewHandler(params.row.id, params.row.productId)}
+          >
+            <DeleteIcon className={classes.actionIcon} />
+          </IconButton>
+        </Tooltip>
+      ),
     },
   ];
 
   const rows = [];
-
   reviews &&
     reviews.forEach((item) => {
       rows.push({
         id: item._id,
+        productId: item.productId,
+        product: item.productName || "N/A",
         user: item.name,
         comment: item.comment,
-        rating: item.ratings,
-        recommend: item.recommend ? "Yes" : "No",
+        rating: item.rating,
       });
     });
 
+  if (loading) return <Loader />;
+
   return (
-    <>
-      {loading ? (
-        <Loader />
-      ) : (
-        <>
-          <MetaData title="All Reviews" />
+    <Box className={classes.dashboard}>
+      <MetaData title="Product Reviews - Angels Attic" />
+      {user && user.role === "admin" ? <AdminSidebar /> : <VendorSidebar />}
+      
+      <Box className={classes.mainContent}>
+        {user && user.role === "admin" ? (
+          <AdminHeader title="Product Reviews" />
+        ) : (
+          <VendorHeader title="Customer Reviews" />
+        )}
 
-          <div className={classes.updateUser1}>
-            <div
-              className={
-                !toggle ? `${classes.firstBox_01}` : `${classes.toggleBox_01}`
-              }
-            >
-              <Sidebar />
-            </div>
-
-            <div className={classes.secondBox_01}>
-              <div className={classes.navBar_01}>
-                <Navbar toggleHandler={toggleHandler} />
-              </div>
-              <div className={classes.formSection}>
-                <form
-                  className={`${classes.form}`}
-                  onSubmit={productReviewsSubmitHandler}
+        <Box sx={{ mt: 2 }}>
+          {user && user.role === "admin" && (
+            <Paper className={classes.sectionPaper} sx={{ mb: 4 }}>
+              <form className={classes.searchForm} onSubmit={productReviewsSubmitHandler}>
+                <Avatar className={classes.avatar}>
+                  <StarRateIcon />
+                </Avatar>
+                <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
+                  Search Product Reviews
+                </Typography>
+                <TextField
+                  variant="outlined"
+                  fullWidth
+                  className={classes.textField}
+                  label="Enter Product ID"
+                  required
+                  value={productId}
+                  onChange={(e) => setProductId(e.target.value)}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Star sx={{ color: "#94a3b8" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  className={classes.searchBtn}
+                  disabled={loading || productId === ""}
                 >
-                  <Avatar className={classes.avatar}>
-                    <StarRateIcon />
-                  </Avatar>
-                  <Typography
-                    variant="h5"
-                    component="h1"
-                    className={classes.heading}
-                  >
-                    All Reviews
-                  </Typography>
-                  <TextField
-                    variant="outlined"
-                    fullWidth
-                    className={`${classes.nameInput} ${classes.textField}`}
-                    label="Product Id"
-                    required
-                    value={productId}
-                    onChange={(e) => setProductId(e.target.value)}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <Star
-                            style={{
-                              fontSize: 20,
-                              color: "#414141",
-                            }}
-                          />
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
+                  Search Reviews
+                </Button>
+              </form>
+            </Paper>
+          )}
 
-                  <Button
-                    id="createProductBtn"
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    className={classes.loginButton}
-                    disabled={
-                      loading ? true : false || productId === "" ? true : false
-                    }
-                  >
-                    Search
-                  </Button>
-                </form>
-
-                {reviews && reviews.length > 0 ? (
-                  <div className="productListContainer">
-                    <h4 id="productListHeading">ALL PRODUCTS</h4>
-                    <DataGrid
-                      rows={rows}
-                      columns={columns}
-                      pageSize={10}
-                      autoHeight
-                      disableSelectionOnClick
-                      className="productListTable"
-                    />
-                  </div>
-                ) : (
-                  <h1 className={classes.heading_02}>No Reviews Found</h1>
-                )}
+          {reviews && reviews.length > 0 ? (
+            <Paper className={classes.sectionPaper}>
+              <Typography className={classes.sectionTitle}>
+                {user && user.role === "vendor" ? "My Product Reviews" : "Search Results"}
+              </Typography>
+              <div style={{ width: '100%' }}>
+                <DataGrid
+                  rows={rows}
+                  columns={columns}
+                  pageSize={10}
+                  autoHeight
+                  rowHeight={120}
+                  disableSelectionOnClick
+                  className={classes.dataGrid}
+                />
               </div>
-              ;
-            </div>
-          </div>
-        </>
-      )}
-    </>
+            </Paper>
+          ) : (
+            <Paper className={classes.sectionPaper} sx={{ textAlign: "center", py: 8 }}>
+              <Typography variant="h5" color="textSecondary">
+                No reviews found
+              </Typography>
+            </Paper>
+          )}
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

@@ -97,7 +97,7 @@ const ProductDetails = () => {
     }
   };
 
-  if (loading || !product || !product.images) return <CricketBallLoader />;
+  if (loading || !product || !product.images || product.images.length === 0) return <CricketBallLoader />;
 
   return (
     <Box className="product_details_page">

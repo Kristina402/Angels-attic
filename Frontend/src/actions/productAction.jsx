@@ -88,7 +88,10 @@ export const getProductDetails = (id) => {
 
       dispatch({
         type: PRODUCT_DETAILS_SUCCESS,
-        payload: data.product,
+        payload: {
+          product: data.product,
+          canReview: data.canReview,
+        },
       });
     } catch (error) {
       dispatch({
@@ -141,8 +144,9 @@ export function createProduct(productData) {
         type: NEW_PRODUCT_REQUEST,
       });
 
+      // Use application/json for base64 image data
       const config = {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { "Content-Type": "application/json" },
       };
 
       const { data } = await axios.post(
@@ -194,7 +198,7 @@ export function updateProduct(id, productData) {
       dispatch({ type: UPDATE_PRODUCT_REQUEST });
 
       const config = {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { "Content-Type": "application/json" },
       };
 
       const { data } = await axios.put(
@@ -222,6 +226,25 @@ export const getAllReviews = (id) => async (dispatch) => {
     dispatch({ type: ALL_REVIEW_REQUEST });
 
     const { data } = await axios.get(`/api/v1/reviews?id=${id}`);
+
+    dispatch({
+      type: ALL_REVIEW_SUCCESS,
+      payload: data.reviews,
+    });
+  } catch (error) {
+    dispatch({
+      type: ALL_REVIEW_FAIL,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  }
+};
+
+// get Vendor reviews
+export const getVendorReviewsAction = () => async (dispatch) => {
+  try {
+    dispatch({ type: ALL_REVIEW_REQUEST });
+
+    const { data } = await axios.get(`/api/v1/vendor/reviews`);
 
     dispatch({
       type: ALL_REVIEW_SUCCESS,

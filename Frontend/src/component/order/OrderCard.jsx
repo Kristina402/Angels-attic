@@ -20,6 +20,7 @@ import { useAlert } from "react-alert";
 import { addItemToCart } from "../../actions/cartAction";
 import { useHistory } from "react-router-dom";
 import DialogBox from "../Product/DialogBox";
+import { dispalyMoney } from "../DisplayMoney/DisplayMoney";
 
 const useStyles = makeStyles((theme) => ({
   orderCard: {
@@ -224,7 +225,7 @@ const OrderCard = ({ item, user }) => {
           </div>
           <div className={classes.infoItem}>
             <Typography className={classes.infoLabel}>Total Amount</Typography>
-            <Typography className={classes.infoValue}>₹{totalPrice}</Typography>
+            <Typography className={classes.infoValue}>{dispalyMoney(totalPrice)}</Typography>
           </div>
           <div className={classes.infoItem}>
             <Typography className={classes.infoLabel}>Order ID</Typography>
@@ -256,18 +257,9 @@ const OrderCard = ({ item, user }) => {
               <Typography className={classes.productName}>{product.name}</Typography>
               <div className={classes.productMeta}>
                 <span>Quantity: {product.quantity}</span>
-                <span>Price: ₹{product.price}</span>
+                <span>Price: {dispalyMoney(product.price)}</span>
               </div>
               <Box mt={2} display="flex" gap={1}>
-                <Button
-                  size="small"
-                  variant="text"
-                  startIcon={<ReplayIcon />}
-                  onClick={() => addToCartHandler(product.productId)}
-                  sx={{ color: "#666", fontSize: "0.8rem", textTransform: "none" }}
-                >
-                  Buy Again
-                </Button>
                 <Button
                   size="small"
                   variant="text"

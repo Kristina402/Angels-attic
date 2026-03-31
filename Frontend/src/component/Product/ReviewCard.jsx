@@ -12,6 +12,7 @@ const DialogBox = lazy(() => import("./DialogBox"));
 
 const ReviewCard = ({ product }) => { 
   const classes = useStyles();
+  const { canReview } = useSelector((state) => state.productDetails);
   const { isAuthenticated } = useSelector((state) => state.userData);
   const alert = useAlert();
   const history = useHistory();
@@ -61,15 +62,17 @@ const ReviewCard = ({ product }) => {
       <Typography variant="h5" component="h1" className={classes.reviewHeader}>
         Users Reviews
       </Typography>
-      <Button
-        variant="contained"
-        className={classes.submitBtn}
-        fullWidth
-        style={{ marginTop: "2rem" }}
-        onClick={handleClickOpen}
-      >
-        Write your Review
-      </Button>
+      {canReview && (
+        <Button
+          variant="contained"
+          className={classes.submitBtn}
+          fullWidth
+          style={{ marginTop: "2rem" }}
+          onClick={handleClickOpen}
+        >
+          Write your Review
+        </Button>
+      )}
 
       <Suspense fallback={<CricketBallLoader />}>
         <DialogBox

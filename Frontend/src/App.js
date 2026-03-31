@@ -1,8 +1,7 @@
-import React, { useState, useEffect, Suspense } from "react";
-import { Route, Switch, Redirect } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useEffect, Suspense } from "react";
+import { Route, Switch } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { load_UserProfile } from "./actions/userAction";
-import axios from "axios";
 import CricketBallLoader from "./component/layouts/loader/Loader";
 import PrivateRoute, { AdminRoute, VendorRoute, PublicRoute } from "./component/Route/PrivateRoute";
 import { SpeedInsights } from '@vercel/speed-insights/react';
@@ -95,9 +94,6 @@ function App() {
 
     // eslint-disable-next-line
   }, []);
-
-
-  const { user, isAuthenticated } = useSelector((state) => state.userData);
 
   return (
     <div className="app-container">
@@ -482,6 +478,11 @@ function App() {
               exact
               path="/vendor/analytics"
               component={SalesAnalytics}
+            />
+            <VendorRoute
+              exact
+              path="/vendor/reviews"
+              component={LazyProductReviews}
             />
             <VendorRoute
               exact

@@ -135,19 +135,18 @@ function NewProduct() {
 
   const createProductSubmitHandler = (e) => {
     e.preventDefault();
-    const myForm = new FormData();
-    myForm.set("name", name);
-    myForm.set("price", price);
-    myForm.set("description", description);
-    myForm.set("category", category);
-    myForm.set("size", size);
-    myForm.set("condition", condition);
-    myForm.set("info", info);
-    images.forEach((currImg) => {
-      myForm.append("images", currImg);
-    });
+    const productData = {
+      name,
+      price,
+      description,
+      category,
+      size,
+      condition,
+      info,
+      images,
+    };
 
-    dispatch(createProduct(myForm));
+    dispatch(createProduct(productData));
   };
 
   const createProductImagesChange = (e) => {

@@ -69,79 +69,97 @@
 .productListTable {
   width: 100%;
   overflow-x: auto; 
-  scrollbar-width: thin; 
-  scrollbar-color: #000 #f1f1f1; 
-  width: calc(100% - 30px); 
+  min-height: 400px;
+}
+
+.MuiDataGrid-root {
+  border: none !important;
+}
+
+.MuiDataGrid-columnSeparator {
+  display: none !important;
+}
+
+.MuiDataGrid-columnHeaderTitle {
+  font-weight: 700 !important;
+  color: #333 !important;
+}
+
+.productListTable::-webkit-scrollbar {
+  height: 8px;
+}
+
+.productListTable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.productListTable::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.productListTable::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.MuiDataGrid-viewport {
+  overflow-x: auto !important;
+}
+
+.MuiDataGrid-row {
+  max-height: none !important;
+}
+
+.MuiDataGrid-cell {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  line-height: 1.2 !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 8px !important;
 }
 
 
 .productListHeading {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  padding: 10px;
-  margin: 0;
-  padding: 0;
-  color: #414141;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  color: #333;
   width: 100%;
-  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
-  text-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5) ;
-}
-.column-header{
-  width: fit-content  ;
-  padding: 0px 10px ;
-  font-size: 16px ;
-  font-weight: 600 ;
-  align-items: center;
-  margin: 0px 0px 0px 15px ;
+  border-bottom: 1px solid #eee;
 }
 
-.column-header:hover{
-  color: #ed1c24;
-  background-color: #f2f2f2c1;
+.column-header {
+  padding: 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #444;
+  text-transform: uppercase;
+}
+
+.column-header:hover {
+  color: #000;
   cursor: pointer;
 }
 
-
-.column-header1 {
-  width: fit-content ;
-  padding: 0px 10px ;
-  font-size: 16px ;
-  font-weight: 600 ;
-  margin-left: 3rem ;
-}
-
-
-
-.icon-{
-  font-size: 20px;
-  color: #fff;
-  background-color: #414141;
-  padding: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-left: 3rem ;
-}
 .iconbtn {
-   font-size: 20px;
-  color: #fff;
-  background-color: #414141;
-  padding: 5px;
-  border-radius: 5px;
+  font-size: 18px;
+  color: #555;
+  padding: 6px;
+  border-radius: 50%;
   cursor: pointer;
-  margin-left: 0.5rem;
-}
-.icon-:hover{
- background-color: #ed1c24;
-
-}
-.iconbtn:hover{
- background-color: #ed1c24;
-
+  transition: all 0.3s;
 }
 
-.MuiDataGrid-root .MuiDataGrid-cell--textLeft{
-  margin-left: 1.2rem !important;
-  color: #000 !important;
+.iconbtn:hover {
+  background-color: #fce4e4;
+  color: #ed1c24;
+}
+
+.MuiDataGrid-root .MuiDataGrid-cell--textLeft {
+  color: #333 !important;
 }
 
 @media (max-width: 699px) {

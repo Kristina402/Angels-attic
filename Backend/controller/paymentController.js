@@ -147,9 +147,19 @@ exports.getVendorPayments = asyncWrapper(async (req, res, next) => {
   }).sort({ createdAt: -1 });
 
   let vendorRevenue = 0;
+  const vendorProductIds = vendorProducts.map(p => p._id.toString());
+
   payments.forEach(payment => {
     if (payment.payment_status === "success") {
-      vendorRevenue += payment.amount;
+      // Find the corresponding order to calculate only this vendor's share
+      const order = orders.find(o => o._id.toString() === payment.order_id.toString());
+      if (order) {
+        order.orderItems.forEach(item => {
+          if (item.productId && vendorProductIds.includes(item.productId.toString())) {
+            vendorRevenue += item.price * item.quantity;
+          }
+        });
+      }
     }
   });
 

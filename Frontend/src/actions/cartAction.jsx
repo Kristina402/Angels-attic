@@ -9,8 +9,12 @@ import axios from "axios";
 const getCartKey = (userId) => `cart_${userId}`;
 
 // Add to Cart
-export const addItemToCart = (id, quantity) => async (dispatch, getState) => {
+export const addItemToCart = (id, quantity = 1) => async (dispatch, getState) => {
   const { data } = await axios.get(`/api/v1/product/${id}`);
+  
+  // Enforce single quantity for all products
+  const finalQuantity = 1;
+
   dispatch({
     type: ADD_TO_CART,
     payload: {
@@ -18,9 +22,9 @@ export const addItemToCart = (id, quantity) => async (dispatch, getState) => {
       name: data.product.name,
       price: data.product.price,
       discount: data.product.discount || 0,
-      image: data.product.images[0].url,
+      image: data.product.images && data.product.images.length > 0 ? data.product.images[0].url : "/placeholder.png",
       stock: data.product.availabilityStatus === "Available" ? 1 : 0,
-      quantity,
+      quantity: finalQuantity,
     },
   });
 

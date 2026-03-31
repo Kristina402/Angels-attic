@@ -1,20 +1,20 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Box, Typography, List, ListItem, ListItemIcon, ListItemText, Divider, Avatar } from "@mui/material";
+import { Box, Typography, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import InventoryIcon from "@mui/icons-material/Inventory";
 import SettingsIcon from "@mui/icons-material/Settings";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { logout } from "../../actions/userAction";
 import { useAlert } from "react-alert";
 
 import { useHistory } from "react-router-dom";
+import RateReviewIcon from "@mui/icons-material/RateReview";
 
 const useStyles = makeStyles((theme) => ({
   sidebar: {
@@ -114,7 +114,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-
 const VendorSidebar = () => {
   const classes = useStyles();
   const location = useLocation();
@@ -135,6 +134,7 @@ const VendorSidebar = () => {
     { label: "My Products", icon: <ShoppingBagIcon />, path: "/vendor/products" },
     { label: "Add Product", icon: <AddBoxIcon />, path: "/vendor/product/new" },
     { label: "Orders", icon: <ListAltIcon />, path: "/vendor/orders" },
+    { label: "Reviews", icon: <RateReviewIcon />, path: "/vendor/reviews" },
   ];
 
   const analyticsItems = [

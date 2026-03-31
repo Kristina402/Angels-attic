@@ -34,7 +34,6 @@ const DialogBox = ({ open, handleClose, id }) => {
   const [title, setTitle] = useState("");
   const [comment, setComment] = useState("");
   const [ratings, setRatings] = useState(0);
-  const [recommend, setRecommend] = useState(false);
 
   const { success, error } = useSelector((state) => {
     return state.addNewReview;
@@ -54,20 +53,16 @@ const DialogBox = ({ open, handleClose, id }) => {
     setComment(event.target.value);
   };
 
-  const handleRatingChange = (event) => {
-    setRatings(event.target.value);
+  const handleRatingChange = (event, newValue) => {
+    setRatings(newValue);
   };
 
-  const handleRecommendChange = (event) => {
-    setRecommend(event.target.value);
-  };
 
   const handleSubmit = () => {
     const myForm = new FormData();
     myForm.set("title", title);
     myForm.set("comment", comment);
     myForm.set("ratings", ratings);
-    myForm.set("recommend", recommend);
     if(id){
           myForm.set("productId", id);
     }else{
@@ -145,51 +140,26 @@ const DialogBox = ({ open, handleClose, id }) => {
         </Box>
         <Box mt={2}>
           <Typography variant="body1" className={classes.bodyText}>
-            Rating
+            How would you rate your experience?
           </Typography>
           <Rating
             name="rating"
             value={ratings}
             onChange={handleRatingChange}
             precision={0.5}
+            size="large"
             className={classes.star}
           />
-        </Box>
-        <Box mt={2}>
-          <FormControl component="fieldset">
-            <FormLabel
-              component="legend"
-              style={{ fontSize: "14px", color: "#414141", fontWeight: "500" }}
-            >
-              Would you recommend this product?
-            </FormLabel>
-            <RadioGroup
-              aria-label="recommendation"
-              name="recommendation"
-              value={recommend}
-              onChange={handleRecommendChange}
-            >
-              <FormControlLabel
-                value="yes"
-                control={<Radio color="black" />}
-                label="Yes"
-              />
-              <FormControlLabel
-                value="no"
-                control={<Radio color="black" />}
-                label="No"
-              />
-            </RadioGroup>
-          </FormControl>
         </Box>
 
         <DialogActions>
           <Button
-            variant="outlined"
+            variant="contained"
             onClick={handleSubmit}
             className={classes.submitBtn}
+            disabled={!ratings || !title || !comment}
           >
-            Submit
+            Submit Review
           </Button>
         </DialogActions>
       </DialogContent>

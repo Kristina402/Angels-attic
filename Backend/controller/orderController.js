@@ -147,9 +147,23 @@ exports.getAllOrders = asyncWrapper(async (req, res, next) => {
 
   let totalAmount = 0;
 
-  orders.forEach((order) => {
-    totalAmount += order.totalPrice;
-  });
+  if (req.user.role === "vendor") {
+    // Find all products by this vendor to know which items to sum
+    const vendorProducts = await Product.find({ user: req.user._id });
+    const vendorProductIds = vendorProducts.map(p => p._id.toString());
+
+    orders.forEach((order) => {
+      order.orderItems.forEach(item => {
+        if (item.productId && vendorProductIds.includes(item.productId.toString())) {
+          totalAmount += item.price * item.quantity;
+        }
+      });
+    });
+  } else {
+    orders.forEach((order) => {
+      totalAmount += order.totalPrice;
+    });
+  }
 
   res.status(200).json({
     success: true,

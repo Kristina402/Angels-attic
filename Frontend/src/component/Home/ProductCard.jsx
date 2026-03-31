@@ -255,7 +255,11 @@ const ProductCard = ({ product }) => {
         <Link to={`/product/${product._id}`} style={{ textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", height: "100%" }}>
           <CardActionArea style={{ display: "flex", flexDirection: "column", alignItems: "stretch", flexGrow: 1 }}>
             <div className={classes.mediaWrapper}>
-              <CardMedia className={classes.media} image={product.images[0].url} title={product.name} />
+              <CardMedia 
+                className={classes.media} 
+                image={product.images && product.images.length > 0 ? product.images[0].url : "/placeholder.png"} 
+                title={product.name} 
+              />
               {isSold && (
                 <Box
                   sx={{

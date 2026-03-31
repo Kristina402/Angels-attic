@@ -19,7 +19,7 @@ import {
 import { makeStyles } from "@mui/styles";
 import { useSelector, useDispatch } from "react-redux";
 import { getAdminProducts, clearErrors } from "../../actions/productAction";
-import { myOrders } from "../../actions/orderAction";
+import { getAllOrders } from "../../actions/orderAction";
 import { getVendorPayments } from "../../actions/paymentAction";
 import MetaData from "../layouts/MataData/MataData";
 import Loader from "../layouts/loader/Loader";
@@ -33,8 +33,10 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import RateReviewIcon from "@mui/icons-material/RateReview";
 import { dispalyMoney } from "../DisplayMoney/DisplayMoney";
 import { Link } from "react-router-dom";
+import { getVendorReviewsAction } from "../../actions/productAction";;
 
 const useStyles = makeStyles((theme) => ({
   dashboard: {
@@ -174,7 +176,8 @@ const Dashboard = () => {
   const alert = useAlert();
 
   const { products, loading: productsLoading, error: productsError } = useSelector((state) => state.products);
-  const { orders, loading: ordersLoading, error: ordersError } = useSelector((state) => state.myOrder);
+  const { orders, loading: ordersLoading, error: ordersError } = useSelector((state) => state.allOrders);
+  const { reviews: vendorReviews } = useSelector((state) => state.getAllReview);
   const { user } = useSelector((state) => state.userData);
   const { vendorRevenue, loading: paymentsLoading, error: paymentsError } = useSelector((state) => state.payment);
 
@@ -195,12 +198,13 @@ const Dashboard = () => {
     }
 
     dispatch(getAdminProducts());
-    dispatch(myOrders());
+    dispatch(getAllOrders());
     dispatch(getVendorPayments());
+    dispatch(getVendorReviewsAction());
   }, [dispatch, alert, productsError, ordersError, paymentsError]);
 
 
-  const vendorProducts = products ? products.filter(p => (p.user && (p.user._id || p.user).toString() === user._id.toString())) : [];
+  const vendorProducts = (products && user) ? products.filter(p => (p.user && (p.user._id || p.user).toString() === user._id.toString())) : [];
   
   let totalSales = 0;
   orders && orders.forEach(order => {
@@ -214,6 +218,7 @@ const Dashboard = () => {
   const stats = [
     { label: "My Products", value: vendorProducts.length, icon: <InventoryIcon />, color: "#3B82F6", bgColor: "#EFF6FF" },
     { label: "Orders Received", value: orders ? orders.length : 0, icon: <ListAltIcon />, color: "#EC4899", bgColor: "#FDF2F8" },
+    { label: "Total Reviews", value: vendorReviews ? vendorReviews.length : 0, icon: <RateReviewIcon />, color: "#F59E0B", bgColor: "#FFFBEB" },
     { label: "Total Revenue", value: dispalyMoney(vendorRevenue || 0), icon: <MonetizationOnIcon />, color: "#10B981", bgColor: "#ECFDF5" },
   ];
 
@@ -274,31 +279,49 @@ const Dashboard = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {orders && orders.slice(0, 5).map((order) => {
-                      const statusStyle = getStatusColor(order.orderStatus);
-                      return (
-                        <TableRow key={order._id}>
-                          <TableCell sx={{ fontWeight: "700", color: "#1a1a1a" }}>#{order._id.substring(0, 8)}</TableCell>
-                          <TableCell>{order.shippingInfo.firstName} {order.shippingInfo.lastName}</TableCell>
-                          <TableCell>{order.orderItems[0].name}</TableCell>
-                          <TableCell sx={{ fontWeight: "700" }}>{dispalyMoney(order.totalPrice)}</TableCell>
-                          <TableCell>
-                            <Chip 
-                              label={order.orderStatus} 
-                              className={classes.statusChip}
-                              sx={{ backgroundColor: statusStyle.bgColor, color: statusStyle.color }}
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            <Tooltip title="View Details">
-                              <IconButton size="small" component={Link} to={`/vendor/order/${order._id}`}>
-                                <TrendingUpIcon fontSize="small" sx={{ color: "#EC4899" }} />
-                              </IconButton>
-                            </Tooltip>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                    {orders && orders
+                      .map(order => {
+                        const vendorItems = order.orderItems.filter(item => 
+                          item.productId && vendorProducts.some(vp => vp._id === item.productId)
+                        );
+                        return { ...order, vendorItems };
+                      })
+                      .filter(order => order.vendorItems.length > 0)
+                      .slice(0, 5)
+                      .map((order) => {
+                        const statusStyle = getStatusColor(order.orderStatus);
+                        const orderVendorTotal = order.vendorItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+                        const productNames = order.vendorItems.map(item => item.name).join(", ");
+
+                        return (
+                          <TableRow key={order._id}>
+                            <TableCell sx={{ fontWeight: "700", color: "#1a1a1a" }}>#{order._id.substring(0, 8)}</TableCell>
+                            <TableCell>{order.shippingInfo.firstName} {order.shippingInfo.lastName}</TableCell>
+                            <TableCell>
+                              <Tooltip title={productNames}>
+                                <Typography noWrap sx={{ maxWidth: "200px", fontSize: "inherit" }}>
+                                  {productNames}
+                                </Typography>
+                              </Tooltip>
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: "700" }}>{dispalyMoney(orderVendorTotal)}</TableCell>
+                            <TableCell>
+                              <Chip 
+                                label={order.orderStatus} 
+                                className={classes.statusChip}
+                                sx={{ backgroundColor: statusStyle.bgColor, color: statusStyle.color }}
+                              />
+                            </TableCell>
+                            <TableCell align="right">
+                              <Tooltip title="View Details">
+                                <IconButton size="small" component={Link} to={`/vendor/order/${order._id}`}>
+                                  <TrendingUpIcon fontSize="small" sx={{ color: "#EC4899" }} />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                   </TableBody>
                 </Table>
               </TableContainer>

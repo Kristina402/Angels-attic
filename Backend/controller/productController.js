@@ -1,5 +1,6 @@
 const Product = require("../models/productModel");
 const User = require("../models/userModel");
+const Order = require("../models/orderModel");
 const Notification = require("../models/notificationModel");
 const ErrorHandler = require("../utils/errorHandler");
 const asyncWrapper = require("../middleware/asyncWrapper");
@@ -101,9 +102,22 @@ exports.getProductDetails = asyncWrapper(async (req, res, next) => {
     return next(new ErrorHandler("Product not found", 404));
   }
 
+  let canReview = false;
+  if (req.user) {
+    const order = await Order.findOne({
+      user: req.user._id,
+      "orderItems.productId": product._id,
+      orderStatus: "Delivered",
+    });
+    if (order) {
+      canReview = true;
+    }
+  }
+
   res.status(200).json({
     success: true,
     product,
+    canReview,
   });
 });
 
@@ -207,23 +221,44 @@ exports.deleteProduct = asyncWrapper(async (req, res, next) => {
 exports.createProductReview = asyncWrapper(async (req, res, next) => {
   const { rating, comment, productId } = req.body;
 
+  // Check if user has purchased and received the product
+  const order = await Order.findOne({
+    user: req.user._id,
+    "orderItems.productId": productId,
+    orderStatus: "Delivered",
+  });
+
+  if (!order) {
+    return next(new ErrorHandler("You can only review products you have purchased and received", 400));
+  }
+
+  const product = await Product.findById(productId);
+
+  if (!product) {
+    return next(new ErrorHandler("Product not found", 404));
+  }
+
   const review = {
     user: req.user._id,
+    order: order._id,
+    vendor: product.user, // Directly linking the review with the product's vendor
     name: req.user.name,
     rating: Number(rating),
     comment,
   };
 
-  const product = await Product.findById(productId);
-
+  // Check if the user already reviewed this product.
   const isReviewed = product.reviews.find(
     (rev) => rev.user.toString() === req.user._id.toString()
   );
 
   if (isReviewed) {
     product.reviews.forEach((rev) => {
-      if (rev.user.toString() === req.user._id.toString())
-        (rev.rating = rating), (rev.comment = comment);
+      if (rev.user.toString() === req.user._id.toString()) {
+        rev.rating = rating;
+        rev.comment = comment;
+        rev.order = order._id;
+      }
     });
   } else {
     product.reviews.push(review);
@@ -231,7 +266,6 @@ exports.createProductReview = asyncWrapper(async (req, res, next) => {
   }
 
   let avg = 0;
-
   product.reviews.forEach((rev) => {
     avg += rev.rating;
   });
@@ -253,6 +287,15 @@ exports.getProductReviews = asyncWrapper(async (req, res, next) => {
     return next(new ErrorHandler("Product not found", 404));
   }
 
+  // If user is logged in, check role for vendor restriction
+  // Note: This route is used by ProductDetails (public) and Admin/ProductReviews
+  // For Admin/Vendor, we might want more restriction if called via the dashboard
+  if (req.user && req.user.role === "vendor") {
+    if (product.user.toString() !== req.user.id) {
+      return next(new ErrorHandler("You can only view reviews for your own products", 403));
+    }
+  }
+
   res.status(200).json({
     success: true,
     reviews: product.reviews,
@@ -267,18 +310,29 @@ exports.deleteReview = asyncWrapper(async (req, res, next) => {
     return next(new ErrorHandler("Product not found", 404));
   }
 
+  const reviewToDelete = product.reviews.find(
+    (rev) => rev._id.toString() === req.query.id.toString()
+  );
+
+  if (!reviewToDelete) {
+    return next(new ErrorHandler("Review not found", 404));
+  }
+
+  // Check if user is Admin OR the author of the review
+  if (req.user.role !== "admin" && reviewToDelete.user.toString() !== req.user.id) {
+    return next(new ErrorHandler("You are not allowed to delete this review", 403));
+  }
+
   const reviews = product.reviews.filter(
     (rev) => rev._id.toString() !== req.query.id.toString()
   );
 
   let avg = 0;
-
   reviews.forEach((rev) => {
     avg += rev.rating;
   });
 
   let ratings = 0;
-
   if (reviews.length === 0) {
     ratings = 0;
   } else {
@@ -328,5 +382,33 @@ exports.getVendorProducts = asyncWrapper(async (req, res, next) => {
   res.status(200).json({
     success: true,
     products,
+  });
+});
+
+// Get All Reviews for a Vendor's Products
+exports.getVendorReviews = asyncWrapper(async (req, res, next) => {
+  // Use aggregation to find all reviews across all products that belong to this vendor
+  // This is more performant than fetching all products and manually filtering
+  const reviews = await Product.aggregate([
+    { $match: { user: req.user._id } },
+    { $unwind: "$reviews" },
+    {
+      $project: {
+        _id: "$reviews._id",
+        productId: "$_id",
+        productName: "$name",
+        user: "$reviews.user",
+        name: "$reviews.name",
+        rating: "$reviews.rating",
+        comment: "$reviews.comment",
+        order: "$reviews.order",
+        vendor: "$reviews.vendor",
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    reviews,
   });
 });

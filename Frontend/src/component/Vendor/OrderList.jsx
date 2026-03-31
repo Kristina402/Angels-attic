@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid } from "@material-ui/data-grid";
 import { useSelector, useDispatch } from "react-redux";
-import { clearErrors, deleteOrder, updateOrder } from "../../actions/orderAction";
+import { clearErrors, deleteOrder, updateOrder, getAllOrders } from "../../actions/orderAction";
+import { getAdminProducts } from "../../actions/productAction";
+import { dispalyMoney } from "../DisplayMoney/DisplayMoney";
 import { Link, useHistory } from "react-router-dom";
 import { useAlert } from "react-alert";
 import { Button, Typography, Box, Paper, IconButton, Chip, Tooltip, FormControl, Select, MenuItem } from "@mui/material";
@@ -69,24 +71,16 @@ const OrderList = () => {
   const alert = useAlert();
   const history = useHistory();
 
-  const { error } = useSelector((state) => state.allOrders || {});
+  const { error, orders } = useSelector((state) => state.allOrders || {});
+  const { products } = useSelector((state) => state.products || {});
+  const { user } = useSelector((state) => state.userData || {});
   const { error: deleteError, isDeleted, isUpdated, loading: updateLoading } = useSelector(
     (state) => state.deleteUpdateOrder || {}
   );
   
-  const [vendorOrders, setVendorOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchVendorOrders = async () => {
-    try {
-      const { data } = await axios.get("/api/v1/vendor/orders");
-      setVendorOrders(data.orders);
-      setLoading(false);
-    } catch (err) {
-      alert.error(err.response?.data?.message || "Failed to fetch orders");
-      setLoading(false);
-    }
-  };
+
 
   useEffect(() => {
     if (error) {
@@ -106,7 +100,9 @@ const OrderList = () => {
       dispatch({ type: UPDATE_ORDER_RESET });
     }
 
-    fetchVendorOrders();
+    dispatch(getAllOrders());
+    dispatch(getAdminProducts());
+    setLoading(false);
   }, [dispatch, alert, error, deleteError, isDeleted, isUpdated]);
 
   const getStatusColor = (status) => {
@@ -199,11 +195,35 @@ const OrderList = () => {
       }
     },
     {
+      field: "customerName",
+      headerName: "Customer",
+      minWidth: 150,
+      flex: 0.4,
+    },
+    {
+      field: "productName",
+      headerName: "Product(s)",
+      minWidth: 200,
+      flex: 0.6,
+      renderCell: (params) => (
+        <Tooltip title={params.value}>
+          <Typography noWrap sx={{ fontSize: "0.85rem" }}>
+            {params.value}
+          </Typography>
+        </Tooltip>
+      )
+    },
+    {
       field: "amount",
-      headerName: "Amount",
+      headerName: "Price",
       type: "number",
-      minWidth: 270,
-      flex: 0.5,
+      minWidth: 150,
+      flex: 0.3,
+      renderCell: (params) => (
+        <Typography sx={{ fontWeight: 700 }}>
+          {dispalyMoney(params.value)}
+        </Typography>
+      )
     },
     {
       field: "actions",
@@ -245,14 +265,28 @@ const OrderList = () => {
     }
   };
 
+  const vendorProducts = products ? products.filter(p => (p.user && (p.user._id || p.user).toString() === user._id.toString())) : [];
+
   const rows = [];
-  vendorOrders &&
-    vendorOrders.forEach((item) => {
-      rows.push({
-        id: item._id,
-        amount: item.totalPrice,
-        status: item.orderStatus,
-      });
+  orders &&
+    orders.forEach((item) => {
+      // Filter items that belong to the current vendor
+      const vendorItems = item.orderItems.filter(orderItem => 
+        orderItem.productId && vendorProducts.some(vp => vp._id === orderItem.productId)
+      );
+
+      if (vendorItems.length > 0) {
+        const orderVendorTotal = vendorItems.reduce((acc, orderItem) => acc + (orderItem.price * orderItem.quantity), 0);
+        const productNames = vendorItems.map(orderItem => orderItem.name).join(", ");
+
+        rows.push({
+          id: item._id,
+          amount: orderVendorTotal,
+          status: item.orderStatus,
+          customerName: item.shippingInfo.firstName + " " + item.shippingInfo.lastName,
+          productName: productNames,
+        });
+      }
     });
 
   if (loading) return <Loader />;

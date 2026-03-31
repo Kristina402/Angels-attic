@@ -23,22 +23,32 @@ const useStyles = makeStyles((theme) => ({
   cardheader: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     alignItems: "center",
+    width: "100%",
     marginBottom: theme.spacing(2),
+  },
+  avatarContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
   },
   avatar: {
     marginRight: theme.spacing(1),
   },
 
   title: {
-    marginBottom: "1rem",
+    marginBottom: "0.5rem",
     fontWeight: 700,
+    fontSize: "1.1rem",
   },
   commentTxt: {
-    marginBottom: "1.5rem",
-    fontSize: "14px",
-    color: "#414141",
+    marginBottom: "1rem",
+    fontSize: "15px",
+    color: "#333",
+    lineHeight: "1.5",
+    width: "100%",
+    wordWrap: "break-word",
   },
   recommend: {
     fontWeight: 700,
@@ -130,28 +140,29 @@ const MyCard = ({ review }) => {
   return (
     <div className={classes.cardRoot}>
       <div className={classes.cardheader}>
-        <Avatar
-          alt="User Avatar"
-          src={review.avatar || "https://i.imgur.com/JSW6mEk.png"}
-          className={classes.avatar}
-        />
-        <Typography variant="body1" className={classes.subHeadings}>
-          {review.name}
-        </Typography>
+        <div className={classes.avatarContainer}>
+          <Avatar
+            alt={review.name}
+            src={review.avatar && review.avatar.url}
+            className={classes.avatar}
+          />
+          <Typography variant="body1" className={classes.subHeadings}>
+            {review.name}
+          </Typography>
+        </div>
         <Typography
-          variant="body1"
+          variant="body2"
           color="textSecondary"
-          style={{ marginLeft: "12rem" }}
           className={classes.bodyText}
         >
           {formateDate(review.createdAt)}
         </Typography>
       </div>
-      <div>
+      <div style={{ marginBottom: "0.5rem" }}>
         <Rating
-          value={4}
+          value={review.rating}
           precision={0.5}
-          size="midium"
+          size="medium"
           readOnly
           className={classes.star}
         />
@@ -161,12 +172,6 @@ const MyCard = ({ review }) => {
       </Typography>
       <Typography variant="body1" className={classes.commentTxt}>
         {review.comment}
-      </Typography>
-      <Typography variant="body1" className={classes.recommend}>
-        Would you recommend this product?{" "}
-        <span className={review.recommend ? classes.yes : classes.no}>
-          {review.recommend ? "Yes!" : "No!"}
-        </span>
       </Typography>
       <div className={classes.helpful}>
         <Typography

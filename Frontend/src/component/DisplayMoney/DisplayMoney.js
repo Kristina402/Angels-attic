@@ -1,7 +1,7 @@
-// dispaly Money In Indian Format with Rs prefix
+// dispaly Money In Indian Format with RS prefix
 export const dispalyMoney = function(num) {
   const roundedNum = Math.round(num);
-  return `Rs ${roundedNum.toLocaleString("en-IN")}`;
+  return `RS ${roundedNum.toLocaleString("en-IN")}`;
 };
 
 // Calculate Discount Percentage

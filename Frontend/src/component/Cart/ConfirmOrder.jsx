@@ -170,6 +170,7 @@ function ConfirmOrder() {
     if (error) {
       alert.error(error);
       dispatch(clearErrors());
+      setIsProcessing(false);
     }
     if (success && order) {
       history.push(`/success?id=${order.order._id}&total=${order.order.totalPrice}&status=${order.order.orderStatus}`);
@@ -177,6 +178,7 @@ function ConfirmOrder() {
   }, [dispatch, error, alert, success, order, history]);
 
   const [paymentMethod, setPaymentMethod] = useState("ESEWA");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const subtotal = cartItems.reduce((acc, currItem) => {
     return acc + currItem.quantity * currItem.price;
@@ -188,6 +190,9 @@ function ConfirmOrder() {
   const address = `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.country}`;
 
   const processOrder = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+
     try {
       const config = {
         headers: {
@@ -214,7 +219,6 @@ function ConfirmOrder() {
         const orderId = orderResponse.order._id;
 
         // Get eSewa signature
-        // eSewa v2 sometimes prefers integers if the value is a whole number
         const formattedAmount = Math.floor(totalPrice).toString();
         const esewaData = {
           amount: formattedAmount,
@@ -273,6 +277,7 @@ function ConfirmOrder() {
       }
     } catch (error) {
       alert.error(error.response ? error.response.data.message : error.message);
+      setIsProcessing(false);
     }
   };
 
@@ -406,9 +411,9 @@ function ConfirmOrder() {
               <Button 
                 className={classes.placeOrderBtn}
                 onClick={processOrder}
-                disabled={loading}
+                disabled={loading || isProcessing}
               >
-                {paymentMethod === "ESEWA" ? "Pay with eSewa" : "Place Order (COD)"}
+                {isProcessing ? "Processing..." : (paymentMethod === "ESEWA" ? "Pay with eSewa" : "Place Order (COD)")}
               </Button>
             </Paper>
           </Grid>
