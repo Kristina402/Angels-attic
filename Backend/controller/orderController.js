@@ -204,6 +204,13 @@ exports.updateOrder = asyncWrapper(async (req, res, next) => {
     order.deliveredAt = Date.now();
   }
 
+  // Restore stock if order is cancelled by Admin/Vendor
+  if (req.body.status === "Cancelled" && oldStatus !== "Cancelled") {
+    for (const item of order.orderItems) {
+      await restoreAvailabilityStatus(item.productId);
+    }
+  }
+
   await order.save({ validateBeforeSave: false });
 
   // Create notification for user/admin on status update
@@ -232,6 +239,78 @@ exports.updateOrder = asyncWrapper(async (req, res, next) => {
     success: true,
   });
 });
+
+// Cancel Order -- Customer
+exports.cancelOrder = asyncWrapper(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    return next(new ErrorHandler("Order not found with this Id", 404));
+  }
+
+  // Check if the order belongs to the logged-in user
+  if (order.user.toString() !== req.user._id.toString()) {
+    return next(new ErrorHandler("You are not authorized to cancel this order", 403));
+  }
+
+  // Check if the order status is either "Pending" or "Processing"
+  if (order.orderStatus !== "Pending" && order.orderStatus !== "Processing") {
+    return next(
+      new ErrorHandler(
+        `Cannot cancel order once it is ${order.orderStatus}`,
+        400
+      )
+    );
+  }
+
+  // Update order status to "Cancelled"
+  order.orderStatus = "Cancelled";
+  await order.save({ validateBeforeSave: false });
+
+  // Restore product stock (AvailabilityStatus = "Available")
+  for (const item of order.orderItems) {
+    await restoreAvailabilityStatus(item.productId);
+  }
+
+  // Notify Admin
+  const admins = await User.find({ role: "admin" });
+  for (const admin of admins) {
+    await Notification.create({
+      recipient: admin._id,
+      message: `Order #${order._id} has been cancelled by the customer.`,
+      type: "order_cancelled",
+      link: `/admin/order/${order._id}`,
+    });
+  }
+
+  // Notify Vendors
+  const productIds = order.orderItems.map((item) => item.productId);
+  const products = await Product.find({ _id: { $in: productIds } });
+  
+  const vendorIds = [...new Set(products.map((p) => p.user.toString()))];
+  for (const vendorId of vendorIds) {
+    await Notification.create({
+      recipient: vendorId,
+      message: `An order containing your product has been cancelled: #${order._id}`,
+      type: "order_cancelled",
+      link: `/vendor/orders`,
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Order Cancelled Successfully",
+  });
+});
+
+async function restoreAvailabilityStatus(id) {
+  const product = await Product.findById(id);
+
+  if (product) {
+    product.availabilityStatus = "Available";
+    await product.save({ validateBeforeSave: false });
+  }
+}
 
 async function updateAvailabilityStatus(id) {
   const product = await Product.findById(id);

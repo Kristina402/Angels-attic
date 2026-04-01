@@ -13,14 +13,17 @@ import { makeStyles } from "@mui/styles";
 import ReplayIcon from "@mui/icons-material/Replay";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import RateReviewIcon from "@mui/icons-material/RateReview";
+import CancelIcon from "@mui/icons-material/Cancel";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import EventIcon from "@mui/icons-material/Event";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useAlert } from "react-alert";
 import { addItemToCart } from "../../actions/cartAction";
+import { cancelOrder, clearErrors } from "../../actions/orderAction";
 import { useHistory } from "react-router-dom";
 import DialogBox from "../Product/DialogBox";
 import { dispalyMoney } from "../DisplayMoney/DisplayMoney";
+import { CANCEL_ORDER_RESET } from "../../constants/orderConstant";
 
 const useStyles = makeStyles((theme) => ({
   orderCard: {
@@ -162,6 +165,18 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: "transparent !important",
     },
   },
+  btnCancel: {
+    borderColor: "#fee2e2 !important",
+    color: "#ef4444 !important",
+    borderRadius: "10px !important",
+    textTransform: "none !important",
+    fontWeight: "600 !important",
+    padding: "0.6rem 1.5rem !important",
+    "&:hover": {
+      borderColor: "#ef4444 !important",
+      backgroundColor: "#fef2f2 !important",
+    },
+  },
   statusBadge: {
     fontWeight: "700 !important",
     fontSize: "0.75rem !important",
@@ -177,7 +192,22 @@ const OrderCard = ({ item, user }) => {
   const [open, setOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(null);
 
+  const { error: cancelError, isCancelled, loading: cancelLoading } = useSelector((state) => state.deleteUpdateOrder);
+
   const { shippingInfo, orderItems, orderStatus, createdAt, _id, totalPrice } = item;
+
+  React.useEffect(() => {
+    if (cancelError) {
+      alert.error(cancelError);
+      dispatch(clearErrors());
+    }
+    if (isCancelled) {
+      alert.success("Order Cancelled Successfully");
+      dispatch({ type: CANCEL_ORDER_RESET });
+      // The parent component should handle the refresh or we can use history.push
+      window.location.reload();
+    }
+  }, [dispatch, cancelError, alert, isCancelled]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -196,6 +226,8 @@ const OrderCard = ({ item, user }) => {
         return { bg: "#FFFBEB", text: "#F59E0B" };
       case "Shipped":
         return { bg: "#EFF6FF", text: "#3B82F6" };
+      case "Cancelled":
+        return { bg: "#FEF2F2", text: "#EF4444" };
       default:
         return { bg: "#F3F4F6", text: "#6B7280" };
     }
@@ -212,6 +244,12 @@ const OrderCard = ({ item, user }) => {
   const handleReviewOpen = (productId) => {
     setSelectedProductId(productId);
     setOpen(true);
+  };
+
+  const cancelOrderHandler = (id) => {
+    if (window.confirm("Are you sure you want to cancel this order?")) {
+      dispatch(cancelOrder(id));
+    }
   };
 
   return (
@@ -283,10 +321,28 @@ const OrderCard = ({ item, user }) => {
             {user.name}
           </Typography>
           <Typography className={classes.addressText}>
-            {shippingInfo.address}, {shippingInfo.city}, {shippingInfo.state} - {shippingInfo.pinCode}
+            {
+              [
+                shippingInfo.address,
+                shippingInfo.city,
+                shippingInfo.state,
+                shippingInfo.country
+              ].filter(Boolean).join(", ") + (shippingInfo.pinCode ? ` - ${shippingInfo.pinCode}` : "")
+            }
           </Typography>
         </div>
         <div className={classes.actionButtons}>
+          {(orderStatus === "Pending" || orderStatus === "Processing") && (
+            <Button
+              variant="outlined"
+              className={classes.btnCancel}
+              startIcon={<CancelIcon />}
+              onClick={() => cancelOrderHandler(_id)}
+              disabled={cancelLoading}
+            >
+              {cancelLoading ? "Cancelling..." : "Cancel Order"}
+            </Button>
+          )}
           <Button
             variant="outlined"
             className={classes.btnSecondary}

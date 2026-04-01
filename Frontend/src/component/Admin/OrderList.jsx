@@ -285,7 +285,7 @@ function OrderList() {
         id: item._id,
         amount: item.totalPrice,
         status: item.orderStatus,
-        customerName: item.shippingInfo.firstName + " " + item.shippingInfo.lastName,
+        customerName: item.shippingInfo.fullName || (item.shippingInfo.firstName + " " + item.shippingInfo.lastName),
         productName: item.orderItems.map(i => i.name).join(", "),
         vendorName: [...new Set(item.orderItems.map(i => i.vendorName || "N/A"))].join(", "),
       });

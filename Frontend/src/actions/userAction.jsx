@@ -45,7 +45,7 @@ import {
   VERIFY_OTP_FAIL,
 } from "../constants/userConstanat";
 import { loadUserCart } from "./cartAction";
-import { EMPTY_CART } from "../constants/cartConstant";
+import { EMPTY_CART, CLEAR_SHIPPING_INFO } from "../constants/cartConstant";
 
 
 // login user
@@ -186,22 +186,33 @@ export const load_UserProfile = () => async (dispatch) => {
 
 // logout user 
 export function logout() {
-  return async function (dispatch) {
+  return async function (dispatch, getState) {
     try {
+      const userId = getState().userData.user?._id;
       sessionStorage.removeItem("user");
       // Clear all user-specific data from localStorage
+      if (userId) {
+        localStorage.removeItem(`shippingInfo_${userId}`);
+      }
       localStorage.removeItem("shippingInfo");
       
-      // Clear the in-memory cart so it doesn't leak to the next user
+      // Clear the in-memory cart and shipping info so it doesn't leak to the next user
       dispatch({ type: EMPTY_CART });
+      dispatch({ type: CLEAR_SHIPPING_INFO });
+
       await axios.get(`/api/v1/logout`); // token will expired from cookies
       dispatch({ type: LOGOUT_SUCCESS });
       return true;
 
     } catch (error) {
+      const userId = getState().userData.user?._id;
       sessionStorage.removeItem("user");
+      if (userId) {
+        localStorage.removeItem(`shippingInfo_${userId}`);
+      }
       localStorage.removeItem("shippingInfo");
       dispatch({ type: EMPTY_CART }); // still clear cart even on error
+      dispatch({ type: CLEAR_SHIPPING_INFO });
       dispatch({
         type: LOGOUT_FAIL,
         payload: error.response ? error.response.data.message : error.message,

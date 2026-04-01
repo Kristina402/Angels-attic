@@ -187,7 +187,12 @@ function ConfirmOrder() {
   const shippingCharges = subtotal > 5000 ? 0 : 200;
   const totalPrice = subtotal + shippingCharges;
 
-  const address = `${shippingInfo.address}, ${shippingInfo.city}, ${shippingInfo.country}`;
+  const address = [
+    shippingInfo.address,
+    shippingInfo.city,
+    shippingInfo.state,
+    shippingInfo.country
+  ].filter(Boolean).join(", ") + (shippingInfo.pinCode ? ` - ${shippingInfo.pinCode}` : "");
 
   const processOrder = async () => {
     if (isProcessing) return;
@@ -211,7 +216,7 @@ function ConfirmOrder() {
           paymentInfo: {
             id: "PENDING_ESEWA",
             status: "pending",
-            type: "eSewa"
+            method: "eSewa"
           },
         };
 
@@ -269,7 +274,7 @@ function ConfirmOrder() {
           paymentInfo: {
             id: "Cash on Delivery",
             status: "Not Paid",
-            type: "COD"
+            method: "COD"
           },
         };
 

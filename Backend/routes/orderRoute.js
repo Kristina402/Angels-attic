@@ -7,6 +7,7 @@ const {
   getAllOrders,
   updateOrder,
   deleteOrder,
+  cancelOrder,
 } = require("../controller/orderController");
 const router = express.Router();
 
@@ -15,6 +16,8 @@ const { isAuthentictedUser, authorizeRoles } = require("../middleware/auth");
 router.route("/order/new").post(isAuthentictedUser, newOrder);
 
 router.route("/order/:id").get(isAuthentictedUser, getSingleOrder);
+
+router.route("/order/cancel/:id").put(isAuthentictedUser, cancelOrder);
 
 router.route("/orders/myOrders").get(isAuthentictedUser, myOrders);
 

@@ -22,7 +22,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { makeStyles } from "@mui/styles";
-import AccountTreeIcon from "@mui/icons-material/AccountTree";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { UPDATE_ORDER_RESET } from "../../constants/orderConstant";
 import { Link, useParams } from "react-router-dom";
 import OrderDetailsSection from "../Cart/OrderDetails";
@@ -30,6 +30,7 @@ import AdminSidebar from "./AdminSidebar";
 import AdminHeader from "./AdminHeader";
 import VendorSidebar from "../Vendor/VendorSidebar";
 import VendorHeader from "../Vendor/VendorHeader";
+import { dispalyMoney } from "../DisplayMoney/DisplayMoney";
 
 const useStyles = makeStyles((theme) => ({
   dashboard: {
@@ -153,10 +154,10 @@ function ProcessOrder() {
 
   return (
     <Box className={classes.dashboard}>
-      <MetaData title="Process Order - Admin Dashboard" />
+      <MetaData title={isAdmin ? "Process Order - Admin Dashboard" : "View Order - Vendor Dashboard"} />
       <Sidebar />
       <Box className={classes.mainContent}>
-        <Header title="Order Management" />
+        <Header title={isAdmin ? "Order Management" : "View Order Details"} />
 
         {loading ? (
           <Loader />
@@ -175,7 +176,14 @@ function ProcessOrder() {
                       <Typography className={classes.infoText}><b>Name:</b> {order.shippingInfo?.fullName}</Typography>
                       <Typography className={classes.infoText}><b>Phone:</b> {order.shippingInfo?.phoneNo}</Typography>
                       <Typography className={classes.infoText}><b>Email:</b> {order.shippingInfo?.email}</Typography>
-                      <Typography className={classes.infoText}><b>Address:</b> {`${order.shippingInfo?.address}, ${order.shippingInfo?.city}, ${order.shippingInfo?.country}`}</Typography>
+                      <Typography className={classes.infoText}><b>Address:</b> {
+                        [
+                          order.shippingInfo?.address,
+                          order.shippingInfo?.city,
+                          order.shippingInfo?.state,
+                          order.shippingInfo?.country
+                        ].filter(Boolean).join(", ") + (order.shippingInfo?.pinCode ? ` - ${order.shippingInfo?.pinCode}` : "")
+                      }</Typography>
                     </Box>
                   </Grid>
                   
@@ -186,15 +194,16 @@ function ProcessOrder() {
                       </Typography>
                       <Typography 
                         sx={{ 
-                          color: order.paymentInfo?.status === "succeeded" ? "#10B981" : "#EF4444",
+                          color: order.paymentInfo?.status === "succeeded" || order.paymentInfo?.status === "Paid" ? "#10B981" : "#EF4444",
                           fontWeight: 800,
                           fontSize: "1rem",
                           mb: 1
                         }}
                       >
-                        {order.paymentInfo?.status === "succeeded" ? "PAID SUCCESSFULLY" : "PAYMENT PENDING"}
+                        {order.paymentInfo?.status === "succeeded" || order.paymentInfo?.status === "Paid" ? "PAID SUCCESSFULLY" : "PAYMENT PENDING"}
                       </Typography>
-                      <Typography className={classes.infoText}><b>Total Amount:</b> Rs. {order.totalPrice}</Typography>
+                      <Typography className={classes.infoText}><b>Method:</b> {order.paymentInfo?.method || (order.paymentInfo?.id === "Cash on Delivery" ? "COD" : "eSewa")}</Typography>
+                      <Typography className={classes.infoText}><b>Total Amount:</b> {dispalyMoney(order.totalPrice)}</Typography>
                       <Typography className={classes.infoText}><b>Paid At:</b> {order.paidAt ? new Date(order.paidAt).toLocaleDateString() : "N/A"}</Typography>
                     </Box>
                   </Grid>
@@ -221,23 +230,6 @@ function ProcessOrder() {
               <Paper className={classes.sectionPaper} sx={{ height: "fit-content", position: "sticky", top: "100px" }}>
                 <Typography className={classes.sectionTitle}>Action Center</Typography>
                 
-                <Box sx={{ mb: 4, p: 2, backgroundColor: "#F8F9FB", borderRadius: "12px" }}>
-                  <Typography variant="body2" sx={{ color: "#94a3b8", fontWeight: 700, mb: 1.5, textTransform: "uppercase", fontSize: "0.75rem" }}>
-                    Lifecycle Status
-                  </Typography>
-                  <Chip 
-                    label={order.orderStatus} 
-                    className={classes.statusChip}
-                    sx={{ 
-                      backgroundColor: getStatusStyle(order.orderStatus).bgColor,
-                      color: getStatusStyle(order.orderStatus).color,
-                      px: 1,
-                      py: 0.5,
-                      fontSize: "0.85rem"
-                    }}
-                  />
-                </Box>
-
                 {order.orderStatus === "Delivered" ? (
                   <Box sx={{ textAlign: "center", p: 4, backgroundColor: "#ECFDF5", borderRadius: "16px", border: "1px dashed #10B981" }}>
                     <Typography sx={{ color: "#10B981", fontWeight: 800, fontSize: "1.1rem" }}>
@@ -284,7 +276,7 @@ function ProcessOrder() {
                         variant="contained"
                         className={classes.submitBtn}
                         disabled={loading || updateLoading || status === ""}
-                        startIcon={updateLoading ? <CircularProgress size={20} color="inherit" /> : <AccountTreeIcon />}
+                        startIcon={updateLoading ? <CircularProgress size={20} color="inherit" /> : <CheckCircleIcon />}
                         sx={{ py: 1.5 }}
                       >
                         {updateLoading ? "Updating..." : "Confirm Update"}

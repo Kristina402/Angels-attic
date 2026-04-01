@@ -96,7 +96,7 @@ exports.getAllProducts = asyncWrapper(async (req, res, next) => {
 
 // Get Product Details
 exports.getProductDetails = asyncWrapper(async (req, res, next) => {
-  const product = await Product.findById(req.params.id);
+  const product = await Product.findById(req.params.id).populate("user", "name");
 
   if (!product) {
     return next(new ErrorHandler("Product not found", 404));

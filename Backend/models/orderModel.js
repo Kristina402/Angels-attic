@@ -66,6 +66,11 @@ const orderSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
+    method: {
+      type: String,
+      required: true,
+      default: "COD",
+    },
   },
   paidAt: {
     type: Date,

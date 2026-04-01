@@ -2,3 +2,4 @@ export const ADD_TO_CART = "ADD_TO_CART";
 export const REMOVE_CART_ITEM = "REMOVE_CART_ITEM";
 export const SAVE_SHIPPING_INFO  = "SAVE-SHIPPING-INFO"
 export const EMPTY_CART = "EMPTY_CART";
+export const CLEAR_SHIPPING_INFO = "CLEAR_SHIPPING_INFO";

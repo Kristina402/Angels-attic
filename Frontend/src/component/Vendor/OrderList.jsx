@@ -10,12 +10,12 @@ import { Button, Typography, Box, Paper, IconButton, Chip, Tooltip, FormControl,
 import MetaData from "../layouts/MataData/MataData";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import VendorSidebar from "./VendorSidebar";
 import VendorHeader from "./VendorHeader";
 import { makeStyles } from "@mui/styles";
 import axios from "axios";
 import Loader from "../layouts/loader/Loader";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import { DELETE_ORDER_RESET, UPDATE_ORDER_RESET } from "../../constants/orderConstant";
 
 const useStyles = makeStyles((theme) => ({
@@ -238,7 +238,7 @@ const OrderList = () => {
           <Box sx={{ display: "flex", gap: "0.5rem" }}>
             <Tooltip title="View Details">
               <IconButton size="small" component={Link} to={`/vendor/order/${id}`}>
-                <TrendingUpIcon className={classes.actionIcon} />
+                <VisibilityIcon className={classes.actionIcon} />
               </IconButton>
             </Tooltip>
             <Tooltip title="Delete Order">
@@ -283,7 +283,7 @@ const OrderList = () => {
           id: item._id,
           amount: orderVendorTotal,
           status: item.orderStatus,
-          customerName: item.shippingInfo.firstName + " " + item.shippingInfo.lastName,
+          customerName: item.shippingInfo?.fullName || "N/A",
           productName: productNames,
         });
       }

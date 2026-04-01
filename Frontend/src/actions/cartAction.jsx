@@ -24,6 +24,8 @@ export const addItemToCart = (id, quantity = 1) => async (dispatch, getState) =>
       discount: data.product.discount || 0,
       image: data.product.images && data.product.images.length > 0 ? data.product.images[0].url : "/placeholder.png",
       stock: data.product.availabilityStatus === "Available" ? 1 : 0,
+      vendorName: data.product.user?.name || "N/A",
+      vendorId: data.product.user?._id || data.product.user,
       quantity: finalQuantity,
     },
   });

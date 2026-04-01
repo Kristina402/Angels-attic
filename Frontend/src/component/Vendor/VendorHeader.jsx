@@ -27,10 +27,21 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import MessageOutlinedIcon from "@mui/icons-material/MessageOutlined";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../actions/userAction";
-import { getNotifications, markNotificationAsRead, clearErrors } from "../../actions/notificationAction";
+import {
+  getNotifications,
+  markNotificationAsRead,
+  clearErrors,
+  clearAllNotifications,
+  markAllNotificationsRead,
+} from "../../actions/notificationAction";
 import { useAlert } from "react-alert";
 import { useHistory } from "react-router-dom";
-import { MARK_AS_READ_RESET } from "../../constants/notificationConstants";
+import {
+  MARK_AS_READ_RESET,
+  CLEAR_ALL_NOTIFICATIONS_RESET,
+  MARK_ALL_READ_RESET,
+} from "../../constants/notificationConstants";
+import { Button } from "@mui/material";
 
 const useStyles = makeStyles((theme) => ({
   header: {
@@ -138,6 +149,15 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "space-between",
     borderBottom: "1px solid #f1f5f9",
   },
+  clearAllBtn: {
+    fontSize: "0.75rem !important",
+    textTransform: "none !important",
+    color: "#EC4899 !important",
+    fontWeight: "600 !important",
+    "&:hover": {
+      backgroundColor: "#FDF2F8 !important",
+    },
+  },
   notificationItem: {
     padding: "1rem 1.25rem !important",
     borderBottom: "1px solid #f8fafc",
@@ -177,7 +197,7 @@ const VendorHeader = ({ title }) => {
   const alert = useAlert();
   const history = useHistory();
   const { user } = useSelector((state) => state.userData);
-  const { notifications, error, isUpdated } = useSelector((state) => state.notifications);
+  const { notifications, error, isUpdated, isDeleted, isAllMarked } = useSelector((state) => state.notifications);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [notifAnchorEl, setNotifAnchorEl] = useState(null);
@@ -197,7 +217,15 @@ const VendorHeader = ({ title }) => {
       dispatch(getNotifications());
       dispatch({ type: MARK_AS_READ_RESET });
     }
-  }, [dispatch, error, alert, isUpdated]);
+    if (isDeleted) {
+      dispatch(getNotifications());
+      dispatch({ type: CLEAR_ALL_NOTIFICATIONS_RESET });
+    }
+    if (isAllMarked) {
+      dispatch(getNotifications());
+      dispatch({ type: MARK_ALL_READ_RESET });
+    }
+  }, [dispatch, error, alert, isUpdated, isDeleted, isAllMarked]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -223,6 +251,17 @@ const VendorHeader = ({ title }) => {
     if (notification.link) {
       history.push(notification.link);
     }
+  };
+
+  const handleClearAll = () => {
+    dispatch(clearAllNotifications());
+    alert.success("All notifications cleared");
+    handleNotifClose();
+  };
+
+  const handleMarkAllRead = () => {
+    dispatch(markAllNotificationsRead());
+    handleNotifClose();
   };
 
   const logoutHandler = async () => {
@@ -303,10 +342,10 @@ const VendorHeader = ({ title }) => {
         >
           <Box className={classes.notificationHeader}>
             <Typography sx={{ fontWeight: 800, color: "#1a1a1a" }}>Notifications</Typography>
-            {unreadCount > 0 && (
-              <Typography sx={{ fontSize: "0.75rem", fontWeight: 700, color: "#EC4899", cursor: "pointer" }}>
-                {unreadCount} New
-              </Typography>
+            {notifications && notifications.length > 0 && (
+              <Button className={classes.clearAllBtn} onClick={handleClearAll}>
+                Clear All
+              </Button>
             )}
           </Box>
           <List sx={{ p: 0, maxHeight: "400px", overflowY: "auto" }}>
@@ -343,6 +382,17 @@ const VendorHeader = ({ title }) => {
               </Box>
             )}
           </List>
+          {notifications && notifications.length > 0 && (
+            <Box sx={{ p: 1, textAlign: "center", borderTop: "1px solid #f1f5f9" }}>
+              <Button 
+                fullWidth 
+                sx={{ textTransform: "none", color: "#64748b", fontWeight: 600, fontSize: "0.85rem" }}
+                onClick={handleMarkAllRead}
+              >
+                Mark all as read
+              </Button>
+            </Box>
+          )}
         </Menu>
 
         <Box className={classes.vendorProfile} onClick={handleClick}>
