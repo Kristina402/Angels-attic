@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAlert } from "react-alert";
 import "./Cart.css";
 import { useSelector, useDispatch } from "react-redux";
 import { addItemToCart, removeItemFromCart } from "../../actions/cartAction";
 import { Typography, Button, Box, Divider, Container, Grid } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import MetaData from "../layouts/MataData/MataData";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import CartItem from "./CartItem";
 import { motion, AnimatePresence } from "framer-motion";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
@@ -21,7 +22,23 @@ const Cart = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const { cartItems } = useSelector((state) => state.cart);
+  const location = useLocation();
+  const alert = useAlert();
   const { isAuthenticated } = useSelector((state) => state.userData);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    if (queryParams.get("payment") === "failed") {
+      alert.error("Payment Failed. Please try again.");
+      
+      // Clear the query parameter to avoid showing the alert again on refresh
+      const { pathname, search } = location;
+      const params = new URLSearchParams(search);
+      params.delete("payment");
+      const newSearch = params.toString() ? `?${params.toString()}` : "";
+      history.replace({ pathname, search: newSearch });
+    }
+  }, [location, alert, history]);
 
   const increaseQuantity = (id, quantity, stock) => {
     const newQty = quantity + 1;

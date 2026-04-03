@@ -12,12 +12,13 @@ exports.processEsewaPayment = asyncWrapper(async (req, res, next) => {
   const product_code = process.env.ESEWA_PRODUCT_CODE || "EPAYTEST";
   const secret_key = process.env.ESEWA_SECRET_KEY || "8gBm/:&EnhH.1/q(";
 
-  // Format values precisely to ensure backend and frontend match
-  const t_amount = String(total_amount).trim();
+  // eSewa v2 signature is extremely sensitive to formatting.
+  // We force the amount to a string representation with exactly one decimal place
+  const t_amount = Number(total_amount).toFixed(1);
   const t_uuid = String(transaction_uuid).trim();
   const p_code = String(product_code).trim();
 
-  // eSewa v2 signature message: total_amount=VAL,transaction_uuid=VAL,product_code=VAL
+  // eSewa v2 signature message format: total_amount=VAL,transaction_uuid=VAL,product_code=VAL
   const message = `total_amount=${t_amount},transaction_uuid=${t_uuid},product_code=${p_code}`;
   
   // Use CryptoJS as recommended in eSewa documentation
@@ -33,6 +34,10 @@ exports.processEsewaPayment = asyncWrapper(async (req, res, next) => {
     success: true,
     signature,
     product_code: p_code,
+    total_amount: t_amount, // Return the exact string signed
+    transaction_uuid: t_uuid,
+    gateway_url: process.env.ESEWA_GATEWAY_URL,
+    status_check_url: process.env.ESEWA_STATUS_CHECK_URL,
     success_url: process.env.ESEWA_SUCCESS_URL,
     failure_url: process.env.ESEWA_FAILURE_URL,
   });
@@ -49,23 +54,10 @@ exports.esewaSuccess = asyncWrapper(async (req, res, next) => {
   // Decode the data
   const decodedData = JSON.parse(Buffer.from(data, 'base64').toString('utf-8'));
   
-  // Decoded data structure:
-  // {
-  //   "status": "COMPLETE",
-  //   "signature": "...",
-  //   "transaction_code": "...",
-  //   "total_amount": "110.0",
-  //   "transaction_uuid": "...",
-  //   "product_code": "...",
-  //   "success_url": "...",
-  //   "signed_field_names": "..."
-  // }
-
   if (decodedData.status === "COMPLETE") {
     try {
       // Perform transaction verification via status API
-      // Since it's UAT/Test context, we use rc-epay.esewa.com.np. For production, use epay.esewa.com.np
-      const verificationUrl = `https://rc-epay.esewa.com.np/api/epay/transaction/status/?product_code=${decodedData.product_code}&total_amount=${decodedData.total_amount}&transaction_uuid=${decodedData.transaction_uuid}`;
+      const verificationUrl = `${process.env.ESEWA_STATUS_CHECK_URL}?product_code=${decodedData.product_code}&total_amount=${decodedData.total_amount}&transaction_uuid=${decodedData.transaction_uuid}`;
       
       const response = await axios.get(verificationUrl);
       

@@ -50,6 +50,15 @@ const orderSchema = new mongoose.Schema({
         ref: "Product",
         required: true,
       },
+      vendorId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "userModel",
+        required: true,
+      },
+      vendorName: {
+        type: String,
+        required: true,
+      },
     },
   ],
   user: {

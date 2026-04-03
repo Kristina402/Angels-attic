@@ -224,10 +224,11 @@ function ConfirmOrder() {
         const orderId = orderResponse.order._id;
 
         // Get eSewa signature
-        const formattedAmount = Math.floor(totalPrice).toString();
+        // We use .toFixed(1) to match the backend formatting
+        const formattedAmount = Number(totalPrice).toFixed(1);
         const esewaData = {
           amount: formattedAmount,
-          tax_amount: "0",
+          tax_amount: "0.0",
           total_amount: formattedAmount,
           transaction_uuid: orderId.toString(),
         };
@@ -237,16 +238,16 @@ function ConfirmOrder() {
         // Submit form to eSewa
         const form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", "https://rc-epay.esewa.com.np/api/epay/main/v2/form");
+        form.setAttribute("action", esewaResponse.gateway_url);
 
         const fields = {
-          amount: esewaData.amount,
-          tax_amount: esewaData.tax_amount,
-          total_amount: esewaData.total_amount,
-          transaction_uuid: esewaData.transaction_uuid,
+          amount: esewaResponse.total_amount,
+          tax_amount: "0.0",
+          product_service_charge: "0.0",
+          product_delivery_charge: "0.0",
+          total_amount: esewaResponse.total_amount,
+          transaction_uuid: esewaResponse.transaction_uuid,
           product_code: esewaResponse.product_code,
-          product_service_charge: "0",
-          product_delivery_charge: "0",
           success_url: esewaResponse.success_url,
           failure_url: esewaResponse.failure_url,
           signed_field_names: "total_amount,transaction_uuid,product_code",

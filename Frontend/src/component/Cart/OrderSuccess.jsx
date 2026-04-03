@@ -10,6 +10,7 @@ import {
   DialogActions,
   Chip
 } from "@material-ui/core";
+import { useAlert } from "react-alert";
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { CREATE_ORDER_RESET } from "../../constants/orderConstant";
@@ -87,6 +88,7 @@ function OrderSuccess() {
   const classes = useStyles();
   const location = useLocation();
   const dispatch = useDispatch();
+  const alert = useAlert();
   const queryParams = new URLSearchParams(location.search);
   const orderId = queryParams.get("id");
   const totalAmount = queryParams.get("total");
@@ -96,10 +98,11 @@ function OrderSuccess() {
   useEffect(() => {
     if (orderId) {
       setOpen(true);
+      alert.success("Payment Successful! Your order has been placed.");
     }
     // Reset order state so user can place new order later
     dispatch({ type: CREATE_ORDER_RESET });
-  }, [orderId, dispatch]);
+  }, [orderId, dispatch, alert]);
 
   const handleClose = () => {
     setOpen(false);

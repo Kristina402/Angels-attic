@@ -18,9 +18,22 @@ exports.newOrder = asyncWrapper(async (req, res, next) => {
     totalPrice,
   } = req.body;
 
+  // Enhance order items with vendor info from the database for security and accuracy
+  const productIds = orderItems.map((item) => item.productId);
+  const products = await Product.find({ _id: { $in: productIds } }).populate("user", "name");
+
+  const finalOrderItems = orderItems.map((item) => {
+    const product = products.find((p) => p._id.toString() === item.productId.toString());
+    return {
+      ...item,
+      vendorId: product ? product.user._id : item.vendorId,
+      vendorName: product ? product.user.name : item.vendorName || "N/A",
+    };
+  });
+
   const order = await Order.create({
     shippingInfo,
-    orderItems,
+    orderItems: finalOrderItems,
     paymentInfo,
     itemsPrice,
     taxPrice,
@@ -42,16 +55,13 @@ exports.newOrder = asyncWrapper(async (req, res, next) => {
   }
 
   // Create notifications for vendors
-  const productIds = orderItems.map(item => item.productId);
-  const products = await Product.find({ _id: { $in: productIds } });
-  
   // Group products by vendor to avoid duplicate notifications per order
   const vendorMap = new Map();
   products.forEach(p => {
-    if (!vendorMap.has(p.user.toString())) {
-      vendorMap.set(p.user.toString(), []);
+    if (!vendorMap.has(p.user._id.toString())) {
+      vendorMap.set(p.user._id.toString(), []);
     }
-    vendorMap.get(p.user.toString()).push(p.name);
+    vendorMap.get(p.user._id.toString()).push(p.name);
   });
 
   for (const [vendorId, productNames] of vendorMap) {

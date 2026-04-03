@@ -460,8 +460,9 @@ const PaymentComponent = () => {
 
         // Calculate final amount numerically
         const numericTotalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-        const numericDiscountedPrice = generateDiscountedPrice(numericTotalPrice);
-        const numericFinal = numericDiscountedPrice;
+        // Important: eSewa v2 is very sensitive to decimal places in signature. 
+        // We ensure it has exactly one decimal place (e.g. 100.0)
+        const numericFinal = Number(numericTotalPrice).toFixed(1); 
 
         // Get eSewa signature
         const esewaData = {
@@ -478,16 +479,16 @@ const PaymentComponent = () => {
         // Submit form to eSewa
         const form = document.createElement("form");
         form.setAttribute("method", "POST");
-        form.setAttribute("action", "https://rc-epay.esewa.com.np/api/epay/main/v2/form");
+        form.setAttribute("action", esewaResponse.gateway_url);
 
         const fields = {
-          amount: esewaData.amount,
-          tax_amount: esewaData.tax_amount,
-          total_amount: esewaData.total_amount,
-          transaction_uuid: esewaData.transaction_uuid,
+          amount: esewaResponse.total_amount,
+          tax_amount: "0.0",
+          total_amount: esewaResponse.total_amount,
+          transaction_uuid: esewaResponse.transaction_uuid,
           product_code: esewaResponse.product_code,
-          product_service_charge: 0,
-          product_delivery_charge: 0,
+          product_service_charge: "0.0",
+          product_delivery_charge: "0.0",
           success_url: esewaResponse.success_url,
           failure_url: esewaResponse.failure_url,
           signed_field_names: "total_amount,transaction_uuid,product_code",
