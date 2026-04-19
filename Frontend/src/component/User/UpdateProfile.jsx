@@ -45,12 +45,14 @@ function UpdateProfile() {
   const handleAvatarChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+      setAvatar(file);
       const reader = new FileReader();
-      reader.readAsDataURL(file);
       reader.onload = () => {
-        setAvatarPreview(reader.result);
-        setAvatar(reader.result);
+        if (reader.readyState === 2) {
+          setAvatarPreview(reader.result);
+        }
       };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -62,11 +64,12 @@ function UpdateProfile() {
   const UpdateProfileSubmitHandler = (e) => {
     e.preventDefault();
 
+    const cleanedPhone = phone.trim().replace(/^(\+977|977|\+91|91)/, "").replace(/\s+/g, "");
     const mobileRegex = /^[6-9]\d{9}$/;
     const landlineRegex = /^0\d{7,9}$/;
-
-    if (!mobileRegex.test(phone) && !landlineRegex.test(phone)) {
-      alert.error("Enter a valid mobile or landline number.");
+    
+    if (!mobileRegex.test(cleanedPhone) && !landlineRegex.test(cleanedPhone)) {
+      alert.error("Enter a valid 10-digit mobile number or a landline number starting with 0.");
       return;
     }
 

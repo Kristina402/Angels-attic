@@ -169,11 +169,12 @@ const Shipping = () => {
       return;
     }
 
+    const cleanedPhone = phoneNo.trim().replace(/^(\+977|977|\+91|91)/, "").replace(/\s+/g, "");
     const mobileRegex = /^[6-9]\d{9}$/;
     const landlineRegex = /^0\d{7,9}$/;
 
-    if (!mobileRegex.test(phoneNo) && !landlineRegex.test(phoneNo)) {
-      alert.error("Enter a valid mobile or landline number.");
+    if (!mobileRegex.test(cleanedPhone) && !landlineRegex.test(cleanedPhone)) {
+      alert.error("Enter a valid 10-digit mobile number or a landline number starting with 0.");
       return;
     }
 
@@ -185,8 +186,7 @@ const Shipping = () => {
         email,
         fullName,
         deliveryType,
-        deliveryFee,
-        country: "India" // Default
+        deliveryFee
       })
     );
     history.push("/order/confirm");

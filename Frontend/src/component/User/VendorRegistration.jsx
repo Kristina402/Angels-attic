@@ -64,11 +64,12 @@ const VendorRegistration = () => {
       return;
     }
 
+    const cleanedPhone = phone.trim().replace(/^(\+977|977|\+91|91)/, "").replace(/\s+/g, "");
     const mobileRegex = /^[6-9]\d{9}$/;
     const landlineRegex = /^0\d{7,9}$/;
-
-    if (!mobileRegex.test(phone) && !landlineRegex.test(phone)) {
-      alert.error("Enter a valid mobile or landline number.");
+    
+    if (!mobileRegex.test(cleanedPhone) && !landlineRegex.test(cleanedPhone)) {
+      alert.error("Enter a valid 10-digit mobile number or a landline number starting with 0.");
       return;
     }
 
@@ -86,8 +87,8 @@ const VendorRegistration = () => {
     }
 
     if (success) {
-      alert.success("Vendor registration successful! Welcome to Angels Attic.");
-      history.push("/vendor/dashboard");
+      alert.success("Vendor registration successful! Welcome to Angels Attic. Your account is pending admin approval.");
+      history.push("/vendor/pending");
     }
   }, [dispatch, error, alert, success, message, history]);
 
