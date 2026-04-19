@@ -17,17 +17,6 @@ function PrivateRoute({ component: Component, render, ...rest }) {
     return <Redirect to="/login" />;
   }
 
-  if (user.role === "admin") {
-    return <Redirect to="/admin-dashboard" />;
-  }
-
-  if (user.role === "vendor") {
-    if (user.isApproved === false) {
-      return <Redirect to="/vendor/pending" />;
-    }
-    return <Redirect to="/vendor/dashboard" />;
-  }
-
   return (
     <Route
       {...rest}
@@ -78,11 +67,13 @@ export function VendorRoute({ component: Component, render, ...rest }) {
     return <Redirect to="/login" />;
   }
 
-  if (user.role !== "vendor") {
+  console.log("Logged in user at VendorRoute:", user?.role);
+  if (user.role !== "vendor" && user.role !== "admin") {
+    console.log("Access denied. Redirecting to home.");
     return <Redirect to="/" />;
   }
 
-  if (user.isApproved === false) {
+  if (user.role === "vendor" && user.isApproved === false) {
     return <Redirect to="/vendor/pending" />;
   }
 
@@ -106,13 +97,13 @@ export function PublicRoute({ component: Component, render, ...rest }) {
   }
 
   if (isAuthenticated) {
+    console.log("Logged in user at PublicRoute:", user?.role);
     if (user?.role === "admin") {
       return <Redirect to="/admin-dashboard" />;
     }
     if (user?.role === "vendor" && user.isApproved === false) {
       return <Redirect to="/vendor/pending" />;
     }
-    // Approved vendors can browse public pages (home, products, etc.)
   }
 
   return (
