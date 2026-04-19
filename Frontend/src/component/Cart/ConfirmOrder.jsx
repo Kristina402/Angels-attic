@@ -173,7 +173,9 @@ function ConfirmOrder() {
       setIsProcessing(false);
     }
     if (success && order) {
+      alert.success("Order placed successfully");
       history.push(`/success?id=${order.order._id}&total=${order.order.totalPrice}&status=${order.order.orderStatus}`);
+      dispatch({ type: "CREATE_ORDER_RESET" });
     }
   }, [dispatch, error, alert, success, order, history]);
 
@@ -184,14 +186,14 @@ function ConfirmOrder() {
     return acc + currItem.quantity * currItem.price;
   }, 0);
 
-  const shippingCharges = subtotal > 5000 ? 0 : 200;
+  const shippingCharges = shippingInfo.deliveryFee !== undefined ? shippingInfo.deliveryFee : (shippingInfo.deliveryType === "pickup" ? 120 : 170);
   const totalPrice = subtotal + shippingCharges;
 
   const address = [
     shippingInfo.address,
     shippingInfo.city,
     shippingInfo.state,
-    shippingInfo.country
+    shippingInfo.country === 'India' ? null : shippingInfo.country
   ].filter(Boolean).join(", ") + (shippingInfo.pinCode ? ` - ${shippingInfo.pinCode}` : "");
 
   const processOrder = async () => {
@@ -206,7 +208,7 @@ function ConfirmOrder() {
       };
 
       if (paymentMethod === "ESEWA") {
-        // Create pending order first for eSewa
+        // Prepare order data but don't create it yet
         const orderData = {
           shippingInfo,
           orderItems: cartItems,
@@ -218,19 +220,20 @@ function ConfirmOrder() {
             status: "pending",
             method: "eSewa"
           },
+          paidAt: new Date(), // Placeholder, backend sets real date
         };
 
-        const { data: orderResponse } = await axios.post("/api/v1/order/new", orderData, config);
-        const orderId = orderResponse.order._id;
+        // Initiate eSewa Payment (stores data in Payment collection)
+        const { data: initResponse } = await axios.post("/api/v1/payment/esewa/initiate", { orderData }, config);
+        const transactionId = initResponse.transaction_uuid;
 
         // Get eSewa signature
-        // We use .toFixed(1) to match the backend formatting
         const formattedAmount = Number(totalPrice).toFixed(1);
         const esewaData = {
           amount: formattedAmount,
           tax_amount: "0.0",
           total_amount: formattedAmount,
-          transaction_uuid: orderId.toString(),
+          transaction_uuid: transactionId.toString(),
         };
 
         const { data: esewaResponse } = await axios.post("/api/v1/payment/esewa/process", esewaData, config);
@@ -405,7 +408,9 @@ function ConfirmOrder() {
                 <Typography>{dispalyMoney(subtotal)}</Typography>
               </Box>
               <Box className={classes.summaryItem}>
-                <Typography>Shipping Charges</Typography>
+                <Typography>
+                  Delivery Fee ({shippingInfo.deliveryType === "home" ? "Home Delivery" : "Courier Pickup"})
+                </Typography>
                 <Typography>{dispalyMoney(shippingCharges)}</Typography>
               </Box>
               <Divider />
