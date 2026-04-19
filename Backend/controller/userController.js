@@ -5,29 +5,37 @@ const Notification = require("../models/notificationModel");
 const sendJWtToken = require("../utils/JwtToken");
 const sendEmail = require("../utils/sendEmail");
 const crypto = require("crypto");
-const cloudinary = require("cloudinary");
+// const cloudinary = require("cloudinary");
+const fs = require("fs");
+const path = require("path");
 
 // signUp controller>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 exports.registerUser = asyncWrapper(async (req, res) => {
-  const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
-    folder: "Avatar", // this folder cloudainry data base manage by us
-    width: 150,
-    crop: "scale",
-  });
+  const avatarData = req.file
+    ? {
+      public_id: req.file.filename,
+      url: `/uploads/${req.file.filename}`,
+    }
+    : {
+      public_id: "default_avatar",
+      url: "https://res.cloudinary.com/dtzzoaiyt/image/upload/v1/Avatar/default_avatar",
+    };
 
   const { name, email, password } = req.body;
-  const user = await userModel.create({
-    name,
-    password,
-    email,
-    avatar: {
-      public_id: myCloud.public_id,
-      url: myCloud.secure_url,
-    },
-  });
-
-  // sending the res and staus code along with token using sendJWtToken method
-  sendJWtToken(user, 201, res);
+  try {
+    const user = await userModel.create({
+      name,
+      password,
+      email,
+      avatar: avatarData,
+    });
+    console.log("User registered successfully:", user.email);
+    // sending the res and staus code along with token using sendJWtToken method
+    sendJWtToken(user, 201, res);
+  } catch (error) {
+    console.error("Error registering user:", error);
+    return next(new ErrorHandler(error.message, 400));
+  }
 });
 
 // Vendor Registration Controller
@@ -48,10 +56,15 @@ exports.registerVendor = asyncWrapper(async (req, res, next) => {
     storeName,
     address,
     role: "vendor",
-    isApproved: true, // Vendors are now auto-approved with basic verification
+    status: "Active",
+    isApproved: false, // Vendors must be approved by admin
     avatar: {
       public_id: avatarData.public_id,
       url: avatarData.url,
+    },
+    kycDocument: {
+      public_id: "pending",
+      url: "pending"
     },
   });
 
@@ -66,7 +79,11 @@ exports.registerVendor = asyncWrapper(async (req, res, next) => {
     });
   }
 
-  sendJWtToken(user, 201, res);
+  res.status(201).json({
+    success: true,
+    user,
+    message: "Vendor registered successfully. Pending admin approval."
+  });
 });
 
 // Login User >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -90,6 +107,10 @@ exports.loginUser = asyncWrapper(async (req, res, next) => {
   // when password not mathced with original hashed password
   if (!isPasswordMatched) {
     return next(new ErrorHandler("Invalid email or password", 401));
+  }
+
+  if (user.role === "vendor" && !user.isApproved) {
+    return next(new ErrorHandler("Your account is pending admin approval.", 401));
   }
 
   sendJWtToken(user, 200, res);
@@ -232,7 +253,7 @@ exports.getUserDetails = asyncWrapper(async (req, res) => {
 // update User password>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 exports.updatePassword = asyncWrapper(async (req, res, next) => {
   const user = await userModel.findById(req.user.id).select("+password"); // + password because pass not allowed in shcema to acsess
-   
+
   const isPasswordMatched = await user.comparePassword(req.body.oldPassword); // user.comparePassword this method define in user Schema  for comapre given normal pass to savde hash pass
   // when user not found
   if (!isPasswordMatched) {
@@ -261,22 +282,22 @@ exports.updateProfile = asyncWrapper(async (req, res, next) => {
   };
 
   // if avatar not empty then
-  if (req.body.avatar !== "") {
+  // if a new avatar file is uploaded
+  if (req.file) {
     const user = await userModel.findById(req.user.id);
     const imageId = user.avatar.public_id;
 
-    //  await cloudinary.v2.uploader.destroy(imageId); // delete old Image from cloudnairy
-    await cloudinary.v2.uploader.destroy(imageId);
-
-    const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
-      folder: "Avatar", // this folder cloudainry data base manage by us
-      width: 150,
-      crop: "scale",
-    });
+    // Delete old local file if it exists
+    if (user.avatar.url.startsWith("/uploads/")) {
+      const oldImagePath = path.join(__dirname, "../", user.avatar.url);
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+    }
 
     newUserData.avatar = {
-      public_id: myCloud.public_id, // id for img
-      url: myCloud.secure_url, // new User data
+      public_id: req.file.filename,
+      url: `/uploads/${req.file.filename}`,
     };
   }
 
@@ -352,9 +373,13 @@ exports.deleteUser = asyncWrapper(async (req, res, next) => {
     );
   }
 
-  // delete iamge from cloud as well
-  const imageId = user.avatar.public_id;
-  await cloudinary.v2.uploader.destroy(imageId);
+  // delete image from local storage if applicable
+  if (user.avatar.url.startsWith("/uploads/")) {
+    const imagePath = path.join(__dirname, "../", user.avatar.url);
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
+  }
 
   // if user founded the just remove from database
   await user.deleteOne();

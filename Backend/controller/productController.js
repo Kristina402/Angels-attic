@@ -5,7 +5,9 @@ const Notification = require("../models/notificationModel");
 const ErrorHandler = require("../utils/errorHandler");
 const asyncWrapper = require("../middleware/asyncWrapper");
 const ApiFeatures = require("../utils/apiFeatures");
-const cloudinary = require("cloudinary");
+// const cloudinary = require("cloudinary");
+const fs = require("fs");
+const path = require("path");
 
 const validateImages = (images) => {
   const allowedExtensions = ["jpg", "jpeg", "png"];
@@ -23,32 +25,16 @@ const validateImages = (images) => {
 
 // Create Product -- Admin
 exports.createProduct = asyncWrapper(async (req, res, next) => {
-  let images = [];
-
-  if (typeof req.body.images === "string") {
-    images.push(req.body.images);
-  } else {
-    images = req.body.images;
-  }
-
-  if (images.length === 0) {
+  if (!req.files || req.files.length === 0) {
     return next(new ErrorHandler("Please Upload Product Images", 400));
   }
-
-  if (!validateImages(images)) {
-    return next(new ErrorHandler("Only JPG, JPEG, and PNG formats are allowed", 400));
-  }
-
+  
   const imagesLinks = [];
 
-  for (let i = 0; i < images.length; i++) {
-    const result = await cloudinary.v2.uploader.upload(images[i], {
-      folder: "products",
-    });
-
+  for (let i = 0; i < req.files.length; i++) {
     imagesLinks.push({
-      public_id: result.public_id,
-      url: result.secure_url,
+      public_id: req.files[i].filename,
+      url: `/uploads/${req.files[i].filename}`,
     });
   }
 
@@ -58,12 +44,17 @@ exports.createProduct = asyncWrapper(async (req, res, next) => {
   // All products (admin or vendor) are approved immediately
   req.body.isApproved = true;
 
-  const product = await Product.create(req.body);
-
-  res.status(201).json({
-    success: true,
-    product,
-  });
+  try {
+    const product = await Product.create(req.body);
+    console.log("Product created successfully:", product._id);
+    res.status(201).json({
+      success: true,
+      product,
+    });
+  } catch (error) {
+    console.error("Error creating product:", error);
+    return next(new ErrorHandler(error.message, 400));
+  }
 });
 
 // Get All Product
@@ -129,43 +120,34 @@ exports.updateProduct = asyncWrapper(async (req, res, next) => {
     return next(new ErrorHandler("Product not found", 404));
   }
 
-  // Check ownership if vendor
-  if (req.user.role === "vendor" && product.user.toString() !== req.user.id) {
+  // Check ownership: non-admins can only update their own products
+  if (req.user.role !== "admin" && product.user.toString() !== req.user.id) {
     return next(new ErrorHandler("You are not allowed to update this product", 403));
   }
 
-  // Images Start Here
-  let images = [];
+  const imagesLinks = [];
 
-  if (typeof req.body.images === "string") {
-    images.push(req.body.images);
-  } else {
-    images = req.body.images;
-  }
-
-  if (images !== undefined && images.length > 0) {
-    if (!validateImages(images)) {
-      return next(new ErrorHandler("Only JPG, JPEG, and PNG formats are allowed", 400));
-    }
-    // Deleting Images From Cloudinary
+  // Handle new file uploads from multer
+  if (req.files && req.files.length > 0) {
+    // Delete old images from local storage if they exist
     for (let i = 0; i < product.images.length; i++) {
-      await cloudinary.v2.uploader.destroy(product.images[i].public_id);
+        const imagePath = path.join(__dirname, "../", product.images[i].url);
+        if (fs.existsSync(imagePath) && product.images[i].url.startsWith("/uploads/")) {
+            fs.unlinkSync(imagePath);
+        }
     }
 
-    const imagesLinks = [];
-
-    for (let i = 0; i < images.length; i++) {
-      const result = await cloudinary.v2.uploader.upload(images[i], {
-        folder: "products",
-      });
-
+    for (let i = 0; i < req.files.length; i++) {
       imagesLinks.push({
-        public_id: result.public_id,
-        url: result.secure_url,
+        public_id: req.files[i].filename,
+        url: `/uploads/${req.files[i].filename}`,
       });
     }
-
     req.body.images = imagesLinks;
+  } else {
+      // If no new images uploaded, keep the old ones
+      // Note: In some implementations, the frontend might send back existing image URLs
+      // but here we just leave req.body.images untouched or set it if needed.
   }
 
   const oldApproved = product.isApproved;
@@ -199,17 +181,20 @@ exports.deleteProduct = asyncWrapper(async (req, res, next) => {
     return next(new ErrorHandler("Product not found", 404));
   }
 
-  // Check ownership if vendor
-  if (req.user.role === "vendor" && product.user.toString() !== req.user.id) {
+  // Check ownership: non-admins can only delete their own products
+  if (req.user.role !== "admin" && product.user.toString() !== req.user.id) {
     return next(new ErrorHandler("You are not allowed to delete this product", 403));
   }
 
-  // Deleting Images From Cloudinary
+  // Deleting Images From local storage
   for (let i = 0; i < product.images.length; i++) {
-    await cloudinary.v2.uploader.destroy(product.images[i].public_id);
+    const imagePath = path.join(__dirname, "../", product.images[i].url);
+    if (fs.existsSync(imagePath) && product.images[i].url.startsWith("/uploads/")) {
+        fs.unlinkSync(imagePath);
+    }
   }
 
-  await product.remove();
+  await product.deleteOne();
 
   res.status(200).json({
     success: true,
@@ -365,7 +350,8 @@ exports.getAdminProducts = asyncWrapper(async (req, res, next) => {
   let products;
   if (req.user.role === "admin") {
     products = await Product.find();
-  } else if (req.user.role === "vendor") {
+  } else {
+    // Both 'vendor' and 'user' roles see their own products
     products = await Product.find({ user: req.user._id });
   }
 
@@ -375,9 +361,14 @@ exports.getAdminProducts = asyncWrapper(async (req, res, next) => {
   });
 });
 
-// Get Vendor Products
+// Get Vendor Products -- Vendor/Admin
 exports.getVendorProducts = asyncWrapper(async (req, res, next) => {
-  const products = await Product.find({ user: req.user._id });
+  let products;
+  if (req.user.role === "admin") {
+    products = await Product.find();
+  } else {
+    products = await Product.find({ user: req.user._id });
+  }
 
   res.status(200).json({
     success: true,
@@ -385,12 +376,18 @@ exports.getVendorProducts = asyncWrapper(async (req, res, next) => {
   });
 });
 
-// Get All Reviews for a Vendor's Products
+// Get All Reviews for a Vendor's Products -- Vendor/Admin
 exports.getVendorReviews = asyncWrapper(async (req, res, next) => {
   // Use aggregation to find all reviews across all products that belong to this vendor
   // This is more performant than fetching all products and manually filtering
+  
+  let matchQuery = { user: req.user._id };
+  if (req.user.role === "admin") {
+    matchQuery = {}; // Admin sees all reviews
+  }
+
   const reviews = await Product.aggregate([
-    { $match: { user: req.user._id } },
+    { $match: matchQuery },
     { $unwind: "$reviews" },
     {
       $project: {

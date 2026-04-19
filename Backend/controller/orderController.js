@@ -23,11 +23,19 @@ exports.newOrder = asyncWrapper(async (req, res, next) => {
   const products = await Product.find({ _id: { $in: productIds } }).populate("user", "name");
 
   const finalOrderItems = orderItems.map((item) => {
+    if (!item.productId) return item;
     const product = products.find((p) => p._id.toString() === item.productId.toString());
+    const itemPrice = item.price * item.quantity;
+    const isPaid = paymentInfo.status === "succeeded";
+    const commission = isPaid ? itemPrice * 0.1 : 0;
+    const netEarning = isPaid ? itemPrice - commission : 0;
+
     return {
       ...item,
       vendorId: product ? product.user._id : item.vendorId,
       vendorName: product ? product.user.name : item.vendorName || "N/A",
+      commission,
+      netEarning,
     };
   });
 
@@ -122,16 +130,21 @@ exports.myOrders = asyncWrapper(async (req, res, next) => {
   });
 });
 
-// get Vendor Orders
+// get Vendor Orders -- Vendor/Admin
 exports.getVendorOrders = asyncWrapper(async (req, res, next) => {
-  // Find all products by this vendor
-  const vendorProducts = await Product.find({ user: req.user._id });
-  const productIds = vendorProducts.map(p => p._id);
+  let orders;
+  if (req.user.role === "admin") {
+    orders = await Order.find();
+  } else {
+    // Find all products by this vendor
+    const vendorProducts = await Product.find({ user: req.user._id });
+    const productIds = vendorProducts.map(p => p._id);
 
-  // Find all orders that contain at least one of these products
-  const orders = await Order.find({
-    "orderItems.productId": { $in: productIds }
-  });
+    // Find all orders that contain at least one of these products
+    orders = await Order.find({
+      "orderItems.productId": { $in: productIds }
+    });
+  }
 
   res.status(200).json({
     success: true,
@@ -212,6 +225,15 @@ exports.updateOrder = asyncWrapper(async (req, res, next) => {
 
   if (req.body.status === "Delivered") {
     order.deliveredAt = Date.now();
+    
+    // Calculate commission on delivery if not already calculated (e.g. for COD)
+    order.orderItems.forEach(item => {
+      if (!item.commission || item.commission === 0) {
+        const itemTotal = item.price * item.quantity;
+        item.commission = itemTotal * 0.1;
+        item.netEarning = itemTotal - item.commission;
+      }
+    });
   }
 
   // Restore stock if order is cancelled by Admin/Vendor
@@ -352,7 +374,7 @@ exports.deleteOrder = asyncWrapper(async (req, res, next) => {
     }
   }
 
-  await order.remove();
+  await order.deleteOne();
 
   res.status(200).json({
     success: true,
