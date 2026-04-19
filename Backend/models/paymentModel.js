@@ -8,12 +8,16 @@ const paymentSchema = new mongoose.Schema({
   order_id: {
     type: mongoose.Schema.ObjectId,
     ref: "Order",
-    required: true,
+    required: false, // Optional until order is created after payment success
   },
   user_id: {
     type: mongoose.Schema.ObjectId,
     ref: "userModel",
     required: true,
+  },
+  order_data: {
+    type: Object, // Store order details temporarily
+    required: false,
   },
   amount: {
     type: Number,
